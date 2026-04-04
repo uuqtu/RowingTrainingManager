@@ -1123,6 +1123,27 @@ ScoringPriority AssignmentDialog::buildPriority() const
     p.trainingMode = m_trainingCheck && m_trainingCheck->isChecked();
     p.crazyMode    = m_crazyCheck    && m_crazyCheck->isChecked();
     p.coOccurrence = m_coOccurrence;
+    // Apply expert parameters
+    p.rankWeights = {m_expertParams.rankWeights[0], m_expertParams.rankWeights[1],
+                     m_expertParams.rankWeights[2], m_expertParams.rankWeights[3],
+                     m_expertParams.rankWeights[4]};
+    p.whitelistBonus         = m_expertParams.whitelistBonus;
+    p.coOccurrenceFactor     = m_expertParams.coOccurrenceFactor;
+    p.obmannBonus            = m_expertParams.obmannBonus;
+    p.racingBeginnerPenalty  = m_expertParams.racingBeginnerPenalty;
+    p.strengthVarianceWeight = m_expertParams.strengthVarianceWeight;
+    p.compatSpecialSpecial   = m_expertParams.compatSpecialSpecial;
+    p.compatSpecialSelected  = m_expertParams.compatSpecialSelected;
+    p.strokeSmallGap1        = m_expertParams.strokeSmallGap1;
+    p.strokeSmallGap2        = m_expertParams.strokeSmallGap2;
+    p.strokeLargePerGap      = m_expertParams.strokeLargePerGap;
+    p.bodySmallGap1          = m_expertParams.bodySmallGap1;
+    p.bodySmallGap2          = m_expertParams.bodySmallGap2;
+    p.bodyLargePerGap        = m_expertParams.bodyLargePerGap;
+    p.grpAttrBonus           = m_expertParams.grpAttrBonus;
+    p.valAttrVarianceWeight  = m_expertParams.valAttrVarianceWeight;
+    p.fillBoatAttempts       = m_expertParams.fillBoatAttempts;
+    p.passAttempts           = m_expertParams.passAttempts;
     return p;
 }
 

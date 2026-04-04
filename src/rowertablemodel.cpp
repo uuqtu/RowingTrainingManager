@@ -36,7 +36,6 @@ QVariant RowerTableModel::data(const QModelIndex& index, int role) const {
         case ColStrength:          return r.strength() > 0 ? QString::number(r.strength()) : QString("—");
         case ColStrokeLength:      return Rower::strokeLengthToString(r.strokeLength());
         case ColBodySize:          return Rower::bodySizeToString(r.bodySize());
-        case ColAttr3:             return r.attr3() > 0 ? QString::number(r.attr3()) : QString("—");
         case ColAttrGrp1:          return r.attrGrp1() > 0 ? QString::number(r.attrGrp1()) : QString("—");
         case ColAttrGrp2:          return r.attrGrp2() > 0 ? QString::number(r.attrGrp2()) : QString("—");
         case ColAttrVal1:          return r.attrVal1() > 0 ? QString::number(r.attrVal1()) : QString("—");
@@ -60,7 +59,6 @@ QVariant RowerTableModel::headerData(int section, Qt::Orientation orientation, i
         case ColStrength:          return "Strength";
         case ColStrokeLength:      return "Stroke Length";
         case ColBodySize:          return "Body Size";
-        case ColAttr3:             return "Attr 3";
         case ColAttrGrp1:          return "Grp Attr 1";
         case ColAttrGrp2:          return "Grp Attr 2";
         case ColAttrVal1:          return "Val Attr 1";
@@ -120,7 +118,6 @@ bool RowerTableModel::setData(const QModelIndex& index, const QVariant& value, i
     case ColStrength:     r.setStrength(value.toInt());   break;
     case ColStrokeLength: r.setStrokeLength(strokeLengthFromString(value.toString())); break;
     case ColBodySize:     r.setBodySize(bodySizeFromString(value.toString())); break;
-    case ColAttr3:        r.setAttr3(value.toInt());      break;
     case ColAttrGrp1:     r.setAttrGrp1(value.toInt());  break;
     case ColAttrGrp2:     r.setAttrGrp2(value.toInt());  break;
     case ColAttrVal1:     r.setAttrVal1(value.toInt());   break;

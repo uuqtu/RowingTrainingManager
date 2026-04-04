@@ -77,7 +77,6 @@ double AssignmentGenerator::scoreTeam(const QList<int>& team,
     double compatPenaltyTotal = 0.0;
     double propScore = 0.0;
     double whitelistBonus = 0.0;
-    double attrVariance = 0.0;
 
     QList<const Rower*> members;
     for (int id : team)
@@ -87,7 +86,7 @@ double AssignmentGenerator::scoreTeam(const QList<int>& team,
     for (const Rower* r : members) {
         skillVals << Rower::skillToInt(r->skill());
         for (int wId : r->whitelist())
-            if (team.contains(wId)) whitelistBonus += 5.0;
+            if (team.contains(wId)) whitelistBonus += priority.whitelistBonus;
 
         if (boat.propulsionType() != PropulsionType::Both) {
             if (r->propulsionAbility() == boat.propulsionType()) propScore += 1.0;
@@ -95,11 +94,20 @@ double AssignmentGenerator::scoreTeam(const QList<int>& team,
         } else { propScore += 1.0; }
     }
 
-    // Pairwise compat penalty
+    // Pairwise compat penalty — using expert-adjustable values from priority
     for (int i = 0; i < members.size(); ++i)
-        for (int j = i + 1; j < members.size(); ++j)
-            compatPenaltyTotal += Rower::compatPenalty(members[i]->compatibility(),
-                                                        members[j]->compatibility());
+        for (int j = i + 1; j < members.size(); ++j) {
+            using CT = CompatibilityTier;
+            CT a = members[i]->compatibility(), b = members[j]->compatibility();
+            if (a == CT::Infinite || b == CT::Infinite) continue;
+            if (a == CT::Normal   || b == CT::Normal)   continue;
+            if (a == CT::Special  && b == CT::Special)
+                compatPenaltyTotal += priority.compatSpecialSpecial;
+            else if ((a == CT::Special && b == CT::Selected) ||
+                     (a == CT::Selected && b == CT::Special))
+                compatPenaltyTotal += priority.compatSpecialSelected;
+            // Selected+Selected: 0
+        }
 
     // Skill balance: average and variance
     double avgSkill = 0;
@@ -109,19 +117,6 @@ double AssignmentGenerator::scoreTeam(const QList<int>& team,
     for (int v : skillVals) var += (v - avgSkill) * (v - avgSkill);
     double skillBalance = -var / skillVals.size();   // higher = more balanced
 
-    // Attribute matching: minimise variance across attr3 (0 = not set, skip)
-    {
-        QList<int> vals;
-        for (const Rower* r : members) {
-            int v = r->attr3();
-            if (v > 0) vals << v;
-        }
-        if (vals.size() >= 2) {
-            double avg = 0; for (int v : vals) avg += v; avg /= vals.size();
-            double atv = 0; for (int v : vals) atv += (v - avg)*(v - avg);
-            attrVariance += atv / vals.size();
-        }
-    }
 
     double avgProp = propScore / members.size();
 
@@ -146,7 +141,7 @@ double AssignmentGenerator::scoreTeam(const QList<int>& team,
     if (boat.boatType() == BoatType::Racing) {
         for (const Rower* r : members) {
             if (r->skill() == SkillLevel::Student || r->skill() == SkillLevel::Beginner)
-                racingBeginnerPenalty += 8.0;   // large enough to strongly discourage
+                racingBeginnerPenalty += priority.racingBeginnerPenalty;   // large enough to strongly discourage
         }
     }
 
@@ -157,7 +152,7 @@ double AssignmentGenerator::scoreTeam(const QList<int>& team,
         bool hasObmann = false;
         for (const Rower* r : members)
             if (r->isObmann()) { hasObmann = true; break; }
-        if (hasObmann) obmannBonus = 20.0;
+        if (hasObmann) obmannBonus = priority.obmannBonus;
     }
 
     // ── Stroke length: same preferred, adjacent OK. Cap=2: non-adjacent = heavy penalty.
@@ -170,9 +165,9 @@ double AssignmentGenerator::scoreTeam(const QList<int>& team,
                 for (int j = i+1; j < svals.size(); ++j) {
                     int gap = qAbs(svals[i] - svals[j]);
                     if (boat.capacity() <= 2)
-                        strokePenalty += (gap > 1) ? 12.0 : (gap == 1 ? 3.0 : 0.0);
+                        strokePenalty += (gap > 1) ? priority.strokeSmallGap2 : (gap == 1 ? priority.strokeSmallGap1 : 0.0);
                     else
-                        strokePenalty += gap * 2.5;
+                        strokePenalty += gap * priority.strokeLargePerGap;
                 }
         }
     }
@@ -186,9 +181,9 @@ double AssignmentGenerator::scoreTeam(const QList<int>& team,
                 for (int j = i+1; j < bvals.size(); ++j) {
                     int gap = qAbs(bvals[i] - bvals[j]);
                     if (boat.capacity() <= 2)
-                        bodyPenalty += (gap > 1) ? 8.0 : (gap == 1 ? 1.5 : 0.0);
+                        bodyPenalty += (gap > 1) ? priority.bodySmallGap2 : (gap == 1 ? priority.bodySmallGap1 : 0.0);
                     else
-                        bodyPenalty += gap * 1.0;
+                        bodyPenalty += gap * priority.bodyLargePerGap;
                 }
         }
     }
@@ -200,7 +195,7 @@ double AssignmentGenerator::scoreTeam(const QList<int>& team,
             if (vi == 0) continue;
             for (int j = i+1; j < members.size(); ++j) {
                 int vj = (attrIdx == 0) ? members[j]->attrGrp1() : members[j]->attrGrp2();
-                if (vj == vi) grpBonus += 3.0;
+                if (vj == vi) grpBonus += priority.grpAttrBonus;
             }
         }
     // ── Value attrs (cap>2): penalise variance within team.
@@ -215,7 +210,7 @@ double AssignmentGenerator::scoreTeam(const QList<int>& team,
             if (vals.size() >= 2) {
                 double avg = 0; for (int v : vals) avg += v; avg /= vals.size();
                 double vv  = 0; for (int v : vals) vv += (v-avg)*(v-avg);
-                valPenalty += vv / vals.size() * 0.4;
+                valPenalty += vv / vals.size() * priority.valAttrVarianceWeight;
             }
         }
 
@@ -227,12 +222,12 @@ double AssignmentGenerator::scoreTeam(const QList<int>& team,
                 int a = qMin(members[i]->id(), members[j]->id());
                 int b = qMax(members[i]->id(), members[j]->id());
                 int cnt = priority.coOccurrence.value({a, b}, 0);
-                if (cnt > 0) coOccurrencePenalty += cnt * 1.5;
+                if (cnt > 0) coOccurrencePenalty += cnt * priority.coOccurrenceFactor;
             }
     }
 
     if (priority.trainingMode) {
-        return -attrVariance - strengthVariance * 0.3 + whitelistBonus + avgProp * 3.0
+        return -strengthVariance * 0.3 + whitelistBonus + avgProp * 3.0
                - racingBeginnerPenalty + obmannBonus
                - strokePenalty - bodyPenalty + grpBonus - valPenalty
                - coOccurrencePenalty;
@@ -245,8 +240,7 @@ double AssignmentGenerator::scoreTeam(const QList<int>& team,
     return wSkill  * (avgSkill + skillBalance)
          + wCompat * (-compatPenaltyTotal)
          + wProp   * avgProp * 3.0
-         - attrVariance * 0.5
-         - strengthVariance * 0.3
+         - strengthVariance * priority.strengthVarianceWeight
          + whitelistBonus
          - racingBeginnerPenalty
          + obmannBonus
@@ -267,6 +261,7 @@ bool AssignmentGenerator::fillBoat(const Boat& boat,
                                     int maxAttempts) const {
     int capacity = boat.capacity();
     if (availableRowerIds.size() < capacity) return false;
+    if (maxAttempts < 0) maxAttempts = priority.fillBoatAttempts;
 
     // Foot-Steered boats need a dedicated steerer; Hand-Steered do not
     bool needsSteerer = (boat.steeringType() == SteeringType::Steered);
@@ -376,7 +371,7 @@ GeneratorResult AssignmentGenerator::generate(
         bool anySuccess  = false;
         Assignment bestAssignment;
 
-        for (int fa = 0; fa < 15; ++fa) {
+        for (int fa = 0; fa < priority.passAttempts; ++fa) {
             QList<int> avail = available;
             Assignment attempt;
             attempt.setName(assignmentName);

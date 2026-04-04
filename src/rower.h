@@ -59,10 +59,6 @@ public:
         return "";
     }
 
-    // attr3 (0=not set, 1-10): generic numeric attribute
-    int attr3() const { return m_attr3; }
-    void setAttr3(int v) { m_attr3 = qBound(0, v, 10); }
-
     // Strength (0=not set, 1-10)
     int strength() const { return m_strength; }
     void setStrength(int v) { m_strength = qBound(0, v, 10); }
@@ -118,7 +114,6 @@ private:
 
     int  m_strokeLength = 0;  // 1=Short 2=Medium 3=Long
     int  m_bodySize     = 0;  // 1=Small 2=Medium 3=Tall
-    int  m_attr3        = 0;
     int  m_strength     = 0;
     int  m_attrGrp1     = 0;
     int  m_attrGrp2     = 0;

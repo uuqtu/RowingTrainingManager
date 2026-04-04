@@ -3,6 +3,7 @@
 #include <QList>
 #include <QMap>
 #include <QPair>
+#include <vector>
 #include "boat.h"
 #include "rower.h"
 #include "assignment.h"
@@ -15,12 +16,34 @@ struct ScoringPriority {
     // Co-occurrence: pair(minId,maxId) -> count of times they shared a boat
     QMap<QPair<int,int>, int> coOccurrence;
 
+    // Expert-adjustable scoring constants (defaults match hardcoded originals)
+    double whitelistBonus         = 5.0;
+    double coOccurrenceFactor     = 1.5;
+    double obmannBonus            = 20.0;
+    double racingBeginnerPenalty  = 8.0;
+    double strengthVarianceWeight = 0.3;
+    double compatSpecialSpecial   = 2.0;
+    double compatSpecialSelected  = 4.0;
+    double strokeSmallGap1        = 3.0;
+    double strokeSmallGap2        = 12.0;
+    double strokeLargePerGap      = 2.5;
+    double bodySmallGap1          = 1.5;
+    double bodySmallGap2          = 8.0;
+    double bodyLargePerGap        = 1.0;
+    double grpAttrBonus           = 3.0;
+    double valAttrVarianceWeight  = 0.4;
+    // Generator search depth
+    int    fillBoatAttempts       = 600;
+    int    passAttempts           = 15;
+
     double weightFor(Factor f) const {
         int idx = order.indexOf(f);
         if (idx < 0) return 0.0;
-        static const double weights[] = { 4.0, 2.0, 1.0, 0.5, 0.5 };
-        return (idx < 5) ? weights[idx] : 0.0;
+        if (idx < (int)rankWeights.size()) return rankWeights[idx];
+        static const double fallback[] = { 4.0, 2.0, 1.0, 0.5, 0.5 };
+        return (idx < 5) ? fallback[idx] : 0.0;
     }
+    std::vector<double> rankWeights = { 4.0, 2.0, 1.0, 0.5, 0.5 };
     static QString factorName(Factor f) {
         switch (f) {
         case Skill:         return "Skill";
@@ -88,5 +111,5 @@ private:
                   const ScoringPriority& priority,
                   bool relaxCompat,
                   QList<int>& outTeam,
-                  int maxAttempts = 600) const;
+                  int maxAttempts = -1) const;  // -1 = use priority.fillBoatAttempts
 };

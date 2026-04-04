@@ -38,6 +38,10 @@ public:
     bool setAssignmentLocked(int assignmentId, bool locked);
     QMap<QPair<int,int>,int> loadCoOccurrence();
 
+    // Expert settings persistence
+    bool saveExpertSetting(const QString& key, double value);
+    QMap<QString, double> loadExpertSettings();
+
     // Sick rowers (excluded from all assignment generation)
     QList<int> loadSickRowerIds();
     bool setSickRower(int rowerId, bool sick);

@@ -50,6 +50,28 @@ public:
     }
     void setCoOccurrence(const QMap<QPair<int,int>,int>& co) { m_coOccurrence = co; }
 
+    struct ExpertParams {
+        double rankWeights[5]         = {4.0,2.0,1.0,0.5,0.5};
+        double whitelistBonus         = 5.0;
+        double coOccurrenceFactor     = 1.5;
+        double obmannBonus            = 20.0;
+        double racingBeginnerPenalty  = 8.0;
+        double strengthVarianceWeight = 0.3;
+        double compatSpecialSpecial   = 2.0;
+        double compatSpecialSelected  = 4.0;
+        double strokeSmallGap1        = 3.0;
+        double strokeSmallGap2        = 12.0;
+        double strokeLargePerGap      = 2.5;
+        double bodySmallGap1          = 1.5;
+        double bodySmallGap2          = 8.0;
+        double bodyLargePerGap        = 1.0;
+        double grpAttrBonus           = 3.0;
+        double valAttrVarianceWeight  = 0.4;
+        int    fillBoatAttempts       = 600;
+        int    passAttempts           = 15;
+    };
+    void setExpertParams(const ExpertParams& ep) { m_expertParams = ep; }
+
     Assignment generatedAssignment() const { return m_assignment; }
     void loadFromAssignment(const Assignment& a);
 
@@ -131,6 +153,7 @@ private:
     int m_globalScullOars = 0;  // 0 = no limit
     int m_globalSweepOars = 0;
     QMap<QPair<int,int>,int> m_coOccurrence;
+    ExpertParams m_expertParams;
     QTableWidget* m_steeringOnlyTable = nullptr;
     QComboBox*   m_soRowerCombo      = nullptr;
     QComboBox*   m_soBoatCombo       = nullptr;

@@ -26,6 +26,10 @@
 #include <QStyledItemDelegate>
 #include <QComboBox>
 #include <QSpinBox>
+#include <QDoubleSpinBox>
+#include <QScrollArea>
+#include <QFrame>
+#include <functional>
 #include <QFont>
 #include <QPalette>
 #include <QTableWidget>
@@ -178,6 +182,7 @@ void MainWindow::setupUi() {
     m_tabs->addTab(buildDistanceDetailTab(),"Dist. Detail");
     m_tabs->addTab(buildStatsTab(),          "Statistics");
     m_tabs->addTab(buildOptionsTab(),        "Options");
+    m_tabs->addTab(buildExpertTab(),        "Expert Settings");
     setCentralWidget(m_tabs);
 }
 
@@ -252,7 +257,7 @@ QWidget* MainWindow::buildRowersTab() {
     m_rowerTable->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked);
 
     // col: 0=Id,1=Name,2=Skill,3=Compat,4=FootSteer,5=Obmann,6=Prop,7=Age,
-    //      8=Strength,9=StrokeLen,10=BodySize,11=Attr3,12=GrpAttr1,13=GrpAttr2,14=ValAttr1,15=ValAttr2
+    //      8=Strength,9=StrokeLen,10=BodySize,11=GrpAttr1,12=GrpAttr2,13=ValAttr1,14=ValAttr2
     m_rowerTable->setItemDelegateForColumn(2, new ComboBoxDelegate(
         {"Student", "Beginner", "Experienced", "Professional"}, m_rowerTable));
     m_rowerTable->setItemDelegateForColumn(3, new ComboBoxDelegate(
@@ -266,7 +271,6 @@ QWidget* MainWindow::buildRowersTab() {
         Rower::strokeLengthOptions(), m_rowerTable));   // Stroke Length
     m_rowerTable->setItemDelegateForColumn(10, new ComboBoxDelegate(
         Rower::bodySizeOptions(), m_rowerTable));       // Body Size
-    m_rowerTable->setItemDelegateForColumn(11, new SpinBoxDelegate(0, 10, m_rowerTable)); // Attr3
     m_rowerTable->setItemDelegateForColumn(12, new SpinBoxDelegate(0, 10, m_rowerTable)); // GrpAttr1
     m_rowerTable->setItemDelegateForColumn(13, new SpinBoxDelegate(0, 10, m_rowerTable)); // GrpAttr2
     m_rowerTable->setItemDelegateForColumn(14, new SpinBoxDelegate(0, 10, m_rowerTable)); // ValAttr1
@@ -422,6 +426,7 @@ void MainWindow::loadAll() {
 
     m_assignments = m_db->loadAssignments();
     m_sickRowerIds = m_db->loadSickRowerIds();
+    loadExpertSettings();
     refreshAssignmentList();
     refreshStats();
 }
@@ -681,6 +686,23 @@ void MainWindow::onNewAssignment() {
         m_scullOarsSpinBox ? m_scullOarsSpinBox->value() : 0,
         m_sweepOarsSpinBox ? m_sweepOarsSpinBox->value() : 0);
     dlg.setCoOccurrence(m_db->loadCoOccurrence());
+    {
+        AssignmentDialog::ExpertParams ep;
+        ep.rankWeights[0]=m_expert.weightRank1; ep.rankWeights[1]=m_expert.weightRank2;
+        ep.rankWeights[2]=m_expert.weightRank3; ep.rankWeights[3]=m_expert.weightRank4;
+        ep.rankWeights[4]=m_expert.weightRank5;
+        ep.whitelistBonus=m_expert.whitelistBonus; ep.coOccurrenceFactor=m_expert.coOccurrenceFactor;
+        ep.obmannBonus=m_expert.obmannBonus; ep.racingBeginnerPenalty=m_expert.racingBeginnerPenalty;
+        ep.strengthVarianceWeight=m_expert.strengthVarianceWeight;
+        ep.compatSpecialSpecial=m_expert.compatSpecialSpecial; ep.compatSpecialSelected=m_expert.compatSpecialSelected;
+        ep.strokeSmallGap1=m_expert.strokeSmallGap1; ep.strokeSmallGap2=m_expert.strokeSmallGap2;
+        ep.strokeLargePerGap=m_expert.strokeLargePerGap;
+        ep.bodySmallGap1=m_expert.bodySmallGap1; ep.bodySmallGap2=m_expert.bodySmallGap2;
+        ep.bodyLargePerGap=m_expert.bodyLargePerGap;
+        ep.grpAttrBonus=m_expert.grpAttrBonus; ep.valAttrVarianceWeight=m_expert.valAttrVarianceWeight;
+        ep.fillBoatAttempts=m_expert.fillBoatAttempts; ep.passAttempts=m_expert.passAttempts;
+        dlg.setExpertParams(ep);
+    }
     if (dlg.exec() == QDialog::Accepted) {
         Assignment a = dlg.generatedAssignment();
         if (m_db->saveAssignment(a)) {
@@ -743,6 +765,23 @@ void MainWindow::onEditAssignment(QListWidgetItem* item) {
         m_scullOarsSpinBox ? m_scullOarsSpinBox->value() : 0,
         m_sweepOarsSpinBox ? m_sweepOarsSpinBox->value() : 0);
     dlg.setCoOccurrence(m_db->loadCoOccurrence());
+    {
+        AssignmentDialog::ExpertParams ep;
+        ep.rankWeights[0]=m_expert.weightRank1; ep.rankWeights[1]=m_expert.weightRank2;
+        ep.rankWeights[2]=m_expert.weightRank3; ep.rankWeights[3]=m_expert.weightRank4;
+        ep.rankWeights[4]=m_expert.weightRank5;
+        ep.whitelistBonus=m_expert.whitelistBonus; ep.coOccurrenceFactor=m_expert.coOccurrenceFactor;
+        ep.obmannBonus=m_expert.obmannBonus; ep.racingBeginnerPenalty=m_expert.racingBeginnerPenalty;
+        ep.strengthVarianceWeight=m_expert.strengthVarianceWeight;
+        ep.compatSpecialSpecial=m_expert.compatSpecialSpecial; ep.compatSpecialSelected=m_expert.compatSpecialSelected;
+        ep.strokeSmallGap1=m_expert.strokeSmallGap1; ep.strokeSmallGap2=m_expert.strokeSmallGap2;
+        ep.strokeLargePerGap=m_expert.strokeLargePerGap;
+        ep.bodySmallGap1=m_expert.bodySmallGap1; ep.bodySmallGap2=m_expert.bodySmallGap2;
+        ep.bodyLargePerGap=m_expert.bodyLargePerGap;
+        ep.grpAttrBonus=m_expert.grpAttrBonus; ep.valAttrVarianceWeight=m_expert.valAttrVarianceWeight;
+        ep.fillBoatAttempts=m_expert.fillBoatAttempts; ep.passAttempts=m_expert.passAttempts;
+        dlg.setExpertParams(ep);
+    }
     dlg.loadFromAssignment(existing);
 
     if (dlg.exec() == QDialog::Accepted) {
@@ -1731,4 +1770,523 @@ void MainWindow::onToggleLockAssignment() {
             3000);
         break;
     }
+}
+
+// ---------------------------------------------------------------
+// Expert Settings Tab
+// ---------------------------------------------------------------
+QWidget* MainWindow::buildExpertTab() {
+    auto* outer = new QWidget;
+    auto* outerVL = new QVBoxLayout(outer);
+    outerVL->setContentsMargins(0, 0, 0, 0);
+
+    auto* scroll = new QScrollArea;
+    scroll->setWidgetResizable(true);
+    scroll->setFrameShape(QFrame::NoFrame);
+
+    auto* w  = new QWidget;
+    auto* vl = new QVBoxLayout(w);
+    vl->setContentsMargins(16, 16, 16, 16);
+    vl->setSpacing(18);
+
+    auto mkHeader = [](const QString& t) {
+        auto* l = new QLabel(t);
+        l->setStyleSheet("color:#8fb4d8; font-weight:700; font-size:13px; "
+                         "border-bottom:1px solid #2a3548; padding-bottom:4px;");
+        return l;
+    };
+    auto mkDesc = [](const QString& t) {
+        auto* l = new QLabel(t);
+        l->setWordWrap(true);
+        l->setStyleSheet("color:#5a7a9a; font-style:italic; font-size:11px;");
+        return l;
+    };
+    auto mkEffect = [](const QString& t) {
+        auto* l = new QLabel("Effect: " + t);
+        l->setWordWrap(true);
+        l->setStyleSheet("color:#446644; font-size:11px;");
+        return l;
+    };
+
+    // Helper: double spinbox row
+    auto mkDbl = [&](QWidget* parent, QVBoxLayout* pvl,
+                     const QString& label, const QString& formula,
+                     const QString& desc, const QString& effect,
+                     const QString& tooltip,
+                     double val, double lo, double hi, double step,
+                     std::function<void(double)> onChanged) {
+        pvl->addWidget(new QLabel("<b>" + label + "</b>  <span style='color:#778899;font-family:monospace;'>"
+                                   + formula + "</span>"));
+        pvl->addWidget(mkDesc(desc));
+        auto* row = new QHBoxLayout;
+        auto* spin = new QDoubleSpinBox;
+        spin->setRange(lo, hi);
+        spin->setSingleStep(step);
+        spin->setDecimals(1);
+        spin->setValue(val);
+        spin->setToolTip(tooltip);
+        spin->setMaximumWidth(100);
+        row->addWidget(spin);
+        row->addStretch();
+        pvl->addLayout(row);
+        pvl->addWidget(mkEffect(effect));
+        pvl->addSpacing(6);
+        QObject::connect(spin, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+                         parent, [onChanged](double v){ onChanged(v); });
+    };
+
+    auto mkInt = [&](QWidget* parent, QVBoxLayout* pvl,
+                     const QString& label, const QString& formula,
+                     const QString& desc, const QString& effect,
+                     const QString& tooltip,
+                     int val, int lo, int hi,
+                     std::function<void(int)> onChanged) {
+        pvl->addWidget(new QLabel("<b>" + label + "</b>  <span style='color:#778899;font-family:monospace;'>"
+                                   + formula + "</span>"));
+        pvl->addWidget(mkDesc(desc));
+        auto* row = new QHBoxLayout;
+        auto* spin = new QSpinBox;
+        spin->setRange(lo, hi);
+        spin->setValue(val);
+        spin->setToolTip(tooltip);
+        spin->setMaximumWidth(100);
+        row->addWidget(spin);
+        row->addStretch();
+        pvl->addLayout(row);
+        pvl->addWidget(mkEffect(effect));
+        pvl->addSpacing(6);
+        QObject::connect(spin, QOverload<int>::of(&QSpinBox::valueChanged),
+                         parent, [onChanged](int v){ onChanged(v); });
+    };
+
+    // ── Intro ────────────────────────────────────────────────────
+    auto* intro = new QLabel(
+        "<b>Expert Settings</b> — Adjust every scoring constant used by the assignment generator.<br>"
+        "Changes take effect immediately for the next assignment you generate.<br>"
+        "<br>"
+        "<b>Variable glossary:</b><br>"
+        "<tt>score</tt> — the total score for a candidate team (higher = generator prefers it)<br>"
+        "<tt>w</tt> — priority weight (determined by rank position in Tab 3 of the dialog)<br>"
+        "<tt>gap</tt> — absolute difference between two rowers' attribute values<br>"
+        "<tt>cap</tt> — boat capacity (number of rowing seats)<br>"
+        "<tt>N</tt> — number of rowers in the team with that attribute set<br>"
+        "<tt>cnt</tt> — number of past assignments where a pair shared a boat<br>"
+        "<tt>variance</tt> — mean squared deviation from the team's average for that attribute<br>"
+        "<br>"
+        "All settings reset to defaults when the application restarts.<br>"
+        "Red settings are bonuses (positive). Blue settings are penalties (negative).");
+    intro->setWordWrap(true);
+    intro->setStyleSheet("color:#8fb4d8; padding:8px; background:#0d1a2a; border-radius:6px;");
+    vl->addWidget(intro);
+
+    // ─────────────────────────────────────────────────────────────
+    vl->addWidget(mkHeader("Priority Weights"));
+    {
+        auto* g = new QGroupBox("Weights w₁…w₅ by rank in the priority list (Tab 3 of the dialog)");
+        auto* gl = new QVBoxLayout(g);
+        gl->addWidget(mkDesc(
+            "The five factors (Skill, Compatibility, Propulsion, Stroke Length, Body Size) can be "
+            "reordered in Tab 3. The factor at rank 1 gets w₁, rank 2 gets w₂, etc.\n"
+            "Formula:  score += w × factorScore"));
+        struct { const char* label; double* ptr; } ranks[] = {
+            {"w₁ — Rank 1 weight (top priority factor)", &m_expert.weightRank1},
+            {"w₂ — Rank 2 weight", &m_expert.weightRank2},
+            {"w₃ — Rank 3 weight", &m_expert.weightRank3},
+            {"w₄ — Rank 4 weight", &m_expert.weightRank4},
+            {"w₅ — Rank 5 weight (lowest priority factor)", &m_expert.weightRank5},
+        };
+        const char* effects[] = {
+            "Increasing separates best teams from mediocre ones more strongly for the #1 factor.",
+            "Increasing makes the #2 factor more influential.",
+            "Increasing makes the #3 factor more influential.",
+            "Increasing makes the #4 factor more influential.",
+            "Increasing makes the #5 factor more influential.",
+        };
+        const QString rankKeys[] = {
+            "weightRank1", "weightRank2", "weightRank3", "weightRank4", "weightRank5"
+        };
+        for (int i = 0; i < 5; ++i) {
+            double* ptr = ranks[i].ptr;
+            QString key = rankKeys[i];
+            mkDbl(w, gl, ranks[i].label,
+                  QString("score += w%1 × factorScore").arg(i+1), "",
+                  effects[i],
+                  QString("Weight applied to the factor at priority rank %1.\n"
+                          "Default: %2. Range: 0 = factor ignored, 10 = very dominant.")
+                      .arg(i+1).arg(i < 3 ? (i==0 ? 4.0 : i==1 ? 2.0 : 1.0) : 0.5),
+                  *ptr, 0.0, 10.0, 0.5,
+                  [this, ptr, key](double v){ *ptr = v; m_db->saveExpertSetting(key, v); });
+        }
+        vl->addWidget(g);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    vl->addWidget(mkHeader("Whitelist & Co-occurrence"));
+    {
+        auto* g = new QGroupBox;
+        auto* gl = new QVBoxLayout(g);
+        mkDbl(w, gl, "Whitelist pair bonus",
+              "score += whitelistBonus  (per pair in same boat)",
+              "A rower whitelist entry means 'I prefer to row with this person'. "
+              "Each whitelisted pair that ends up in the same boat adds this bonus.",
+              "Increasing makes the generator much more likely to honour whitelist pairings. "
+              "Set to 0 to ignore whitelists entirely.",
+              "Default 5.0. Each whitelist pair in the same boat adds this to the team score.",
+              m_expert.whitelistBonus, 0.0, 30.0, 0.5,
+              [this](double v){ m_expert.whitelistBonus = v; m_db->saveExpertSetting("whitelistBonus", v); });
+
+        mkDbl(w, gl, "Co-occurrence penalty factor",
+              "score −= coOccurrenceFactor × cnt  (per pair, per session together)",
+              "cnt is the number of past assignments in which this pair shared the same boat. "
+              "Penalising frequent co-occurrence nudges the generator to vary combinations.",
+              "Increasing makes the generator more aggressively avoid repetitive pairings. "
+              "Set to 0 to ignore history entirely.",
+              "Default 1.5. Each additional session a pair shared a boat costs this much score.",
+              m_expert.coOccurrenceFactor, 0.0, 10.0, 0.5,
+              [this](double v){ m_expert.coOccurrenceFactor = v; m_db->saveExpertSetting("coOccurrenceFactor", v); });
+        vl->addWidget(g);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    vl->addWidget(mkHeader("Obmann Bonus"));
+    {
+        auto* g = new QGroupBox;
+        auto* gl = new QVBoxLayout(g);
+        mkDbl(w, gl, "Obmann presence bonus",
+              "score += obmannBonus  (if ≥1 Obmann-flagged rower in team, cap > 2)",
+              "Obmann-capable rowers are those with the Obmann checkbox set in the Rowers tab. "
+              "This flat bonus is added whenever at least one such rower appears in a team for a "
+              "boat with more than 2 seats. It is intentionally large to dominate other soft factors.",
+              "Increasing makes it nearly guaranteed that every boat gets an Obmann. "
+              "Decreasing allows the generator to trade an Obmann for a better skill/compat match. "
+              "Set to 0 to treat Obmann purely as a role label with no generation influence.",
+              "Default 20.0. Must exceed the typical skill/compat contribution (~4–16) to dominate.",
+              m_expert.obmannBonus, 0.0, 50.0, 1.0,
+              [this](double v){ m_expert.obmannBonus = v; m_db->saveExpertSetting("obmannBonus", v); });
+        vl->addWidget(g);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    vl->addWidget(mkHeader("Racing Boat / Beginner Penalty"));
+    {
+        auto* g = new QGroupBox;
+        auto* gl = new QVBoxLayout(g);
+        gl->addWidget(mkDesc(
+            "In the first generation pass (strict), Students and Beginners are HARD-blocked from "
+            "Racing boats. In later passes (relaxed) the hard block is lifted, but this soft penalty "
+            "still discourages the pairing. It is applied per rower per team evaluation."));
+        mkDbl(w, gl, "Soft penalty per beginner in a Racing boat",
+              "score −= racingBeginnerPenalty  (per Student/Beginner in a Racing boat)",
+              "",
+              "Increasing makes the generator strongly prefer Experienced/Professional in Racing "
+              "boats even in relaxed passes. Decreasing allows beginners in Racing boats more freely.",
+              "Default 8.0. Applied even when hard constraints are relaxed (pass 2+).",
+              m_expert.racingBeginnerPenalty, 0.0, 30.0, 0.5,
+              [this](double v){ m_expert.racingBeginnerPenalty = v; m_db->saveExpertSetting("racingBeginnerPenalty", v); });
+        vl->addWidget(g);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    vl->addWidget(mkHeader("Strength Balancing"));
+    {
+        auto* g = new QGroupBox;
+        auto* gl = new QVBoxLayout(g);
+        mkDbl(w, gl, "Strength variance weight",
+              "score −= strengthVarianceWeight × variance(strength)  [cap > 2]",
+              "strength is set per rower (0=not set, 1–10). Variance is the mean squared deviation "
+              "from the team average. Only rowers with strength > 0 are included. "
+              "Only applied when boat capacity > 2.",
+              "Increasing forces the generator to balance physical strength across seats more strictly. "
+              "Set to 0 to ignore strength entirely.",
+              "Default 0.3. Typical strength variance is 1–9; weight of 0.3 gives a penalty of 0.3–2.7.",
+              m_expert.strengthVarianceWeight, 0.0, 5.0, 0.1,
+              [this](double v){ m_expert.strengthVarianceWeight = v; m_db->saveExpertSetting("strengthVarianceWeight", v); });
+        vl->addWidget(g);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    vl->addWidget(mkHeader("Compatibility Soft Penalties"));
+    {
+        auto* g = new QGroupBox;
+        auto* gl = new QVBoxLayout(g);
+        gl->addWidget(mkDesc(
+            "These penalties are summed pairwise for every pair of rowers in a team. "
+            "They are then multiplied by wCompat (the weight for Compatibility in the priority list). "
+            "A Special+Selected pair is also a HARD block in pass 0 (cannot be changed here)."));
+        mkDbl(w, gl, "Special + Special penalty",
+              "score −= wCompat × compatSpecialSpecial  (per Special+Special pair)",
+              "Two rowers both marked 'Special' in the same boat.",
+              "Increasing separates Special rowers from each other more aggressively.",
+              "Default 2.0. Multiplied by wCompat (typically 2–4).",
+              m_expert.compatSpecialSpecial, 0.0, 10.0, 0.5,
+              [this](double v){ m_expert.compatSpecialSpecial = v; m_db->saveExpertSetting("compatSpecialSpecial", v); });
+        mkDbl(w, gl, "Special + Selected penalty",
+              "score −= wCompat × compatSpecialSelected  (per Special+Selected pair)",
+              "One rower marked 'Special' and another marked 'Selected' in the same boat. "
+              "Also triggers a hard block in pass 0 — this value only affects passes 1 and 2.",
+              "Increasing further discourages Special+Selected pairings in relaxed passes.",
+              "Default 4.0. This pair is also hard-blocked in pass 0 regardless of this value.",
+              m_expert.compatSpecialSelected, 0.0, 15.0, 0.5,
+              [this](double v){ m_expert.compatSpecialSelected = v; m_db->saveExpertSetting("compatSpecialSelected", v); });
+        vl->addWidget(g);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    vl->addWidget(mkHeader("Stroke Length Matching"));
+    {
+        auto* g = new QGroupBox;
+        auto* gl = new QVBoxLayout(g);
+        gl->addWidget(mkDesc(
+            "Stroke length values: Short=1, Medium=2, Long=3. Gap = |rower_i − rower_j|. "
+            "The penalty is applied for every pair of rowers in the team that both have a "
+            "stroke length set (value > 0). Two separate penalty scales apply depending on "
+            "whether the boat has ≤2 or >2 seats, since technique matching is critical in small boats."));
+        mkDbl(w, gl, "Penalty for gap=1 in 2-seat boats",
+              "score −= strokeSmallGap1  (per pair, |gap|=1, cap ≤ 2)",
+              "e.g. Short+Medium or Medium+Long in the same 2-seat boat.",
+              "Increasing makes adjacent stroke lengths increasingly discouraged in 2-seat boats.",
+              "Default 3.0.",
+              m_expert.strokeSmallGap1, 0.0, 20.0, 0.5,
+              [this](double v){ m_expert.strokeSmallGap1 = v; m_db->saveExpertSetting("strokeSmallGap1", v); });
+        mkDbl(w, gl, "Penalty for gap=2 in 2-seat boats",
+              "score −= strokeSmallGap2  (per pair, |gap|=2, cap ≤ 2)",
+              "e.g. Short+Long in the same 2-seat boat — the maximum mismatch.",
+              "Increasing effectively hard-blocks Short+Long pairings in 2-seat boats.",
+              "Default 12.0. Set above the obmann bonus (20) to make it near-impossible.",
+              m_expert.strokeSmallGap2, 0.0, 40.0, 1.0,
+              [this](double v){ m_expert.strokeSmallGap2 = v; m_db->saveExpertSetting("strokeSmallGap2", v); });
+        mkDbl(w, gl, "Penalty per gap unit in larger boats",
+              "score −= strokeLargePerGap × |gap|  (per pair, cap > 2)",
+              "e.g. gap=2 → penalty = 2 × strokeLargePerGap.",
+              "Increasing prefers same stroke length but allows mismatches when other factors win.",
+              "Default 2.5.",
+              m_expert.strokeLargePerGap, 0.0, 10.0, 0.5,
+              [this](double v){ m_expert.strokeLargePerGap = v; m_db->saveExpertSetting("strokeLargePerGap", v); });
+        vl->addWidget(g);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    vl->addWidget(mkHeader("Body Size Matching"));
+    {
+        auto* g = new QGroupBox;
+        auto* gl = new QVBoxLayout(g);
+        gl->addWidget(mkDesc(
+            "Body size values: Small=1, Medium=2, Tall=3. Gap = |rower_i − rower_j|. "
+            "Applied pairwise. Body size matters less than stroke length so defaults are lower."));
+        mkDbl(w, gl, "Penalty for gap=1 in 2-seat boats",
+              "score −= bodySmallGap1  (per pair, |gap|=1, cap ≤ 2)",
+              "e.g. Small+Medium or Medium+Tall.",
+              "Increasing nudges 2-seat boats toward same body size.",
+              "Default 1.5.",
+              m_expert.bodySmallGap1, 0.0, 15.0, 0.5,
+              [this](double v){ m_expert.bodySmallGap1 = v; m_db->saveExpertSetting("bodySmallGap1", v); });
+        mkDbl(w, gl, "Penalty for gap=2 in 2-seat boats",
+              "score −= bodySmallGap2  (per pair, |gap|=2, cap ≤ 2)",
+              "e.g. Small+Tall.",
+              "Increasing strongly discourages extreme body size mismatches in 2-seat boats.",
+              "Default 8.0.",
+              m_expert.bodySmallGap2, 0.0, 30.0, 1.0,
+              [this](double v){ m_expert.bodySmallGap2 = v; m_db->saveExpertSetting("bodySmallGap2", v); });
+        mkDbl(w, gl, "Penalty per gap unit in larger boats",
+              "score −= bodyLargePerGap × |gap|  (per pair, cap > 2)",
+              "",
+              "Increasing gently prefers similar body sizes in larger crews.",
+              "Default 1.0.",
+              m_expert.bodyLargePerGap, 0.0, 8.0, 0.5,
+              [this](double v){ m_expert.bodyLargePerGap = v; m_db->saveExpertSetting("bodyLargePerGap", v); });
+        vl->addWidget(g);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    vl->addWidget(mkHeader("Group & Value Attributes"));
+    {
+        auto* g = new QGroupBox;
+        auto* gl = new QVBoxLayout(g);
+        gl->addWidget(mkDesc(
+            "Grp Attr 1/2 (Group attributes): rowers with the same non-zero value are preferred together in the same boat.\n"
+            "Val Attr 1/2 (Value attributes): the average of this value should be similar across all boats (capacity > 2)."));
+        mkDbl(w, gl, "Group attribute pair bonus",
+              "score += grpAttrBonus  (per matching pair, GrpAttr1 or GrpAttr2)",
+              "If two rowers in the same boat share the same non-zero GrpAttr1 value, "
+              "this bonus is added. Applied independently for GrpAttr1 and GrpAttr2.",
+              "Increasing makes the generator cluster same-group rowers more aggressively.",
+              "Default 3.0.",
+              m_expert.grpAttrBonus, 0.0, 15.0, 0.5,
+              [this](double v){ m_expert.grpAttrBonus = v; m_db->saveExpertSetting("grpAttrBonus", v); });
+        mkDbl(w, gl, "Value attribute variance weight",
+              "score −= valAttrVarianceWeight × variance(ValAttr)  [per attr, cap > 2]",
+              "variance is the mean squared deviation of ValAttr1 (and separately ValAttr2) "
+              "from the team mean. Values of 0 are excluded. Applied only when capacity > 2.",
+              "Increasing forces the generator to produce more equally-balanced boats "
+              "across whatever the value attribute represents (e.g. technique score).",
+              "Default 0.4.",
+              m_expert.valAttrVarianceWeight, 0.0, 5.0, 0.1,
+              [this](double v){ m_expert.valAttrVarianceWeight = v; m_db->saveExpertSetting("valAttrVarianceWeight", v); });
+        vl->addWidget(g);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    vl->addWidget(mkHeader("Role Selection (Obmann & Steerer)"));
+    {
+        auto* g = new QGroupBox;
+        auto* gl = new QVBoxLayout(g);
+        gl->addWidget(mkDesc(
+            "After a team is assigned to a boat, Obmann and Steerer roles are chosen by scoring "
+            "candidates. These weights affect who is preferred.\n"
+            "obmannScore(r) = ageBand × obmannAgeWeight  −  recentObmann × obmannOverusePenalty\n"
+            "steerScore(r)  = (100 − effectiveBand) × steerYouthWeight  −  recentSteering × steerOverusePenalty\n"
+            "where effectiveBand = ageBand if set, else 50 (mid-range).\n"
+            "recentObmann / recentSteering = count of that role in the last N sessions (overuseThreshold)."));
+        mkDbl(w, gl, "Obmann age weight",
+              "obmannScore += ageBand × obmannAgeWeight",
+              "ageBand is the lower bound of the rower's decade (20, 30, …, 80). "
+              "Higher ageBand = older = preferred as Obmann.",
+              "Increasing makes age a stronger factor in Obmann selection. "
+              "Set to 0 to ignore age for Obmann.",
+              "Default 0.5. Example: ageBand=60, weight=0.5 → +30 score.",
+              m_expert.obmannAgeWeight, 0.0, 3.0, 0.1,
+              [this](double v){ m_expert.obmannAgeWeight = v; m_db->saveExpertSetting("obmannAgeWeight", v); });
+        mkDbl(w, gl, "Obmann overuse penalty",
+              "obmannScore −= recentObmann × obmannOverusePenalty",
+              "recentObmann = how many times this person was Obmann in the last N sessions.",
+              "Increasing rotates the Obmann role more evenly across qualified rowers. "
+              "Set to 0 to always prefer the oldest qualified rower.",
+              "Default 3.0.",
+              m_expert.obmannOverusePenalty, 0.0, 10.0, 0.5,
+              [this](double v){ m_expert.obmannOverusePenalty = v; m_db->saveExpertSetting("obmannOverusePenalty", v); });
+        mkDbl(w, gl, "Steerer youth weight",
+              "steerScore += (100 − effectiveBand) × steerYouthWeight",
+              "Younger rowers (lower ageBand) score higher as foot-steerers.",
+              "Increasing prefers younger steerers more strongly. "
+              "Set to 0 to ignore age for steerer selection.",
+              "Default 0.3. Example: ageBand=30 → 100−30=70 → 70×0.3=21 score.",
+              m_expert.steerYouthWeight, 0.0, 3.0, 0.1,
+              [this](double v){ m_expert.steerYouthWeight = v; m_db->saveExpertSetting("steerYouthWeight", v); });
+        mkDbl(w, gl, "Steerer overuse penalty",
+              "steerScore −= recentSteering × steerOverusePenalty",
+              "recentSteering = how many times this person was Steerer in the last N sessions.",
+              "Increasing rotates the Steerer role more evenly. "
+              "Set to 0 to always prefer the youngest qualified rower.",
+              "Default 3.0.",
+              m_expert.steerOverusePenalty, 0.0, 10.0, 0.5,
+              [this](double v){ m_expert.steerOverusePenalty = v; m_db->saveExpertSetting("steerOverusePenalty", v); });
+        mkInt(w, gl, "Overuse threshold (N sessions)",
+              "overuse warning shown when count ≥ overuseThreshold in last N sessions",
+              "When a rower's Obmann or Steerer count in the last N sessions reaches this number, "
+              "they are flagged as 'overused' in the Statistics tab. The overuse penalty is applied "
+              "to their role scoring.",
+              "Increasing means more sessions are needed before the overuse flag appears. "
+              "Decreasing rotates roles more aggressively.",
+              "Default 3. Affects Statistics 'overused' label and role scoring penalty.",
+              m_expert.overuseThreshold, 1, 10,
+              [this](int v){ m_expert.overuseThreshold = v; m_db->saveExpertSetting("overuseThreshold", static_cast<double>(v)); });
+        vl->addWidget(g);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    vl->addWidget(mkHeader("Generator Search Depth"));
+    {
+        auto* g = new QGroupBox;
+        auto* gl = new QVBoxLayout(g);
+        gl->addWidget(mkDesc(
+            "The generator is stochastic: it shuffles rowers randomly and picks the best team "
+            "it finds in a fixed number of attempts. More attempts = better solutions but slower."));
+        mkInt(w, gl, "Shuffle attempts per boat (fillBoatAttempts)",
+              "for attempt in 0..fillBoatAttempts: shuffle → build → score → keep best",
+              "Each attempt shuffles available rowers randomly and greedily builds a valid team. "
+              "The highest-scoring valid team across all attempts is committed.",
+              "Increasing finds better teams at the cost of longer generation time. "
+              "Decreasing speeds up generation but may miss good combinations.",
+              "Default 600. Halving to 300 is rarely noticeable; reducing to <50 may degrade quality.",
+              m_expert.fillBoatAttempts, 10, 5000,
+              [this](int v){ m_expert.fillBoatAttempts = v; m_db->saveExpertSetting("fillBoatAttempts", static_cast<double>(v)); });
+        mkInt(w, gl, "Full-assignment attempts per pass (passAttempts)",
+              "for fa in 0..passAttempts: try to fill all boats → keep first success",
+              "In each of the 3 generation passes, the generator tries to fill all boats "
+              "this many times. If all boats fill in one attempt the pass ends immediately.",
+              "Increasing gives more chances to find a feasible assignment in difficult situations. "
+              "Rarely needs to exceed 20.",
+              "Default 15.",
+              m_expert.passAttempts, 1, 100,
+              [this](int v){ m_expert.passAttempts = v; m_db->saveExpertSetting("passAttempts", static_cast<double>(v)); });
+        vl->addWidget(g);
+    }
+
+    // Reset button
+    auto* resetBtn = new QPushButton("Reset all to defaults");
+    resetBtn->setObjectName("dangerBtn");
+    vl->addWidget(resetBtn, 0, Qt::AlignLeft);
+    QObject::connect(resetBtn, &QPushButton::clicked, w, [this, outer]() {
+        m_expert = ExpertSettings{};
+        // Persist all defaults
+        auto s = [this](const QString& k, double v){ m_db->saveExpertSetting(k, v); };
+        s("weightRank1",4.0); s("weightRank2",2.0); s("weightRank3",1.0);
+        s("weightRank4",0.5); s("weightRank5",0.5);
+        s("whitelistBonus",5.0); s("coOccurrenceFactor",1.5);
+        s("obmannBonus",20.0); s("racingBeginnerPenalty",8.0);
+        s("strengthVarianceWeight",0.3);
+        s("compatSpecialSpecial",2.0); s("compatSpecialSelected",4.0);
+        s("strokeSmallGap1",3.0); s("strokeSmallGap2",12.0); s("strokeLargePerGap",2.5);
+        s("bodySmallGap1",1.5); s("bodySmallGap2",8.0); s("bodyLargePerGap",1.0);
+        s("grpAttrBonus",3.0); s("valAttrVarianceWeight",0.4);
+        s("obmannAgeWeight",0.5); s("obmannOverusePenalty",3.0);
+        s("steerYouthWeight",0.3); s("steerOverusePenalty",3.0);
+        s("overuseThreshold",3.0); s("fillBoatAttempts",600.0); s("passAttempts",15.0);
+        // Rebuild the tab by replacing it
+        int idx = m_tabs->indexOf(outer->parentWidget() ? outer->parentWidget() : outer);
+        if (idx < 0) {
+            // Find by title
+            for (int i = 0; i < m_tabs->count(); ++i)
+                if (m_tabs->tabText(i) == "Expert Settings") { idx = i; break; }
+        }
+        if (idx >= 0) {
+            m_tabs->removeTab(idx);
+            m_tabs->insertTab(idx, buildExpertTab(), "Expert Settings");
+            m_tabs->setCurrentIndex(idx);
+        }
+        statusBar()->showMessage("Expert settings reset to defaults.", 2000);
+    });
+
+    vl->addStretch();
+    scroll->setWidget(w);
+    outerVL->addWidget(scroll);
+    return outer;
+}
+
+// ---------------------------------------------------------------
+// Expert settings persistence
+// ---------------------------------------------------------------
+void MainWindow::loadExpertSettings() {
+    QMap<QString,double> s = m_db->loadExpertSettings();
+    if (s.isEmpty()) return;   // no saved settings → keep code defaults
+
+    auto get = [&](const QString& k, double def) { return s.value(k, def); };
+
+    m_expert.weightRank1            = get("weightRank1",            4.0);
+    m_expert.weightRank2            = get("weightRank2",            2.0);
+    m_expert.weightRank3            = get("weightRank3",            1.0);
+    m_expert.weightRank4            = get("weightRank4",            0.5);
+    m_expert.weightRank5            = get("weightRank5",            0.5);
+    m_expert.whitelistBonus         = get("whitelistBonus",         5.0);
+    m_expert.coOccurrenceFactor     = get("coOccurrenceFactor",     1.5);
+    m_expert.obmannBonus            = get("obmannBonus",            20.0);
+    m_expert.racingBeginnerPenalty  = get("racingBeginnerPenalty",  8.0);
+    m_expert.strengthVarianceWeight = get("strengthVarianceWeight", 0.3);
+    m_expert.compatSpecialSpecial   = get("compatSpecialSpecial",   2.0);
+    m_expert.compatSpecialSelected  = get("compatSpecialSelected",  4.0);
+    m_expert.strokeSmallGap1        = get("strokeSmallGap1",        3.0);
+    m_expert.strokeSmallGap2        = get("strokeSmallGap2",        12.0);
+    m_expert.strokeLargePerGap      = get("strokeLargePerGap",      2.5);
+    m_expert.bodySmallGap1          = get("bodySmallGap1",          1.5);
+    m_expert.bodySmallGap2          = get("bodySmallGap2",          8.0);
+    m_expert.bodyLargePerGap        = get("bodyLargePerGap",        1.0);
+    m_expert.grpAttrBonus           = get("grpAttrBonus",           3.0);
+    m_expert.valAttrVarianceWeight  = get("valAttrVarianceWeight",  0.4);
+    m_expert.obmannAgeWeight        = get("obmannAgeWeight",        0.5);
+    m_expert.obmannOverusePenalty   = get("obmannOverusePenalty",   3.0);
+    m_expert.steerYouthWeight       = get("steerYouthWeight",       0.3);
+    m_expert.steerOverusePenalty    = get("steerOverusePenalty",    3.0);
+    m_expert.overuseThreshold       = static_cast<int>(get("overuseThreshold", 3.0));
+    m_expert.fillBoatAttempts       = static_cast<int>(get("fillBoatAttempts", 600.0));
+    m_expert.passAttempts           = static_cast<int>(get("passAttempts",     15.0));
 }

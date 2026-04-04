@@ -59,6 +59,7 @@ private slots:
     // Options tab
     void onSickModeChanged(int rowerId, bool sick);
     void refreshSickList();
+    void loadExpertSettings();
 
 private:
     void setupUi();
@@ -69,6 +70,7 @@ private:
     QWidget* buildDistanceDetailTab();
     QWidget* buildStatsTab();
     QWidget* buildOptionsTab();
+    QWidget* buildExpertTab();
 
     void loadAll();
     void refreshAssignmentList();
@@ -123,4 +125,47 @@ private:
 
     // Print copies spinbox
     QSpinBox* m_printCopiesSpinBox = nullptr;
+
+    // Expert settings — all scoring parameters, editable at runtime
+    struct ExpertSettings {
+        // Priority weights by rank position
+        double weightRank1 = 4.0;
+        double weightRank2 = 2.0;
+        double weightRank3 = 1.0;
+        double weightRank4 = 0.5;
+        double weightRank5 = 0.5;
+        // Whitelist / co-occurrence
+        double whitelistBonus      = 5.0;
+        double coOccurrenceFactor  = 1.5;
+        // Obmann
+        double obmannBonus         = 20.0;
+        // Racing/Beginner
+        double racingBeginnerPenalty = 8.0;
+        // Strength variance
+        double strengthVarianceWeight = 0.3;
+        // Compatibility soft penalties
+        double compatSpecialSpecial   = 2.0;
+        double compatSpecialSelected  = 4.0;
+        // Stroke length penalties
+        double strokeSmallGap1   = 3.0;
+        double strokeSmallGap2   = 12.0;
+        double strokeLargePerGap = 2.5;
+        // Body size penalties
+        double bodySmallGap1     = 1.5;
+        double bodySmallGap2     = 8.0;
+        double bodyLargePerGap   = 1.0;
+        // Group / value attrs
+        double grpAttrBonus          = 3.0;
+        double valAttrVarianceWeight = 0.4;
+        // Role selection
+        double obmannAgeWeight       = 0.5;
+        double obmannOverusePenalty  = 3.0;
+        double steerYouthWeight      = 0.3;
+        double steerOverusePenalty   = 3.0;
+        int    overuseThreshold      = 3;
+        // Generator search depth
+        int    fillBoatAttempts      = 600;
+        int    passAttempts          = 15;
+    } m_expert;
 };
+// (Expert settings appended below existing content — see buildExpertTab declaration)

@@ -10,7 +10,7 @@ public:
         ColId = 0, ColName, ColSkill, ColCompatibility,
         ColCanSteer, ColIsObmann, ColPropulsionAbility,
         ColAge, ColStrength,
-        ColStrokeLength, ColBodySize, ColAttr3,
+        ColStrokeLength, ColBodySize,
         ColAttrGrp1, ColAttrGrp2, ColAttrVal1, ColAttrVal2,
         ColCount
         // Whitelist/Blacklist (rower + boat) edited via dialog buttons only

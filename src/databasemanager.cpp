@@ -48,49 +48,38 @@ bool DatabaseManager::createTables() {
             name TEXT NOT NULL,
             skill TEXT NOT NULL DEFAULT 'Beginner',
             compatibility TEXT NOT NULL DEFAULT 'Normal',
-            whitelist TEXT DEFAULT '',
-            blacklist TEXT DEFAULT '',
+            whitelist TEXT NOT NULL DEFAULT '',
+            blacklist TEXT NOT NULL DEFAULT '',
             can_steer INTEGER NOT NULL DEFAULT 0,
             is_obmann INTEGER NOT NULL DEFAULT 0,
             propulsion_ability TEXT NOT NULL DEFAULT 'Both',
-            attr1 INTEGER NOT NULL DEFAULT 0,
-            attr2 INTEGER NOT NULL DEFAULT 0,
-            attr3 INTEGER NOT NULL DEFAULT 0,
             age_band INTEGER NOT NULL DEFAULT 0,
             strength INTEGER NOT NULL DEFAULT 0,
             stroke_length INTEGER NOT NULL DEFAULT 0,
             body_size INTEGER NOT NULL DEFAULT 0,
-            attr3 INTEGER NOT NULL DEFAULT 0,
             attr_grp1 INTEGER NOT NULL DEFAULT 0,
             attr_grp2 INTEGER NOT NULL DEFAULT 0,
             attr_val1 INTEGER NOT NULL DEFAULT 0,
             attr_val2 INTEGER NOT NULL DEFAULT 0,
-            boat_whitelist TEXT NOT NULL DEFAULT \'\',
-            boat_blacklist TEXT NOT NULL DEFAULT \'\'
+            boat_whitelist TEXT NOT NULL DEFAULT '',
+            boat_blacklist TEXT NOT NULL DEFAULT ''
         )
     )");
     if (!ok) { m_lastError = q.lastError().text(); return false; }
 
-    // Migration: add columns for older DBs
+    // Migrate older DBs (idempotent — errors ignored)
     {
         struct { const char* col; const char* def; } migs[] = {
-            { "can_steer",          "INTEGER NOT NULL DEFAULT 0" },
-            { "is_obmann",          "INTEGER NOT NULL DEFAULT 0" },
-            { "propulsion_ability", "TEXT NOT NULL DEFAULT 'Both'" },
-            { "attr1",              "INTEGER NOT NULL DEFAULT 0" },
-            { "attr2",              "INTEGER NOT NULL DEFAULT 0" },
-            { "attr3",              "INTEGER NOT NULL DEFAULT 0" },
-            { "age_band",           "INTEGER NOT NULL DEFAULT 0" },
-            { "strength",           "INTEGER NOT NULL DEFAULT 0" },
-            { "stroke_length",      "INTEGER NOT NULL DEFAULT 0" },
-            { "body_size",          "INTEGER NOT NULL DEFAULT 0" },
-            { "attr3",              "INTEGER NOT NULL DEFAULT 0" },
-            { "attr_grp1",          "INTEGER NOT NULL DEFAULT 0" },
-            { "attr_grp2",          "INTEGER NOT NULL DEFAULT 0" },
-            { "attr_val1",          "INTEGER NOT NULL DEFAULT 0" },
-            { "attr_val2",          "INTEGER NOT NULL DEFAULT 0" },
-            { "boat_whitelist",     "TEXT NOT NULL DEFAULT \'\'" },
-            { "boat_blacklist",     "TEXT NOT NULL DEFAULT \'\'" },
+            { "age_band",       "INTEGER NOT NULL DEFAULT 0" },
+            { "strength",       "INTEGER NOT NULL DEFAULT 0" },
+            { "stroke_length",  "INTEGER NOT NULL DEFAULT 0" },
+            { "body_size",      "INTEGER NOT NULL DEFAULT 0" },
+            { "attr_grp1",      "INTEGER NOT NULL DEFAULT 0" },
+            { "attr_grp2",      "INTEGER NOT NULL DEFAULT 0" },
+            { "attr_val1",      "INTEGER NOT NULL DEFAULT 0" },
+            { "attr_val2",      "INTEGER NOT NULL DEFAULT 0" },
+            { "boat_whitelist", "TEXT NOT NULL DEFAULT ''" },
+            { "boat_blacklist", "TEXT NOT NULL DEFAULT ''" },
         };
         for (auto& m : migs) {
             QSqlQuery mq;
@@ -109,6 +98,18 @@ bool DatabaseManager::createTables() {
     )");
     if (!ok) { m_lastError = q.lastError().text(); return false; }
 
+    // Migrate assignments (idempotent)
+    { QSqlQuery mq; mq.exec("ALTER TABLE assignments ADD COLUMN locked INTEGER NOT NULL DEFAULT 0"); }
+    { QSqlQuery mq; mq.exec("ALTER TABLE assignments ADD COLUMN details TEXT DEFAULT ''"); }
+
+    ok = q.exec(R"(
+        CREATE TABLE IF NOT EXISTS expert_settings (
+            key TEXT PRIMARY KEY,
+            value REAL NOT NULL
+        )
+    )");
+    if (!ok) { m_lastError = q.lastError().text(); return false; }
+
     ok = q.exec(R"(
         CREATE TABLE IF NOT EXISTS sick_rowers (
             rower_id INTEGER PRIMARY KEY,
@@ -116,20 +117,6 @@ bool DatabaseManager::createTables() {
         )
     )");
     if (!ok) { m_lastError = q.lastError().text(); return false; }
-
-    // Migrate assignments table
-    {
-        QSqlQuery mq;
-        mq.exec("ALTER TABLE assignments ADD COLUMN locked INTEGER NOT NULL DEFAULT 0");
-        mq.exec("ALTER TABLE assignments ADD COLUMN details TEXT NOT NULL DEFAULT \'\'");
-    }
-
-    // Migration: add details column to DBs created before this version
-    {
-        QSqlQuery mq;
-        mq.exec("ALTER TABLE assignments ADD COLUMN details TEXT DEFAULT ''");
-        // Ignore error — column already exists is fine
-    }
 
     ok = q.exec(R"(
         CREATE TABLE IF NOT EXISTS assignment_roles (
@@ -227,7 +214,7 @@ QList<Rower> DatabaseManager::loadRowers() {
     QList<Rower> rowers;
     QSqlQuery q("SELECT id, name, skill, compatibility, whitelist, blacklist, "
                 "can_steer, is_obmann, propulsion_ability, age_band, strength, "
-                "stroke_length, body_size, attr3, attr_grp1, attr_grp2, attr_val1, attr_val2, "
+                "stroke_length, body_size, attr_grp1, attr_grp2, attr_val1, attr_val2, "
                 "boat_whitelist, boat_blacklist "
                 "FROM rowers ORDER BY name");
     while (q.next()) {
@@ -246,13 +233,12 @@ QList<Rower> DatabaseManager::loadRowers() {
         r.setStrength(q.value(10).toInt());
         r.setStrokeLength(q.value(11).toInt());
         r.setBodySize(q.value(12).toInt());
-        r.setAttr3(q.value(13).toInt());
-        r.setAttrGrp1(q.value(14).toInt());
-        r.setAttrGrp2(q.value(15).toInt());
-        r.setAttrVal1(q.value(16).toInt());
-        r.setAttrVal2(q.value(17).toInt());
-        r.setBoatWhitelist(Rower::listFromString(q.value(18).isNull() ? "" : q.value(18).toString()));
-        r.setBoatBlacklist(Rower::listFromString(q.value(19).isNull() ? "" : q.value(19).toString()));
+        r.setAttrGrp1(q.value(13).toInt());
+        r.setAttrGrp2(q.value(14).toInt());
+        r.setAttrVal1(q.value(15).toInt());
+        r.setAttrVal2(q.value(16).toInt());
+        r.setBoatWhitelist(Rower::listFromString(q.value(17).isNull() ? "" : q.value(17).toString()));
+        r.setBoatBlacklist(Rower::listFromString(q.value(18).isNull() ? "" : q.value(18).toString()));
         rowers.append(r);
     }
     return rowers;
@@ -271,9 +257,9 @@ bool DatabaseManager::saveRower(Rower& rower) {
     if (rower.id() == -1) {
         q.prepare("INSERT INTO rowers (name, skill, compatibility, whitelist, blacklist, "
                   "can_steer, is_obmann, propulsion_ability, age_band, strength, "
-                  "stroke_length, body_size, attr3, attr_grp1, attr_grp2, attr_val1, attr_val2, "
+                  "stroke_length, body_size, attr_grp1, attr_grp2, attr_val1, attr_val2, "
                   "boat_whitelist, boat_blacklist) "
-                  "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                  "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
         q.addBindValue(rower.name());
         q.addBindValue(sk); q.addBindValue(co);
         q.addBindValue(wl); q.addBindValue(bl);
@@ -282,7 +268,6 @@ bool DatabaseManager::saveRower(Rower& rower) {
         q.addBindValue(pa);
         q.addBindValue(rower.ageBand()); q.addBindValue(rower.strength());
         q.addBindValue(rower.strokeLength()); q.addBindValue(rower.bodySize());
-        q.addBindValue(rower.attr3());
         q.addBindValue(rower.attrGrp1()); q.addBindValue(rower.attrGrp2());
         q.addBindValue(rower.attrVal1()); q.addBindValue(rower.attrVal2());
         q.addBindValue(bwl); q.addBindValue(bbl);
@@ -291,7 +276,7 @@ bool DatabaseManager::saveRower(Rower& rower) {
     } else {
         q.prepare("UPDATE rowers SET name=?, skill=?, compatibility=?, whitelist=?, blacklist=?, "
                   "can_steer=?, is_obmann=?, propulsion_ability=?, age_band=?, strength=?, "
-                  "stroke_length=?, body_size=?, attr3=?, attr_grp1=?, attr_grp2=?, "
+                  "stroke_length=?, body_size=?, attr_grp1=?, attr_grp2=?, "
                   "attr_val1=?, attr_val2=?, boat_whitelist=?, boat_blacklist=? WHERE id=?");
         q.addBindValue(rower.name());
         q.addBindValue(sk); q.addBindValue(co);
@@ -301,7 +286,6 @@ bool DatabaseManager::saveRower(Rower& rower) {
         q.addBindValue(pa);
         q.addBindValue(rower.ageBand()); q.addBindValue(rower.strength());
         q.addBindValue(rower.strokeLength()); q.addBindValue(rower.bodySize());
-        q.addBindValue(rower.attr3());
         q.addBindValue(rower.attrGrp1()); q.addBindValue(rower.attrGrp2());
         q.addBindValue(rower.attrVal1()); q.addBindValue(rower.attrVal2());
         q.addBindValue(bwl); q.addBindValue(bbl);
@@ -638,5 +622,23 @@ QMap<QPair<int,int>,int> DatabaseManager::loadCoOccurrence() {
         QPair<int,int> key(q.value(0).toInt(), q.value(1).toInt());
         result[key]++;
     }
+    return result;
+}
+
+// ---- Expert Settings ----
+bool DatabaseManager::saveExpertSetting(const QString& key, double value) {
+    QSqlQuery q;
+    q.prepare("INSERT OR REPLACE INTO expert_settings (key, value) VALUES (?, ?)");
+    q.addBindValue(key);
+    q.addBindValue(value);
+    if (!q.exec()) { m_lastError = q.lastError().text(); return false; }
+    return true;
+}
+
+QMap<QString, double> DatabaseManager::loadExpertSettings() {
+    QMap<QString, double> result;
+    QSqlQuery q("SELECT key, value FROM expert_settings");
+    while (q.next())
+        result[q.value(0).toString()] = q.value(1).toDouble();
     return result;
 }
