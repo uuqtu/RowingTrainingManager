@@ -9,9 +9,11 @@ public:
     enum Column {
         ColId = 0, ColName, ColSkill, ColCompatibility,
         ColCanSteer, ColIsObmann, ColPropulsionAbility,
-        ColAge, ColStrength, ColAttr1, ColAttr2, ColAttr3,
+        ColAge, ColStrength,
+        ColStrokeLength, ColBodySize, ColAttr3,
+        ColAttrGrp1, ColAttrGrp2, ColAttrVal1, ColAttrVal2,
         ColCount
-        // Whitelist and Blacklist are NOT shown in the table — edited via dialog buttons only
+        // Whitelist/Blacklist (rower + boat) edited via dialog buttons only
     };
 
     explicit RowerTableModel(QObject* parent = nullptr);

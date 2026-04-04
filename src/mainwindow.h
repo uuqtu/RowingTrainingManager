@@ -38,10 +38,13 @@ private slots:
     void onRowerChanged(int row);
     void onEditWhitelist();
     void onEditBlacklist();
+    void onEditBoatWhitelist();
+    void onEditBoatBlacklist();
 
     // Assignments tab
     void onNewAssignment();
     void onDeleteAssignment();
+    void onToggleLockAssignment();
     void onAssignmentSelected(QListWidgetItem* item);
     void onEditAssignment(QListWidgetItem* item);
     void onCopyToClipboard();

@@ -1,27 +1,33 @@
 #pragma once
 #include <QObject>
 #include <QList>
+#include <QMap>
+#include <QPair>
 #include "boat.h"
 #include "rower.h"
 #include "assignment.h"
 
 struct ScoringPriority {
-    enum Factor { Skill, Compatibility, Propulsion };
+    enum Factor { Skill, Compatibility, Propulsion, StrokeLength, BodySize };
     QList<Factor> order = { Factor::Skill, Factor::Compatibility, Factor::Propulsion };
-    bool trainingMode = false;   // if true, skill+compat are ignored entirely
-    bool crazyMode    = false;   // if true, everything is ignored — pure random distribution
+    bool trainingMode = false;
+    bool crazyMode    = false;
+    // Co-occurrence: pair(minId,maxId) -> count of times they shared a boat
+    QMap<QPair<int,int>, int> coOccurrence;
 
     double weightFor(Factor f) const {
         int idx = order.indexOf(f);
         if (idx < 0) return 0.0;
-        static const double weights[] = { 4.0, 2.0, 1.0 };
-        return (idx < 3) ? weights[idx] : 0.0;
+        static const double weights[] = { 4.0, 2.0, 1.0, 0.5, 0.5 };
+        return (idx < 5) ? weights[idx] : 0.0;
     }
     static QString factorName(Factor f) {
         switch (f) {
         case Skill:         return "Skill";
         case Compatibility: return "Compatibility";
         case Propulsion:    return "Propulsion match";
+        case StrokeLength:  return "Stroke Length";
+        case BodySize:      return "Body Size";
         }
         return {};
     }

@@ -251,7 +251,8 @@ QWidget* MainWindow::buildRowersTab() {
     m_rowerTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_rowerTable->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked);
 
-    // col: 0=Id,1=Name,2=Skill,3=Compat,4=FootSteer,5=IsObmann,6=PropAbility,7=Age,8=Strength,9=Attr1,10=Attr2,11=Attr3
+    // col: 0=Id,1=Name,2=Skill,3=Compat,4=FootSteer,5=Obmann,6=Prop,7=Age,
+    //      8=Strength,9=StrokeLen,10=BodySize,11=Attr3,12=GrpAttr1,13=GrpAttr2,14=ValAttr1,15=ValAttr2
     m_rowerTable->setItemDelegateForColumn(2, new ComboBoxDelegate(
         {"Student", "Beginner", "Experienced", "Professional"}, m_rowerTable));
     m_rowerTable->setItemDelegateForColumn(3, new ComboBoxDelegate(
@@ -260,10 +261,16 @@ QWidget* MainWindow::buildRowersTab() {
         {"Scull", "Sweep", "Both"}, m_rowerTable));
     m_rowerTable->setItemDelegateForColumn(7, new ComboBoxDelegate(
         Rower::ageBandOptions(), m_rowerTable));
-    m_rowerTable->setItemDelegateForColumn(8, new SpinBoxDelegate(0, 10, m_rowerTable));  // Strength
-    m_rowerTable->setItemDelegateForColumn(9,  new SpinBoxDelegate(0, 10, m_rowerTable)); // Attr1
-    m_rowerTable->setItemDelegateForColumn(10, new SpinBoxDelegate(0, 10, m_rowerTable)); // Attr2
+    m_rowerTable->setItemDelegateForColumn(8,  new SpinBoxDelegate(0, 10, m_rowerTable)); // Strength
+    m_rowerTable->setItemDelegateForColumn(9,  new ComboBoxDelegate(
+        Rower::strokeLengthOptions(), m_rowerTable));   // Stroke Length
+    m_rowerTable->setItemDelegateForColumn(10, new ComboBoxDelegate(
+        Rower::bodySizeOptions(), m_rowerTable));       // Body Size
     m_rowerTable->setItemDelegateForColumn(11, new SpinBoxDelegate(0, 10, m_rowerTable)); // Attr3
+    m_rowerTable->setItemDelegateForColumn(12, new SpinBoxDelegate(0, 10, m_rowerTable)); // GrpAttr1
+    m_rowerTable->setItemDelegateForColumn(13, new SpinBoxDelegate(0, 10, m_rowerTable)); // GrpAttr2
+    m_rowerTable->setItemDelegateForColumn(14, new SpinBoxDelegate(0, 10, m_rowerTable)); // ValAttr1
+    m_rowerTable->setItemDelegateForColumn(15, new SpinBoxDelegate(0, 10, m_rowerTable)); // ValAttr2
 
     layout->addWidget(m_rowerTable);
 
@@ -273,21 +280,27 @@ QWidget* MainWindow::buildRowersTab() {
     addBtn->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_N));
     auto* delBtn = new QPushButton("✕  Delete Selected");
     delBtn->setObjectName("dangerBtn");
-    auto* wlBtn  = new QPushButton("Whitelist...");
-    auto* blBtn  = new QPushButton("Blacklist...");
+    auto* wlBtn   = new QPushButton("Rower Whitelist...");
+    auto* blBtn   = new QPushButton("Rower Blacklist...");
+    auto* bwlBtn  = new QPushButton("Boat Whitelist...");
+    auto* bblBtn  = new QPushButton("Boat Blacklist...");
 
     btnLayout->addWidget(addBtn);
     btnLayout->addWidget(delBtn);
     btnLayout->addSpacing(20);
     btnLayout->addWidget(wlBtn);
     btnLayout->addWidget(blBtn);
+    btnLayout->addWidget(bwlBtn);
+    btnLayout->addWidget(bblBtn);
     btnLayout->addStretch();
     layout->addLayout(btnLayout);
 
-    connect(addBtn, &QPushButton::clicked, this, &MainWindow::onAddRower);
-    connect(delBtn, &QPushButton::clicked, this, &MainWindow::onDeleteRower);
-    connect(wlBtn,  &QPushButton::clicked, this, &MainWindow::onEditWhitelist);
-    connect(blBtn,  &QPushButton::clicked, this, &MainWindow::onEditBlacklist);
+    connect(addBtn,  &QPushButton::clicked, this, &MainWindow::onAddRower);
+    connect(delBtn,  &QPushButton::clicked, this, &MainWindow::onDeleteRower);
+    connect(wlBtn,   &QPushButton::clicked, this, &MainWindow::onEditWhitelist);
+    connect(blBtn,   &QPushButton::clicked, this, &MainWindow::onEditBlacklist);
+    connect(bwlBtn,  &QPushButton::clicked, this, &MainWindow::onEditBoatWhitelist);
+    connect(bblBtn,  &QPushButton::clicked, this, &MainWindow::onEditBoatBlacklist);
     connect(m_rowerModel, &RowerTableModel::rowerChanged, this, &MainWindow::onRowerChanged);
 
     return w;
@@ -322,8 +335,12 @@ QWidget* MainWindow::buildAssignmentsTab() {
     newBtn->setObjectName("primaryBtn");
     auto* delBtn = new QPushButton("✕  Delete");
     delBtn->setObjectName("dangerBtn");
+    auto* lockBtn = new QPushButton("🔒 Lock");
+    lockBtn->setObjectName("primaryBtn");
+    lockBtn->setToolTip("Lock/unlock this assignment so it cannot be edited");
     leftBtnLayout->addWidget(newBtn);
     leftBtnLayout->addWidget(delBtn);
+    leftBtnLayout->addWidget(lockBtn);
     leftLayout->addLayout(leftBtnLayout);
 
     layout->addWidget(leftPanel);
@@ -384,8 +401,9 @@ QWidget* MainWindow::buildAssignmentsTab() {
 
     layout->addWidget(rightPanel);
 
-    connect(newBtn, &QPushButton::clicked, this, &MainWindow::onNewAssignment);
-    connect(delBtn, &QPushButton::clicked, this, &MainWindow::onDeleteAssignment);
+    connect(newBtn,  &QPushButton::clicked, this, &MainWindow::onNewAssignment);
+    connect(delBtn,  &QPushButton::clicked, this, &MainWindow::onDeleteAssignment);
+    connect(lockBtn, &QPushButton::clicked, this, &MainWindow::onToggleLockAssignment);
     connect(m_assignmentList, &QListWidget::itemClicked,       this, &MainWindow::onAssignmentSelected);
     connect(m_assignmentList, &QListWidget::itemDoubleClicked, this, &MainWindow::onEditAssignment);
     connect(m_copyBtn, &QPushButton::clicked, this, &MainWindow::onCopyToClipboard);
@@ -413,8 +431,9 @@ void MainWindow::refreshAssignmentList() {
     if (m_distAssignmentCombo) m_distAssignmentCombo->clear();
 
     for (const Assignment& a : m_assignments) {
+        QString prefix = a.isLocked() ? "🔒 " : "";
         auto* item = new QListWidgetItem(
-            QString("%1\n%2").arg(a.name()).arg(a.createdAt().toString("dd.MM.yyyy hh:mm"))
+            prefix + QString("%1\n%2").arg(a.name()).arg(a.createdAt().toString("dd.MM.yyyy hh:mm"))
         );
         item->setData(Qt::UserRole, a.id());
         m_assignmentList->addItem(item);
@@ -661,6 +680,7 @@ void MainWindow::onNewAssignment() {
     dlg.setEquipmentLimits(
         m_scullOarsSpinBox ? m_scullOarsSpinBox->value() : 0,
         m_sweepOarsSpinBox ? m_sweepOarsSpinBox->value() : 0);
+    dlg.setCoOccurrence(m_db->loadCoOccurrence());
     if (dlg.exec() == QDialog::Accepted) {
         Assignment a = dlg.generatedAssignment();
         if (m_db->saveAssignment(a)) {
@@ -710,6 +730,10 @@ void MainWindow::onEditAssignment(QListWidgetItem* item) {
     if (!item) return;
     int id = item->data(Qt::UserRole).toInt();
     Assignment existing = m_db->loadAssignment(id);
+    if (existing.isLocked()) {
+        statusBar()->showMessage("This assignment is locked — unlock it first to edit.", 3000);
+        return;
+    }
 
     QList<Rower> healthyRowers2;
     for (const Rower& r : m_rowers)
@@ -718,6 +742,7 @@ void MainWindow::onEditAssignment(QListWidgetItem* item) {
     dlg.setEquipmentLimits(
         m_scullOarsSpinBox ? m_scullOarsSpinBox->value() : 0,
         m_sweepOarsSpinBox ? m_sweepOarsSpinBox->value() : 0);
+    dlg.setCoOccurrence(m_db->loadCoOccurrence());
     dlg.loadFromAssignment(existing);
 
     if (dlg.exec() == QDialog::Accepted) {
@@ -1614,4 +1639,96 @@ void MainWindow::populateAssignmentTable(const Assignment& assignment) {
 
     m_assignmentTable->resizeColumnsToContents();
     m_assignmentTable->horizontalHeader()->setStretchLastSection(true);
+}
+
+// ---------------------------------------------------------------
+// Boat Whitelist / Blacklist editors
+// ---------------------------------------------------------------
+static void editBoatList(
+    QWidget* parent, const QString& title, const QList<Boat>& allBoats,
+    QList<int>& currentList, std::function<void()> onSave)
+{
+    QDialog dlg(parent);
+    dlg.setWindowTitle(title);
+    auto* vl = new QVBoxLayout(&dlg);
+    auto* info = new QLabel(title.contains("Whitelist")
+        ? "The rower prefers ONLY these boats (any one of them is acceptable).\nIf empty, no boat preference."
+        : "The rower refuses to row in any of these boats.");
+    info->setWordWrap(true);
+    vl->addWidget(info);
+    QVector<QCheckBox*> cbs;
+    for (const Boat& b : allBoats) {
+        auto* cb = new QCheckBox(QString("%1  [Cap:%2|%3|%4]")
+            .arg(b.name()).arg(b.capacity())
+            .arg(Boat::steeringTypeToString(b.steeringType()))
+            .arg(Boat::propulsionTypeToString(b.propulsionType())));
+        cb->setProperty("boatId", b.id());
+        cb->setChecked(currentList.contains(b.id()));
+        vl->addWidget(cb);
+        cbs.append(cb);
+    }
+    auto* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    vl->addWidget(btns);
+    QObject::connect(btns, &QDialogButtonBox::accepted, &dlg, &QDialog::accept);
+    QObject::connect(btns, &QDialogButtonBox::rejected, &dlg, &QDialog::reject);
+    if (dlg.exec() == QDialog::Accepted) {
+        currentList.clear();
+        for (auto* cb : cbs)
+            if (cb->isChecked()) currentList.append(cb->property("boatId").toInt());
+        onSave();
+    }
+}
+
+void MainWindow::onEditBoatWhitelist() {
+    int row = m_rowerTable->currentIndex().row();
+    if (row < 0) return;
+    Rower r = m_rowerModel->rowerAt(row);
+    QList<int> wl = r.boatWhitelist();
+    editBoatList(this, "Boat Whitelist for " + r.name(), m_boats, wl, [&]() {
+        r.setBoatWhitelist(wl);
+        m_rowerModel->updateRower(row, r);
+        m_db->saveRower(r);
+        m_rowers[row] = r;
+        statusBar()->showMessage("Boat whitelist saved for " + r.name(), 2000);
+    });
+}
+
+void MainWindow::onEditBoatBlacklist() {
+    int row = m_rowerTable->currentIndex().row();
+    if (row < 0) return;
+    Rower r = m_rowerModel->rowerAt(row);
+    QList<int> bl = r.boatBlacklist();
+    editBoatList(this, "Boat Blacklist for " + r.name(), m_boats, bl, [&]() {
+        r.setBoatBlacklist(bl);
+        m_rowerModel->updateRower(row, r);
+        m_db->saveRower(r);
+        m_rowers[row] = r;
+        statusBar()->showMessage("Boat blacklist saved for " + r.name(), 2000);
+    });
+}
+
+// ---------------------------------------------------------------
+// Lock / unlock assignment
+// ---------------------------------------------------------------
+void MainWindow::onToggleLockAssignment() {
+    auto* item = m_assignmentList->currentItem();
+    if (!item) return;
+    int id = item->data(Qt::UserRole).toInt();
+    for (Assignment& a : m_assignments) {
+        if (a.id() != id) continue;
+        bool newLocked = !a.isLocked();
+        a.setLocked(newLocked);
+        m_db->setAssignmentLocked(id, newLocked);
+        // Update list item display
+        QString prefix = newLocked ? "🔒 " : "";
+        item->setText(prefix + QString("%1\n%2")
+            .arg(a.name())
+            .arg(a.createdAt().toString("dd.MM.yyyy hh:mm")));
+        if (m_currentAssignment.id() == id) m_currentAssignment.setLocked(newLocked);
+        statusBar()->showMessage(
+            newLocked ? "Assignment locked — double-click editing disabled."
+                      : "Assignment unlocked.",
+            3000);
+        break;
+    }
 }

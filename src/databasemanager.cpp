@@ -57,7 +57,16 @@ bool DatabaseManager::createTables() {
             attr2 INTEGER NOT NULL DEFAULT 0,
             attr3 INTEGER NOT NULL DEFAULT 0,
             age_band INTEGER NOT NULL DEFAULT 0,
-            strength INTEGER NOT NULL DEFAULT 0
+            strength INTEGER NOT NULL DEFAULT 0,
+            stroke_length INTEGER NOT NULL DEFAULT 0,
+            body_size INTEGER NOT NULL DEFAULT 0,
+            attr3 INTEGER NOT NULL DEFAULT 0,
+            attr_grp1 INTEGER NOT NULL DEFAULT 0,
+            attr_grp2 INTEGER NOT NULL DEFAULT 0,
+            attr_val1 INTEGER NOT NULL DEFAULT 0,
+            attr_val2 INTEGER NOT NULL DEFAULT 0,
+            boat_whitelist TEXT NOT NULL DEFAULT \'\',
+            boat_blacklist TEXT NOT NULL DEFAULT \'\'
         )
     )");
     if (!ok) { m_lastError = q.lastError().text(); return false; }
@@ -73,6 +82,15 @@ bool DatabaseManager::createTables() {
             { "attr3",              "INTEGER NOT NULL DEFAULT 0" },
             { "age_band",           "INTEGER NOT NULL DEFAULT 0" },
             { "strength",           "INTEGER NOT NULL DEFAULT 0" },
+            { "stroke_length",      "INTEGER NOT NULL DEFAULT 0" },
+            { "body_size",          "INTEGER NOT NULL DEFAULT 0" },
+            { "attr3",              "INTEGER NOT NULL DEFAULT 0" },
+            { "attr_grp1",          "INTEGER NOT NULL DEFAULT 0" },
+            { "attr_grp2",          "INTEGER NOT NULL DEFAULT 0" },
+            { "attr_val1",          "INTEGER NOT NULL DEFAULT 0" },
+            { "attr_val2",          "INTEGER NOT NULL DEFAULT 0" },
+            { "boat_whitelist",     "TEXT NOT NULL DEFAULT \'\'" },
+            { "boat_blacklist",     "TEXT NOT NULL DEFAULT \'\'" },
         };
         for (auto& m : migs) {
             QSqlQuery mq;
@@ -85,6 +103,7 @@ bool DatabaseManager::createTables() {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             created_at TEXT NOT NULL,
+            locked INTEGER NOT NULL DEFAULT 0,
             details TEXT DEFAULT ''
         )
     )");
@@ -97,6 +116,13 @@ bool DatabaseManager::createTables() {
         )
     )");
     if (!ok) { m_lastError = q.lastError().text(); return false; }
+
+    // Migrate assignments table
+    {
+        QSqlQuery mq;
+        mq.exec("ALTER TABLE assignments ADD COLUMN locked INTEGER NOT NULL DEFAULT 0");
+        mq.exec("ALTER TABLE assignments ADD COLUMN details TEXT NOT NULL DEFAULT \'\'");
+    }
 
     // Migration: add details column to DBs created before this version
     {
@@ -200,25 +226,33 @@ bool DatabaseManager::deleteBoat(int boatId) {
 QList<Rower> DatabaseManager::loadRowers() {
     QList<Rower> rowers;
     QSqlQuery q("SELECT id, name, skill, compatibility, whitelist, blacklist, "
-                "can_steer, is_obmann, propulsion_ability, attr1, attr2, attr3, age_band, strength "
-                "FROM rowers ORDER BY name"); // age_band col index 12
+                "can_steer, is_obmann, propulsion_ability, age_band, strength, "
+                "stroke_length, body_size, attr3, attr_grp1, attr_grp2, attr_val1, attr_val2, "
+                "boat_whitelist, boat_blacklist "
+                "FROM rowers ORDER BY name");
     while (q.next()) {
         Rower r;
         r.setId(q.value(0).toInt());
         r.setName(q.value(1).toString());
         r.setSkill(Rower::skillFromString(q.value(2).toString()));
         r.setCompatibility(Rower::compatFromString(q.value(3).toString()));
-        r.setWhitelist(Rower::listFromString(q.value(4).isNull() ? QString("") : q.value(4).toString()));
-        r.setBlacklist(Rower::listFromString(q.value(5).isNull() ? QString("") : q.value(5).toString()));
+        r.setWhitelist(Rower::listFromString(q.value(4).isNull() ? "" : q.value(4).toString()));
+        r.setBlacklist(Rower::listFromString(q.value(5).isNull() ? "" : q.value(5).toString()));
         r.setCanSteer(q.value(6).toInt() != 0);
         r.setIsObmann(q.value(7).toInt() != 0);
         r.setPropulsionAbility(Boat::propulsionTypeFromString(
-            q.value(8).isNull() ? QString("Both") : q.value(8).toString()));
-        r.setAttr1(q.value(9).toInt());
-        r.setAttr2(q.value(10).toInt());
-        r.setAttr3(q.value(11).toInt());
-        r.setAgeBand(q.value(12).toInt());
-        r.setStrength(q.value(13).toInt());
+            q.value(8).isNull() ? "Both" : q.value(8).toString()));
+        r.setAgeBand(q.value(9).toInt());
+        r.setStrength(q.value(10).toInt());
+        r.setStrokeLength(q.value(11).toInt());
+        r.setBodySize(q.value(12).toInt());
+        r.setAttr3(q.value(13).toInt());
+        r.setAttrGrp1(q.value(14).toInt());
+        r.setAttrGrp2(q.value(15).toInt());
+        r.setAttrVal1(q.value(16).toInt());
+        r.setAttrVal2(q.value(17).toInt());
+        r.setBoatWhitelist(Rower::listFromString(q.value(18).isNull() ? "" : q.value(18).toString()));
+        r.setBoatBlacklist(Rower::listFromString(q.value(19).isNull() ? "" : q.value(19).toString()));
         rowers.append(r);
     }
     return rowers;
@@ -226,42 +260,51 @@ QList<Rower> DatabaseManager::loadRowers() {
 
 bool DatabaseManager::saveRower(Rower& rower) {
     QSqlQuery q;
-    const QString wl = Rower::listToString(rower.whitelist());
-    const QString bl = Rower::listToString(rower.blacklist());
-    const QString pa = Boat::propulsionTypeToString(rower.propulsionAbility());
-    const QString sk = Rower::skillToString(rower.skill());
-    const QString co = Rower::compatToString(rower.compatibility());
+    const QString wl  = Rower::listToString(rower.whitelist());
+    const QString bl  = Rower::listToString(rower.blacklist());
+    const QString bwl = Rower::listToString(rower.boatWhitelist());
+    const QString bbl = Rower::listToString(rower.boatBlacklist());
+    const QString pa  = Boat::propulsionTypeToString(rower.propulsionAbility());
+    const QString sk  = Rower::skillToString(rower.skill());
+    const QString co  = Rower::compatToString(rower.compatibility());
 
     if (rower.id() == -1) {
-        q.prepare("INSERT INTO rowers "
-                  "(name, skill, compatibility, whitelist, blacklist, can_steer, is_obmann, "
-                  "propulsion_ability, attr1, attr2, attr3, age_band, strength) "
-                  "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        q.prepare("INSERT INTO rowers (name, skill, compatibility, whitelist, blacklist, "
+                  "can_steer, is_obmann, propulsion_ability, age_band, strength, "
+                  "stroke_length, body_size, attr3, attr_grp1, attr_grp2, attr_val1, attr_val2, "
+                  "boat_whitelist, boat_blacklist) "
+                  "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
         q.addBindValue(rower.name());
-        q.addBindValue(sk);  q.addBindValue(co);
-        q.addBindValue(QVariant::fromValue(wl));
-        q.addBindValue(QVariant::fromValue(bl));
+        q.addBindValue(sk); q.addBindValue(co);
+        q.addBindValue(wl); q.addBindValue(bl);
         q.addBindValue(rower.canSteer() ? 1 : 0);
         q.addBindValue(rower.isObmann() ? 1 : 0);
         q.addBindValue(pa);
-        q.addBindValue(rower.attr1()); q.addBindValue(rower.attr2()); q.addBindValue(rower.attr3());
-        q.addBindValue(rower.ageBand());
-        q.addBindValue(rower.strength());
+        q.addBindValue(rower.ageBand()); q.addBindValue(rower.strength());
+        q.addBindValue(rower.strokeLength()); q.addBindValue(rower.bodySize());
+        q.addBindValue(rower.attr3());
+        q.addBindValue(rower.attrGrp1()); q.addBindValue(rower.attrGrp2());
+        q.addBindValue(rower.attrVal1()); q.addBindValue(rower.attrVal2());
+        q.addBindValue(bwl); q.addBindValue(bbl);
         if (!q.exec()) { m_lastError = q.lastError().text(); return false; }
         rower.setId(q.lastInsertId().toInt());
     } else {
         q.prepare("UPDATE rowers SET name=?, skill=?, compatibility=?, whitelist=?, blacklist=?, "
-                  "can_steer=?, is_obmann=?, propulsion_ability=?, attr1=?, attr2=?, attr3=?, age_band=?, strength=? WHERE id=?");
+                  "can_steer=?, is_obmann=?, propulsion_ability=?, age_band=?, strength=?, "
+                  "stroke_length=?, body_size=?, attr3=?, attr_grp1=?, attr_grp2=?, "
+                  "attr_val1=?, attr_val2=?, boat_whitelist=?, boat_blacklist=? WHERE id=?");
         q.addBindValue(rower.name());
-        q.addBindValue(sk);  q.addBindValue(co);
-        q.addBindValue(QVariant::fromValue(wl));
-        q.addBindValue(QVariant::fromValue(bl));
+        q.addBindValue(sk); q.addBindValue(co);
+        q.addBindValue(wl); q.addBindValue(bl);
         q.addBindValue(rower.canSteer() ? 1 : 0);
         q.addBindValue(rower.isObmann() ? 1 : 0);
         q.addBindValue(pa);
-        q.addBindValue(rower.attr1()); q.addBindValue(rower.attr2()); q.addBindValue(rower.attr3());
-        q.addBindValue(rower.ageBand());
-        q.addBindValue(rower.strength());
+        q.addBindValue(rower.ageBand()); q.addBindValue(rower.strength());
+        q.addBindValue(rower.strokeLength()); q.addBindValue(rower.bodySize());
+        q.addBindValue(rower.attr3());
+        q.addBindValue(rower.attrGrp1()); q.addBindValue(rower.attrGrp2());
+        q.addBindValue(rower.attrVal1()); q.addBindValue(rower.attrVal2());
+        q.addBindValue(bwl); q.addBindValue(bbl);
         q.addBindValue(rower.id());
         if (!q.exec()) { m_lastError = q.lastError().text(); return false; }
     }
@@ -279,12 +322,13 @@ bool DatabaseManager::deleteRower(int rowerId) {
 // ---- Assignments ----
 QList<Assignment> DatabaseManager::loadAssignments() {
     QList<Assignment> list;
-    QSqlQuery q("SELECT id, name, created_at FROM assignments ORDER BY created_at DESC");
+    QSqlQuery q("SELECT id, name, created_at, locked FROM assignments ORDER BY created_at DESC");
     while (q.next()) {
         Assignment a;
         a.setId(q.value(0).toInt());
         a.setName(q.value(1).toString());
         a.setCreatedAt(QDateTime::fromString(q.value(2).toString(), Qt::ISODate));
+        a.setLocked(q.value(3).toInt() != 0);
         list.append(a);
     }
     return list;
@@ -292,7 +336,7 @@ QList<Assignment> DatabaseManager::loadAssignments() {
 
 Assignment DatabaseManager::loadAssignment(int assignmentId) {
     QSqlQuery q;
-    q.prepare("SELECT id, name, created_at, details FROM assignments WHERE id=?");
+    q.prepare("SELECT id, name, created_at, details, locked FROM assignments WHERE id=?");
     q.addBindValue(assignmentId);
     q.exec();
     Assignment a;
@@ -301,6 +345,7 @@ Assignment DatabaseManager::loadAssignment(int assignmentId) {
         a.setName(q.value(1).toString());
         a.setCreatedAt(QDateTime::fromString(q.value(2).toString(), Qt::ISODate));
 
+        a.setLocked(q.value(4).toInt() != 0);
         // Parse details JSON if present
         QString detailsJson = q.value(3).toString();
         if (!detailsJson.isEmpty()) {
@@ -381,10 +426,11 @@ bool DatabaseManager::saveAssignment(Assignment& assignment) {
     QSqlDatabase::database().transaction();
     QSqlQuery q;
     if (assignment.id() == -1) {
-        q.prepare("INSERT INTO assignments (name, created_at, details) VALUES (?,?,?)");
+        q.prepare("INSERT INTO assignments (name, created_at, details, locked) VALUES (?,?,?,?)");
         q.addBindValue(assignment.name());
         q.addBindValue(assignment.createdAt().toString(Qt::ISODate));
         q.addBindValue(detailsJson);
+        q.addBindValue(assignment.isLocked() ? 1 : 0);
         if (!q.exec()) {
             m_lastError = q.lastError().text();
             QSqlDatabase::database().rollback();
@@ -392,10 +438,11 @@ bool DatabaseManager::saveAssignment(Assignment& assignment) {
         }
         assignment.setId(q.lastInsertId().toInt());
     } else {
-        q.prepare("UPDATE assignments SET name=?, created_at=?, details=? WHERE id=?");
+        q.prepare("UPDATE assignments SET name=?, created_at=?, details=?, locked=? WHERE id=?");
         q.addBindValue(assignment.name());
         q.addBindValue(assignment.createdAt().toString(Qt::ISODate));
         q.addBindValue(detailsJson);
+        q.addBindValue(assignment.isLocked() ? 1 : 0);
         q.addBindValue(assignment.id());
         if (!q.exec()) {
             m_lastError = q.lastError().text();
@@ -567,4 +614,29 @@ bool DatabaseManager::isRowerSick(int rowerId) {
     q.addBindValue(rowerId);
     q.exec();
     return q.next();
+}
+
+bool DatabaseManager::setAssignmentLocked(int assignmentId, bool locked) {
+    QSqlQuery q;
+    q.prepare("UPDATE assignments SET locked=? WHERE id=?");
+    q.addBindValue(locked ? 1 : 0);
+    q.addBindValue(assignmentId);
+    if (!q.exec()) { m_lastError = q.lastError().text(); return false; }
+    return true;
+}
+
+QMap<QPair<int,int>,int> DatabaseManager::loadCoOccurrence() {
+    QMap<QPair<int,int>,int> result;
+    // Count how many assignments each pair of rowers shared a boat
+    QSqlQuery q("SELECT ae1.rower_id, ae2.rower_id "
+                "FROM assignment_entries ae1 "
+                "JOIN assignment_entries ae2 "
+                "  ON ae1.assignment_id = ae2.assignment_id "
+                "  AND ae1.boat_id = ae2.boat_id "
+                "  AND ae1.rower_id < ae2.rower_id");
+    while (q.next()) {
+        QPair<int,int> key(q.value(0).toInt(), q.value(1).toInt());
+        result[key]++;
+    }
+    return result;
 }

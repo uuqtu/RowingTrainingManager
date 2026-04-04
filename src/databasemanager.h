@@ -1,6 +1,8 @@
 #pragma once
 #include <QObject>
 #include <QList>
+#include <QMap>
+#include <QPair>
 #include <QString>
 #include "boat.h"
 #include "rower.h"
@@ -32,6 +34,9 @@ public:
     Assignment loadAssignment(int assignmentId);
     bool saveAssignment(Assignment& assignment);
     bool deleteAssignment(int assignmentId);
+
+    bool setAssignmentLocked(int assignmentId, bool locked);
+    QMap<QPair<int,int>,int> loadCoOccurrence();
 
     // Sick rowers (excluded from all assignment generation)
     QList<int> loadSickRowerIds();

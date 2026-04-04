@@ -6,7 +6,8 @@
 enum class SkillLevel { Student = 0, Beginner, Experienced, Professional };
 enum class CompatibilityTier { Infinite = 0, Normal, Special, Selected };
 
-// Age band lower bounds: 0=unknown, 20, 30, 40, 50, 60, 70, 80
+// StrokeLength: 0=unknown, 1=Short, 2=Medium, 3=Long
+// BodySize:     0=unknown, 1=Small, 2=Medium, 3=Tall
 static const QList<int> kAgeBands = {0, 20, 30, 40, 50, 60, 70, 80};
 
 class Rower {
@@ -26,12 +27,10 @@ public:
     CompatibilityTier compatibility() const { return m_compatibility; }
     void setCompatibility(CompatibilityTier c) { m_compatibility = c; }
 
-    // Age band (lower bound of decade, e.g. 30 = "30-40", 0 = unknown)
     int ageBand() const { return m_ageBand; }
     void setAgeBand(int b) { m_ageBand = b; }
-    // Returns "20-30", "30-40" etc., or "" if unknown
     static QString ageBandToString(int b);
-    static QStringList ageBandOptions();   // for combo delegate
+    static QStringList ageBandOptions();
 
     bool canSteer()  const { return m_canSteer; }
     void setCanSteer(bool v) { m_canSteer = v; }
@@ -42,12 +41,41 @@ public:
     PropulsionType propulsionAbility() const { return m_propulsionAbility; }
     void setPropulsionAbility(PropulsionType p) { m_propulsionAbility = p; }
 
-    int attr1() const { return m_attr1; }  void setAttr1(int v) { m_attr1 = qBound(0, v, 10); }
-    int attr2() const { return m_attr2; }  void setAttr2(int v) { m_attr2 = qBound(0, v, 10); }
-    int attr3() const { return m_attr3; }  void setAttr3(int v) { m_attr3 = qBound(0, v, 10); }
-    // Strength (0=not set, 1-10). Balanced across teams when boat capacity > 2.
-    int strength() const { return m_strength; }  void setStrength(int v) { m_strength = qBound(0, v, 10); }
+    // Stroke length: 0=unknown, 1=Short, 2=Medium, 3=Long
+    int strokeLength() const { return m_strokeLength; }
+    void setStrokeLength(int v) { m_strokeLength = qBound(0, v, 3); }
+    static QStringList strokeLengthOptions() { return {"(unknown)", "Short", "Medium", "Long"}; }
+    static QString strokeLengthToString(int v) {
+        switch(v) { case 1: return "Short"; case 2: return "Medium"; case 3: return "Long"; }
+        return "";
+    }
 
+    // Body size: 0=unknown, 1=Small, 2=Medium, 3=Tall
+    int bodySize() const { return m_bodySize; }
+    void setBodySize(int v) { m_bodySize = qBound(0, v, 3); }
+    static QStringList bodySizeOptions() { return {"(unknown)", "Small", "Medium", "Tall"}; }
+    static QString bodySizeToString(int v) {
+        switch(v) { case 1: return "Small"; case 2: return "Medium"; case 3: return "Tall"; }
+        return "";
+    }
+
+    // attr3 (0=not set, 1-10): generic numeric attribute
+    int attr3() const { return m_attr3; }
+    void setAttr3(int v) { m_attr3 = qBound(0, v, 10); }
+
+    // Strength (0=not set, 1-10)
+    int strength() const { return m_strength; }
+    void setStrength(int v) { m_strength = qBound(0, v, 10); }
+
+    // Group attrs: 0=not set, 1-10. People with same value are preferred together.
+    int attrGrp1() const { return m_attrGrp1; }  void setAttrGrp1(int v) { m_attrGrp1 = qBound(0, v, 10); }
+    int attrGrp2() const { return m_attrGrp2; }  void setAttrGrp2(int v) { m_attrGrp2 = qBound(0, v, 10); }
+
+    // Balance attrs: 0=not set, 1-10. Average across boats is balanced.
+    int attrVal1() const { return m_attrVal1; }  void setAttrVal1(int v) { m_attrVal1 = qBound(0, v, 10); }
+    int attrVal2() const { return m_attrVal2; }  void setAttrVal2(int v) { m_attrVal2 = qBound(0, v, 10); }
+
+    // Rower whitelist / blacklist (other rower IDs)
     QList<int> whitelist() const { return m_whitelist; }
     void setWhitelist(const QList<int>& wl) { m_whitelist = wl; }
     void addToWhitelist(int id);
@@ -57,6 +85,13 @@ public:
     void setBlacklist(const QList<int>& bl) { m_blacklist = bl; }
     void addToBlacklist(int id);
     void removeFromBlacklist(int id);
+
+    // Boat whitelist / blacklist (boat IDs)
+    QList<int> boatWhitelist() const { return m_boatWhitelist; }
+    void setBoatWhitelist(const QList<int>& wl) { m_boatWhitelist = wl; }
+
+    QList<int> boatBlacklist() const { return m_boatBlacklist; }
+    void setBoatBlacklist(const QList<int>& bl) { m_boatBlacklist = bl; }
 
     bool canRowPropulsion(PropulsionType boatPropulsion) const;
 
@@ -69,7 +104,6 @@ public:
 
     static QString compatToString(CompatibilityTier c);
     static CompatibilityTier compatFromString(const QString& s);
-
     static double compatPenalty(CompatibilityTier a, CompatibilityTier b);
 
 private:
@@ -81,7 +115,18 @@ private:
     bool           m_canSteer         = false;
     bool           m_isObmann         = false;
     PropulsionType m_propulsionAbility = PropulsionType::Both;
-    int  m_attr1 = 0, m_attr2 = 0, m_attr3 = 0, m_strength = 0;
+
+    int  m_strokeLength = 0;  // 1=Short 2=Medium 3=Long
+    int  m_bodySize     = 0;  // 1=Small 2=Medium 3=Tall
+    int  m_attr3        = 0;
+    int  m_strength     = 0;
+    int  m_attrGrp1     = 0;
+    int  m_attrGrp2     = 0;
+    int  m_attrVal1     = 0;
+    int  m_attrVal2     = 0;
+
     QList<int> m_whitelist;
     QList<int> m_blacklist;
+    QList<int> m_boatWhitelist;
+    QList<int> m_boatBlacklist;
 };

@@ -49,10 +49,14 @@ public:
     QStringList priorityOrder() const { return m_priorityOrder; }
     void setPriorityOrder(const QStringList& o) { m_priorityOrder = o; }
 
+    bool isLocked() const { return m_locked; }
+    void setLocked(bool v) { m_locked = v; }
+
 private:
     int m_id = -1;
     QString m_name;
     QDateTime m_createdAt;
+    bool m_locked = false;
     QMap<int, QList<int>> m_boatRowerMap;
 
     QList<SavedGroup> m_groups;

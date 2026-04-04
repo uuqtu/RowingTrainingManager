@@ -2,6 +2,7 @@
 #include <QDialog>
 #include <QList>
 #include <QMap>
+#include <QPair>
 #include "boat.h"
 #include "rower.h"
 #include "assignment.h"
@@ -47,6 +48,7 @@ public:
         m_globalScullOars = scullOars;
         m_globalSweepOars = sweepOars;
     }
+    void setCoOccurrence(const QMap<QPair<int,int>,int>& co) { m_coOccurrence = co; }
 
     Assignment generatedAssignment() const { return m_assignment; }
     void loadFromAssignment(const Assignment& a);
@@ -128,6 +130,7 @@ private:
     // (steering-only people remain here)
     int m_globalScullOars = 0;  // 0 = no limit
     int m_globalSweepOars = 0;
+    QMap<QPair<int,int>,int> m_coOccurrence;
     QTableWidget* m_steeringOnlyTable = nullptr;
     QComboBox*   m_soRowerCombo      = nullptr;
     QComboBox*   m_soBoatCombo       = nullptr;

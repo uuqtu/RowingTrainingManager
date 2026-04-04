@@ -324,7 +324,8 @@ QWidget* AssignmentDialog::buildPriorityTab()
     m_priorityList = new QListWidget;
     m_priorityList->setDragDropMode(QAbstractItemView::InternalMove);
     m_priorityList->setDefaultDropAction(Qt::MoveAction);
-    for (const QString& label : {"Skill", "Compatibility", "Propulsion match"}) {
+    for (const QString& label : {"Skill", "Compatibility", "Propulsion match",
+                                  "Stroke Length", "Body Size"}) {
         auto* item = new QListWidgetItem(label);
         item->setFlags(item->flags() | Qt::ItemIsDragEnabled);
         m_priorityList->addItem(item);
@@ -1115,10 +1116,13 @@ ScoringPriority AssignmentDialog::buildPriority() const
         QString label = m_priorityList->item(i)->text();
         if (label == "Skill")              p.order << ScoringPriority::Skill;
         else if (label == "Compatibility") p.order << ScoringPriority::Compatibility;
+        else if (label == "Stroke Length") p.order << ScoringPriority::StrokeLength;
+        else if (label == "Body Size")     p.order << ScoringPriority::BodySize;
         else                               p.order << ScoringPriority::Propulsion;
     }
     p.trainingMode = m_trainingCheck && m_trainingCheck->isChecked();
     p.crazyMode    = m_crazyCheck    && m_crazyCheck->isChecked();
+    p.coOccurrence = m_coOccurrence;
     return p;
 }
 

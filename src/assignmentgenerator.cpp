@@ -19,6 +19,13 @@ bool AssignmentGenerator::violatesConstraints(const Rower& rower,
                                                const Boat& boat,
                                                const QList<Rower>& allRowers,
                                                bool relaxCompat) const {
+    // 0. Boat blacklist: rower refuses this boat
+    if (rower.boatBlacklist().contains(boat.id())) return true;
+
+    // Boat whitelist: if non-empty, rower only accepts listed boats
+    if (!rower.boatWhitelist().isEmpty() && !rower.boatWhitelist().contains(boat.id()))
+        return true;
+
     // 1. Blacklist (bidirectional)
     for (int blackId : rower.blacklist())
         if (team.contains(blackId)) return true;
@@ -102,17 +109,18 @@ double AssignmentGenerator::scoreTeam(const QList<int>& team,
     for (int v : skillVals) var += (v - avgSkill) * (v - avgSkill);
     double skillBalance = -var / skillVals.size();   // higher = more balanced
 
-    // Attribute matching: minimise variance across attr1/2/3 (0 = not set, skip)
-    for (int attrIdx = 0; attrIdx < 3; ++attrIdx) {
+    // Attribute matching: minimise variance across attr3 (0 = not set, skip)
+    {
         QList<int> vals;
         for (const Rower* r : members) {
-            int v = (attrIdx == 0) ? r->attr1() : (attrIdx == 1) ? r->attr2() : r->attr3();
+            int v = r->attr3();
             if (v > 0) vals << v;
         }
-        if (vals.size() < 2) continue;
-        double avg = 0; for (int v : vals) avg += v; avg /= vals.size();
-        double atv = 0; for (int v : vals) atv += (v - avg)*(v - avg);
-        attrVariance += atv / vals.size();
+        if (vals.size() >= 2) {
+            double avg = 0; for (int v : vals) avg += v; avg /= vals.size();
+            double atv = 0; for (int v : vals) atv += (v - avg)*(v - avg);
+            attrVariance += atv / vals.size();
+        }
     }
 
     double avgProp = propScore / members.size();
@@ -152,9 +160,82 @@ double AssignmentGenerator::scoreTeam(const QList<int>& team,
         if (hasObmann) obmannBonus = 20.0;
     }
 
+    // ── Stroke length: same preferred, adjacent OK. Cap=2: non-adjacent = heavy penalty.
+    double strokePenalty = 0.0;
+    {
+        QList<int> svals;
+        for (const Rower* r : members) if (r->strokeLength() > 0) svals << r->strokeLength();
+        if (svals.size() >= 2) {
+            for (int i = 0; i < svals.size(); ++i)
+                for (int j = i+1; j < svals.size(); ++j) {
+                    int gap = qAbs(svals[i] - svals[j]);
+                    if (boat.capacity() <= 2)
+                        strokePenalty += (gap > 1) ? 12.0 : (gap == 1 ? 3.0 : 0.0);
+                    else
+                        strokePenalty += gap * 2.5;
+                }
+        }
+    }
+    // ── Body size: low penalty; cap=2 non-adjacent = heavier.
+    double bodyPenalty = 0.0;
+    {
+        QList<int> bvals;
+        for (const Rower* r : members) if (r->bodySize() > 0) bvals << r->bodySize();
+        if (bvals.size() >= 2) {
+            for (int i = 0; i < bvals.size(); ++i)
+                for (int j = i+1; j < bvals.size(); ++j) {
+                    int gap = qAbs(bvals[i] - bvals[j]);
+                    if (boat.capacity() <= 2)
+                        bodyPenalty += (gap > 1) ? 8.0 : (gap == 1 ? 1.5 : 0.0);
+                    else
+                        bodyPenalty += gap * 1.0;
+                }
+        }
+    }
+    // ── Group attrs: bonus for same value in same boat.
+    double grpBonus = 0.0;
+    for (int attrIdx = 0; attrIdx < 2; ++attrIdx)
+        for (int i = 0; i < members.size(); ++i) {
+            int vi = (attrIdx == 0) ? members[i]->attrGrp1() : members[i]->attrGrp2();
+            if (vi == 0) continue;
+            for (int j = i+1; j < members.size(); ++j) {
+                int vj = (attrIdx == 0) ? members[j]->attrGrp1() : members[j]->attrGrp2();
+                if (vj == vi) grpBonus += 3.0;
+            }
+        }
+    // ── Value attrs (cap>2): penalise variance within team.
+    double valPenalty = 0.0;
+    if (boat.capacity() > 2)
+        for (int attrIdx = 0; attrIdx < 2; ++attrIdx) {
+            QList<int> vals;
+            for (const Rower* r : members) {
+                int v = (attrIdx == 0) ? r->attrVal1() : r->attrVal2();
+                if (v > 0) vals << v;
+            }
+            if (vals.size() >= 2) {
+                double avg = 0; for (int v : vals) avg += v; avg /= vals.size();
+                double vv  = 0; for (int v : vals) vv += (v-avg)*(v-avg);
+                valPenalty += vv / vals.size() * 0.4;
+            }
+        }
+
+    // ── Co-occurrence penalty: pairs that rowed together recently get a slight penalty.
+    double coOccurrencePenalty = 0.0;
+    if (!priority.coOccurrence.isEmpty()) {
+        for (int i = 0; i < members.size(); ++i)
+            for (int j = i+1; j < members.size(); ++j) {
+                int a = qMin(members[i]->id(), members[j]->id());
+                int b = qMax(members[i]->id(), members[j]->id());
+                int cnt = priority.coOccurrence.value({a, b}, 0);
+                if (cnt > 0) coOccurrencePenalty += cnt * 1.5;
+            }
+    }
+
     if (priority.trainingMode) {
         return -attrVariance - strengthVariance * 0.3 + whitelistBonus + avgProp * 3.0
-               - racingBeginnerPenalty + obmannBonus;
+               - racingBeginnerPenalty + obmannBonus
+               - strokePenalty - bodyPenalty + grpBonus - valPenalty
+               - coOccurrencePenalty;
     }
 
     double wSkill  = priority.weightFor(ScoringPriority::Skill);
@@ -168,7 +249,12 @@ double AssignmentGenerator::scoreTeam(const QList<int>& team,
          - strengthVariance * 0.3
          + whitelistBonus
          - racingBeginnerPenalty
-         + obmannBonus;
+         + obmannBonus
+         - strokePenalty
+         - bodyPenalty
+         + grpBonus
+         - valPenalty
+         - coOccurrencePenalty;
 }
 
 // ---------------------------------------------------------------
