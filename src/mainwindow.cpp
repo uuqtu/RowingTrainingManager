@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "assignmentdialog.h"
 #include "assignmentgenerator.h"
+#include "assignmentviewdialog.h"
 
 #include <QTabWidget>
 #include <QTableView>
@@ -753,7 +754,10 @@ void MainWindow::onEditAssignment(QListWidgetItem* item) {
     int id = item->data(Qt::UserRole).toInt();
     Assignment existing = m_db->loadAssignment(id);
     if (existing.isLocked()) {
-        statusBar()->showMessage("This assignment is locked — unlock it first to edit.", 3000);
+        // Locked: open read-only view dialog instead
+        QMap<int,QString> savedRoles = m_db->loadRoles(existing.id());
+        AssignmentViewDialog viewDlg(existing, m_boats, m_rowers, savedRoles, this);
+        viewDlg.exec();
         return;
     }
 
@@ -1779,446 +1783,673 @@ QWidget* MainWindow::buildExpertTab() {
     auto* outer = new QWidget;
     auto* outerVL = new QVBoxLayout(outer);
     outerVL->setContentsMargins(0, 0, 0, 0);
-
     auto* scroll = new QScrollArea;
     scroll->setWidgetResizable(true);
     scroll->setFrameShape(QFrame::NoFrame);
-
     auto* w  = new QWidget;
     auto* vl = new QVBoxLayout(w);
-    vl->setContentsMargins(16, 16, 16, 16);
-    vl->setSpacing(18);
+    vl->setContentsMargins(16, 16, 16, 24);
+    vl->setSpacing(20);
 
+    // ── Style helpers ────────────────────────────────────────────
     auto mkHeader = [](const QString& t) {
         auto* l = new QLabel(t);
         l->setStyleSheet("color:#8fb4d8; font-weight:700; font-size:13px; "
-                         "border-bottom:1px solid #2a3548; padding-bottom:4px;");
+                         "border-bottom:1px solid #2a3548; padding-bottom:4px; margin-top:6px;");
         return l;
     };
-    auto mkDesc = [](const QString& t) {
+    auto mkFormula = [](const QString& t) {
+        auto* l = new QLabel(t);
+        l->setStyleSheet("font-family:monospace; color:#a0c8e8; font-size:12px; "
+                         "background:#0a1520; padding:4px 8px; border-radius:3px;");
+        return l;
+    };
+    auto mkVarDesc = [](const QString& t) {
         auto* l = new QLabel(t);
         l->setWordWrap(true);
-        l->setStyleSheet("color:#5a7a9a; font-style:italic; font-size:11px;");
+        l->setStyleSheet("color:#8090a0; font-size:11px; padding-left:4px;");
+        return l;
+    };
+    auto mkWhenToUse = [](const QString& t) {
+        auto* l = new QLabel("<b style='color:#5a9a5a;'>When to change:</b> " + t);
+        l->setWordWrap(true);
+        l->setStyleSheet("color:#4a8a4a; font-size:11px; padding-left:4px;");
         return l;
     };
     auto mkEffect = [](const QString& t) {
-        auto* l = new QLabel("Effect: " + t);
+        auto* l = new QLabel("<b style='color:#7a6020;'>Effect of increasing:</b> " + t);
         l->setWordWrap(true);
-        l->setStyleSheet("color:#446644; font-size:11px;");
+        l->setStyleSheet("color:#7a6020; font-size:11px; padding-left:4px;");
         return l;
     };
 
-    // Helper: double spinbox row
+    // Spinbox builder for doubles
     auto mkDbl = [&](QWidget* parent, QVBoxLayout* pvl,
-                     const QString& label, const QString& formula,
-                     const QString& desc, const QString& effect,
+                     const QString& varName,
+                     const QString& formula,
+                     const QString& whatItIs,
+                     const QString& whenToUse,
+                     const QString& effectOfIncreasing,
                      const QString& tooltip,
                      double val, double lo, double hi, double step,
                      std::function<void(double)> onChanged) {
-        pvl->addWidget(new QLabel("<b>" + label + "</b>  <span style='color:#778899;font-family:monospace;'>"
-                                   + formula + "</span>"));
-        pvl->addWidget(mkDesc(desc));
+        pvl->addWidget(new QLabel(
+            "<span style='color:#c8d8e8; font-weight:600;'>" + varName + "</span>"
+            "<span style='color:#556677; font-size:10px;'>  (default: " + QString::number(val, 'g', 4) + ")</span>"
+        ));
+        pvl->addWidget(mkFormula(formula));
+        pvl->addWidget(mkVarDesc(whatItIs));
+        pvl->addWidget(mkWhenToUse(whenToUse));
+        pvl->addWidget(mkEffect(effectOfIncreasing));
         auto* row = new QHBoxLayout;
         auto* spin = new QDoubleSpinBox;
         spin->setRange(lo, hi);
         spin->setSingleStep(step);
-        spin->setDecimals(1);
+        spin->setDecimals(2);
         spin->setValue(val);
         spin->setToolTip(tooltip);
-        spin->setMaximumWidth(100);
+        spin->setMinimumWidth(90);
+        spin->setMaximumWidth(110);
         row->addWidget(spin);
         row->addStretch();
         pvl->addLayout(row);
-        pvl->addWidget(mkEffect(effect));
-        pvl->addSpacing(6);
+        pvl->addSpacing(10);
         QObject::connect(spin, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                          parent, [onChanged](double v){ onChanged(v); });
     };
 
     auto mkInt = [&](QWidget* parent, QVBoxLayout* pvl,
-                     const QString& label, const QString& formula,
-                     const QString& desc, const QString& effect,
+                     const QString& varName,
+                     const QString& formula,
+                     const QString& whatItIs,
+                     const QString& whenToUse,
+                     const QString& effectOfIncreasing,
                      const QString& tooltip,
                      int val, int lo, int hi,
                      std::function<void(int)> onChanged) {
-        pvl->addWidget(new QLabel("<b>" + label + "</b>  <span style='color:#778899;font-family:monospace;'>"
-                                   + formula + "</span>"));
-        pvl->addWidget(mkDesc(desc));
+        pvl->addWidget(new QLabel(
+            "<span style='color:#c8d8e8; font-weight:600;'>" + varName + "</span>"
+            "<span style='color:#556677; font-size:10px;'>  (default: " + QString::number(val) + ")</span>"
+        ));
+        pvl->addWidget(mkFormula(formula));
+        pvl->addWidget(mkVarDesc(whatItIs));
+        pvl->addWidget(mkWhenToUse(whenToUse));
+        pvl->addWidget(mkEffect(effectOfIncreasing));
         auto* row = new QHBoxLayout;
         auto* spin = new QSpinBox;
         spin->setRange(lo, hi);
         spin->setValue(val);
         spin->setToolTip(tooltip);
-        spin->setMaximumWidth(100);
+        spin->setMinimumWidth(90);
+        spin->setMaximumWidth(110);
         row->addWidget(spin);
         row->addStretch();
         pvl->addLayout(row);
-        pvl->addWidget(mkEffect(effect));
-        pvl->addSpacing(6);
+        pvl->addSpacing(10);
         QObject::connect(spin, QOverload<int>::of(&QSpinBox::valueChanged),
                          parent, [onChanged](int v){ onChanged(v); });
     };
 
-    // ── Intro ────────────────────────────────────────────────────
+    // ── Intro panel ──────────────────────────────────────────────
     auto* intro = new QLabel(
-        "<b>Expert Settings</b> — Adjust every scoring constant used by the assignment generator.<br>"
-        "Changes take effect immediately for the next assignment you generate.<br>"
-        "<br>"
-        "<b>Variable glossary:</b><br>"
-        "<tt>score</tt> — the total score for a candidate team (higher = generator prefers it)<br>"
-        "<tt>w</tt> — priority weight (determined by rank position in Tab 3 of the dialog)<br>"
-        "<tt>gap</tt> — absolute difference between two rowers' attribute values<br>"
-        "<tt>cap</tt> — boat capacity (number of rowing seats)<br>"
-        "<tt>N</tt> — number of rowers in the team with that attribute set<br>"
-        "<tt>cnt</tt> — number of past assignments where a pair shared a boat<br>"
-        "<tt>variance</tt> — mean squared deviation from the team's average for that attribute<br>"
-        "<br>"
-        "All settings reset to defaults when the application restarts.<br>"
-        "Red settings are bonuses (positive). Blue settings are penalties (negative).");
+        "<b>Expert Settings</b> — tune every numeric constant in the assignment generator.<br><br>"
+        "Each setting shows: its <b>variable name</b>, the <b>formula</b> it appears in, "
+        "a plain-English description of <b>what the variable represents</b>, "
+        "<b style='color:#5a9a5a;'>when you should change it</b>, "
+        "and <b style='color:#7a6020;'>what increasing it does</b>.<br><br>"
+        "<b>How scoring works in brief:</b> The generator tries up to <i>fillBoatAttempts</i> "
+        "random team compositions per boat per pass. Each candidate team receives a <b>score</b>. "
+        "The highest-scoring valid team is kept. Bonuses (positive terms) make the generator "
+        "prefer a composition; penalties (negative terms) discourage it. "
+        "Hard constraints reject a candidate entirely without scoring it.<br><br>"
+        "<b>Key variable meanings:</b><br>"
+        "<tt>score</tt> — total quality score for a candidate team (higher = generator prefers it)<br>"
+        "<tt>gap</tt> — absolute difference between two rowers' attribute values (e.g. |Short−Long| = 2)<br>"
+        "<tt>cap</tt> — boat capacity in rowing seats (not counting the foot-steerer)<br>"
+        "<tt>variance</tt> — mean squared deviation: Σ(xᵢ − x̄)² / N. Large variance = unbalanced team.<br>"
+        "<tt>cnt</tt> — how many past assignments a pair of rowers shared the same boat<br>"
+        "<tt>w</tt> — priority weight, set by the rank position in Tab 3 of the assignment dialog<br>"
+        "Changes are saved to the database immediately and survive restarts. "
+        "Use <b>Reset to defaults</b> at the bottom to restore all original values."
+    );
     intro->setWordWrap(true);
-    intro->setStyleSheet("color:#8fb4d8; padding:8px; background:#0d1a2a; border-radius:6px;");
+    intro->setStyleSheet("color:#8fb4d8; padding:10px; background:#0a1520; border-radius:6px; "
+                         "border:1px solid #1a2a40;");
     vl->addWidget(intro);
 
-    // ─────────────────────────────────────────────────────────────
-    vl->addWidget(mkHeader("Priority Weights"));
+    // ══ 1. PRIORITY WEIGHTS ═════════════════════════════════════
+    vl->addWidget(mkHeader("1 — Priority Factor Weights  (w₁ … w₅)"));
     {
-        auto* g = new QGroupBox("Weights w₁…w₅ by rank in the priority list (Tab 3 of the dialog)");
+        auto* g = new QGroupBox;
         auto* gl = new QVBoxLayout(g);
-        gl->addWidget(mkDesc(
-            "The five factors (Skill, Compatibility, Propulsion, Stroke Length, Body Size) can be "
-            "reordered in Tab 3. The factor at rank 1 gets w₁, rank 2 gets w₂, etc.\n"
-            "Formula:  score += w × factorScore"));
-        struct { const char* label; double* ptr; } ranks[] = {
-            {"w₁ — Rank 1 weight (top priority factor)", &m_expert.weightRank1},
-            {"w₂ — Rank 2 weight", &m_expert.weightRank2},
-            {"w₃ — Rank 3 weight", &m_expert.weightRank3},
-            {"w₄ — Rank 4 weight", &m_expert.weightRank4},
-            {"w₅ — Rank 5 weight (lowest priority factor)", &m_expert.weightRank5},
+        gl->addWidget(new QLabel(
+            "<b>Context:</b> In the assignment dialog Tab 3 you drag five factors into a ranked list: "
+            "Skill, Compatibility, Propulsion, Stroke Length, Body Size. "
+            "The factor at rank 1 is multiplied by w₁, rank 2 by w₂, and so on. "
+            "The product is added to the team score. "
+            "The default ratio 4:2:1:0.5:0.5 means the top factor matters 8× more than the bottom two."
+        ));
+        gl->addWidget(mkFormula("score += wᵢ × factorScore(factor_at_rank_i)"));
+        gl->addSpacing(8);
+
+        struct { const char* name; double* ptr; double def; const char* whenTo; const char* effect; } ranks[] = {
+            {"w₁  —  Weight for the rank-1 factor (top priority)",
+             &m_expert.weightRank1, 4.0,
+             "Increase if the top factor should completely dominate all others. "
+             "Decrease if you want a more balanced competition between all factors.",
+             "The rank-1 factor (e.g. Skill) becomes even more decisive. "
+             "A gap of 1 skill level between two teams will matter more than any other difference."},
+            {"w₂  —  Weight for the rank-2 factor",
+             &m_expert.weightRank2, 2.0,
+             "Increase if rank-2 and rank-1 should have similar influence. "
+             "Decrease if you want rank-1 to stand alone.",
+             "The second factor gains influence. At w₂ = w₁, both factors are equally weighted."},
+            {"w₃  —  Weight for the rank-3 factor",
+             &m_expert.weightRank3, 1.0,
+             "Increase if propulsion or whichever factor is at rank 3 is genuinely important. "
+             "Often left low since Skill and Compatibility are usually more important.",
+             "The third factor becomes more competitive with the top two."},
+            {"w₄  —  Weight for the rank-4 factor",
+             &m_expert.weightRank4, 0.5,
+             "Increase if Stroke Length or Body Size (typically at rank 4–5) should actually influence placement. "
+             "Decrease toward 0 to treat them as pure tie-breakers.",
+             "The fourth factor nudges team selection more noticeably."},
+            {"w₅  —  Weight for the rank-5 factor (lowest priority)",
+             &m_expert.weightRank5, 0.5,
+             "Rarely needs changing. At 0.5 it acts as a soft tie-breaker. "
+             "Set to 0 to ignore the lowest factor entirely.",
+             "The bottom factor has slightly more influence. Rarely meaningful."},
         };
-        const char* effects[] = {
-            "Increasing separates best teams from mediocre ones more strongly for the #1 factor.",
-            "Increasing makes the #2 factor more influential.",
-            "Increasing makes the #3 factor more influential.",
-            "Increasing makes the #4 factor more influential.",
-            "Increasing makes the #5 factor more influential.",
-        };
-        const QString rankKeys[] = {
-            "weightRank1", "weightRank2", "weightRank3", "weightRank4", "weightRank5"
-        };
+        const QString rankKeys[] = {"weightRank1","weightRank2","weightRank3","weightRank4","weightRank5"};
         for (int i = 0; i < 5; ++i) {
             double* ptr = ranks[i].ptr;
             QString key = rankKeys[i];
-            mkDbl(w, gl, ranks[i].label,
-                  QString("score += w%1 × factorScore").arg(i+1), "",
-                  effects[i],
-                  QString("Weight applied to the factor at priority rank %1.\n"
-                          "Default: %2. Range: 0 = factor ignored, 10 = very dominant.")
-                      .arg(i+1).arg(i < 3 ? (i==0 ? 4.0 : i==1 ? 2.0 : 1.0) : 0.5),
+            mkDbl(w, gl, ranks[i].name,
+                  QString("score += w%1 × factorScore   (factor at rank %1 in priority list)").arg(i+1),
+                  QString("w%1 is the multiplier applied to the score contribution of whichever "
+                          "factor you placed at rank %1 in Tab 3. Higher = that factor contributes more.").arg(i+1),
+                  ranks[i].whenTo, ranks[i].effect,
+                  QString("Default: %1. Range 0–10.").arg(ranks[i].def),
                   *ptr, 0.0, 10.0, 0.5,
                   [this, ptr, key](double v){ *ptr = v; m_db->saveExpertSetting(key, v); });
         }
         vl->addWidget(g);
     }
 
-    // ─────────────────────────────────────────────────────────────
-    vl->addWidget(mkHeader("Whitelist & Co-occurrence"));
+    // ══ 2. WHITELIST & CO-OCCURRENCE ════════════════════════════
+    vl->addWidget(mkHeader("2 — Whitelist Bonus & Co-occurrence Penalty"));
     {
         auto* g = new QGroupBox;
         auto* gl = new QVBoxLayout(g);
-        mkDbl(w, gl, "Whitelist pair bonus",
-              "score += whitelistBonus  (per pair in same boat)",
-              "A rower whitelist entry means 'I prefer to row with this person'. "
-              "Each whitelisted pair that ends up in the same boat adds this bonus.",
-              "Increasing makes the generator much more likely to honour whitelist pairings. "
-              "Set to 0 to ignore whitelists entirely.",
-              "Default 5.0. Each whitelist pair in the same boat adds this to the team score.",
+
+        mkDbl(w, gl, "whitelistBonus  —  Bonus per whitelisted pair in the same boat",
+              "score += whitelistBonus    (for each (rower_i, rower_j) pair where j ∈ whitelist(i))",
+              "whitelistBonus is added to the team score for every pair of rowers that are both "
+              "in the team AND one has the other on their personal whitelist (set in the Rowers tab). "
+              "Note: if both A→B and B→A are set, the bonus is counted twice (once per direction).",
+              "Increase when whitelist pairings should be treated as near-mandatory. "
+              "Decrease when whitelists are soft preferences that should yield to Skill or Compat. "
+              "Set to 0 to completely ignore whitelist entries during generation.",
+              "Pairs with mutual whitelisting will dominate team selection. "
+              "At very high values (>15) the generator may cluster whitelisted rowers so aggressively "
+              "that skill balance and compatibility suffer.",
+              "Default: 5.0. Each direction of whitelist adds this bonus independently.",
               m_expert.whitelistBonus, 0.0, 30.0, 0.5,
               [this](double v){ m_expert.whitelistBonus = v; m_db->saveExpertSetting("whitelistBonus", v); });
 
-        mkDbl(w, gl, "Co-occurrence penalty factor",
-              "score −= coOccurrenceFactor × cnt  (per pair, per session together)",
-              "cnt is the number of past assignments in which this pair shared the same boat. "
-              "Penalising frequent co-occurrence nudges the generator to vary combinations.",
-              "Increasing makes the generator more aggressively avoid repetitive pairings. "
-              "Set to 0 to ignore history entirely.",
-              "Default 1.5. Each additional session a pair shared a boat costs this much score.",
+        mkDbl(w, gl, "coOccurrenceFactor  —  Penalty per past session a pair shared a boat",
+              "score −= coOccurrenceFactor × cnt    (per pair, where cnt = past shared-boat sessions)",
+              "coOccurrenceFactor controls how much the generator disfavours pairing rowers who "
+              "have frequently been in the same boat before. cnt is loaded from the full assignment "
+              "history in the database. A pair that has shared 5 sessions pays 5 × coOccurrenceFactor.",
+              "Increase when you want the generator to actively rotate pairings across sessions "
+              "— useful for a club that wants everyone to row with everyone else over time. "
+              "Decrease when session-to-session consistency is more important than variety. "
+              "Set to 0 to ignore co-occurrence history entirely.",
+              "Frequently paired rowers are more aggressively separated. At very high values (>5) "
+              "the generator may split up technically well-matched pairs just to achieve variety.",
+              "Default: 1.5. A pair with cnt=4 (4 shared sessions) pays 6.0 penalty.",
               m_expert.coOccurrenceFactor, 0.0, 10.0, 0.5,
               [this](double v){ m_expert.coOccurrenceFactor = v; m_db->saveExpertSetting("coOccurrenceFactor", v); });
         vl->addWidget(g);
     }
 
-    // ─────────────────────────────────────────────────────────────
-    vl->addWidget(mkHeader("Obmann Bonus"));
+    // ══ 3. OBMANN BONUS ═════════════════════════════════════════
+    vl->addWidget(mkHeader("3 — Obmann Presence Bonus"));
     {
         auto* g = new QGroupBox;
         auto* gl = new QVBoxLayout(g);
-        mkDbl(w, gl, "Obmann presence bonus",
-              "score += obmannBonus  (if ≥1 Obmann-flagged rower in team, cap > 2)",
-              "Obmann-capable rowers are those with the Obmann checkbox set in the Rowers tab. "
-              "This flat bonus is added whenever at least one such rower appears in a team for a "
-              "boat with more than 2 seats. It is intentionally large to dominate other soft factors.",
-              "Increasing makes it nearly guaranteed that every boat gets an Obmann. "
-              "Decreasing allows the generator to trade an Obmann for a better skill/compat match. "
-              "Set to 0 to treat Obmann purely as a role label with no generation influence.",
-              "Default 20.0. Must exceed the typical skill/compat contribution (~4–16) to dominate.",
+        mkDbl(w, gl, "obmannBonus  —  Flat bonus for having an Obmann-capable rower in the team",
+              "score += obmannBonus    (if any member has isObmann=true, boat cap > 2 only)",
+              "obmannBonus is a flat score bonus added whenever at least one rower with the Obmann "
+              "checkbox ticked (Rowers tab) is placed in a boat with more than 2 seats. "
+              "It is applied as a team-level bonus, not per-rower: having two Obmann-capable rowers "
+              "gives the same bonus as having one. The bonus must be large enough to outweigh skill "
+              "and compatibility differences so the generator reliably places an Obmann in every boat.",
+              "Increase if boats frequently end up without an Obmann despite qualified rowers being "
+              "available — this happens when skill/compat penalties outweigh the Obmann bonus. "
+              "Decrease if you want the generator to sometimes skip Obmann placement when there is "
+              "a significantly better team composition available without one. "
+              "Set to 0 to treat Obmann purely as a display label with no effect on team selection.",
+              "The generator becomes more aggressive about placing Obmann-capable rowers. "
+              "Above ~25 it becomes near-mandatory (overrides most other soft factors). "
+              "The typical skill contribution per boat is 4–16, so values above 20 already dominate.",
+              "Default: 20.0. Must exceed typical skill+compat score (4–16) to reliably work.",
               m_expert.obmannBonus, 0.0, 50.0, 1.0,
               [this](double v){ m_expert.obmannBonus = v; m_db->saveExpertSetting("obmannBonus", v); });
         vl->addWidget(g);
     }
 
-    // ─────────────────────────────────────────────────────────────
-    vl->addWidget(mkHeader("Racing Boat / Beginner Penalty"));
+    // ══ 4. RACING/BEGINNER PENALTY ══════════════════════════════
+    vl->addWidget(mkHeader("4 — Racing Boat / Beginner Soft Penalty"));
     {
         auto* g = new QGroupBox;
         auto* gl = new QVBoxLayout(g);
-        gl->addWidget(mkDesc(
-            "In the first generation pass (strict), Students and Beginners are HARD-blocked from "
-            "Racing boats. In later passes (relaxed) the hard block is lifted, but this soft penalty "
-            "still discourages the pairing. It is applied per rower per team evaluation."));
-        mkDbl(w, gl, "Soft penalty per beginner in a Racing boat",
-              "score −= racingBeginnerPenalty  (per Student/Beginner in a Racing boat)",
-              "",
-              "Increasing makes the generator strongly prefer Experienced/Professional in Racing "
-              "boats even in relaxed passes. Decreasing allows beginners in Racing boats more freely.",
-              "Default 8.0. Applied even when hard constraints are relaxed (pass 2+).",
+        gl->addWidget(new QLabel(
+            "<b>Context:</b> In the first generation pass (strict mode), Student and Beginner rowers "
+            "are HARD-blocked from Racing boats — no amount of scoring can place them there. "
+            "In passes 2 and 3 (relaxed mode, used when the strict pass fails), the hard block is "
+            "lifted and this soft penalty is the only thing discouraging the placement. "
+            "The penalty is applied per beginner per boat evaluation."
+        ));
+        mkDbl(w, gl, "racingBeginnerPenalty  —  Soft penalty per beginner placed in a Racing boat",
+              "score −= racingBeginnerPenalty    (per Student or Beginner rower in a Racing boat)",
+              "racingBeginnerPenalty is subtracted from the team score for each rower whose skill "
+              "level is Student or Beginner and who is being considered for a Racing-type boat. "
+              "This applies in all generation passes including relaxed passes (2 and 3), unlike "
+              "the hard block which only applies in pass 0.",
+              "Increase if beginners still appear in Racing boats during relaxed passes (which "
+              "happens when propulsion or compat constraints force the generator to relax). "
+              "Decrease if your club allows beginners in Racing boats and you want less resistance. "
+              "Set to 0 if boat type should have no influence on skill-based placement.",
+              "Beginners are even more strongly pushed away from Racing boats in relaxed passes. "
+              "At very high values (>20) it effectively becomes a second hard block in relaxed mode.",
+              "Default: 8.0. Applied on top of the hard block in pass 0.",
               m_expert.racingBeginnerPenalty, 0.0, 30.0, 0.5,
               [this](double v){ m_expert.racingBeginnerPenalty = v; m_db->saveExpertSetting("racingBeginnerPenalty", v); });
         vl->addWidget(g);
     }
 
-    // ─────────────────────────────────────────────────────────────
-    vl->addWidget(mkHeader("Strength Balancing"));
+    // ══ 5. STRENGTH BALANCING ═══════════════════════════════════
+    vl->addWidget(mkHeader("5 — Strength Variance Balancing"));
     {
         auto* g = new QGroupBox;
         auto* gl = new QVBoxLayout(g);
-        mkDbl(w, gl, "Strength variance weight",
-              "score −= strengthVarianceWeight × variance(strength)  [cap > 2]",
-              "strength is set per rower (0=not set, 1–10). Variance is the mean squared deviation "
-              "from the team average. Only rowers with strength > 0 are included. "
-              "Only applied when boat capacity > 2.",
-              "Increasing forces the generator to balance physical strength across seats more strictly. "
-              "Set to 0 to ignore strength entirely.",
-              "Default 0.3. Typical strength variance is 1–9; weight of 0.3 gives a penalty of 0.3–2.7.",
+        mkDbl(w, gl, "strengthVarianceWeight  —  Penalty weight for unequal physical strength in a team",
+              "score −= strengthVarianceWeight × variance(strength_values_in_team)   [cap > 2 only]",
+              "strengthVarianceWeight scales how much the generator penalises uneven physical strength "
+              "within a boat. 'strength' is the per-rower numeric field (0=not set, 1–10 set in Rowers tab). "
+              "Variance = Σ(sᵢ − s̄)² / N where only rowers with strength > 0 are included. "
+              "This only applies to boats with capacity > 2 — for 1-2 seat boats strength is ignored. "
+              "Typical variance for a team of 4 with mixed strength is 2–8.",
+              "Increase when boats often have one very strong and one very weak rower seated together "
+              "and you want the generator to balance physical load more evenly. "
+              "Useful in clubs where strength data is reliably entered for all rowers. "
+              "Decrease (or set to 0) if strength data is incomplete or you trust the coach to "
+              "assign seating positions manually after generation.",
+              "The generator more aggressively avoids teams with a wide strength spread. "
+              "At 1.0 a variance of 6 costs 6.0 score — comparable to a whitelist bonus.",
+              "Default: 0.3. Typical effective penalty: 0.6–2.4 for a 4-rower team.",
               m_expert.strengthVarianceWeight, 0.0, 5.0, 0.1,
               [this](double v){ m_expert.strengthVarianceWeight = v; m_db->saveExpertSetting("strengthVarianceWeight", v); });
         vl->addWidget(g);
     }
 
-    // ─────────────────────────────────────────────────────────────
-    vl->addWidget(mkHeader("Compatibility Soft Penalties"));
+    // ══ 6. COMPATIBILITY SOFT PENALTIES ═════════════════════════
+    vl->addWidget(mkHeader("6 — Compatibility Soft Penalties  (Special / Selected)"));
     {
         auto* g = new QGroupBox;
         auto* gl = new QVBoxLayout(g);
-        gl->addWidget(mkDesc(
-            "These penalties are summed pairwise for every pair of rowers in a team. "
-            "They are then multiplied by wCompat (the weight for Compatibility in the priority list). "
-            "A Special+Selected pair is also a HARD block in pass 0 (cannot be changed here)."));
-        mkDbl(w, gl, "Special + Special penalty",
-              "score −= wCompat × compatSpecialSpecial  (per Special+Special pair)",
-              "Two rowers both marked 'Special' in the same boat.",
-              "Increasing separates Special rowers from each other more aggressively.",
-              "Default 2.0. Multiplied by wCompat (typically 2–4).",
+        gl->addWidget(new QLabel(
+            "<b>Context:</b> Compatibility tiers — Infinite, Normal, Special, Selected — describe how "
+            "well a rower gets along with others. Infinite/Normal impose no penalty. "
+            "Special+Selected is also a HARD block in pass 0 (cannot be overridden here). "
+            "These soft penalties are summed pairwise for every pair in the team, then multiplied "
+            "by wCompat (the weight for Compatibility in the priority list). "
+            "A team of 4 has 6 pairs; in a worst case all 6 pay the penalty."
+        ));
+        mkDbl(w, gl, "compatSpecialSpecial  —  Penalty for two 'Special' rowers in the same boat",
+              "score −= wCompat × compatSpecialSpecial    (per Special+Special pair in team)",
+              "compatSpecialSpecial is the base penalty added when two rowers both marked 'Special' "
+              "end up in the same team. 'Special' means the rower has specific personal preferences "
+              "and works best with certain people. Placing two Special rowers together may cause "
+              "friction even if neither specifically objects to the other. "
+              "The penalty is multiplied by wCompat, so the effective penalty also depends on how "
+              "highly you ranked Compatibility in the priority list.",
+              "Increase if your club has several 'Special' rowers who genuinely do not mix well "
+              "in practice, and you want the generator to separate them more reliably. "
+              "Decrease if 'Special' is used loosely and most Special+Special combinations are fine.",
+              "Special rowers are more aggressively separated across boats. "
+              "At compatSpecialSpecial × wCompat > obmannBonus the separation can override Obmann placement.",
+              "Default: 2.0. Effective penalty = wCompat × 2.0 (typically 4.0–8.0).",
               m_expert.compatSpecialSpecial, 0.0, 10.0, 0.5,
               [this](double v){ m_expert.compatSpecialSpecial = v; m_db->saveExpertSetting("compatSpecialSpecial", v); });
-        mkDbl(w, gl, "Special + Selected penalty",
-              "score −= wCompat × compatSpecialSelected  (per Special+Selected pair)",
-              "One rower marked 'Special' and another marked 'Selected' in the same boat. "
-              "Also triggers a hard block in pass 0 — this value only affects passes 1 and 2.",
-              "Increasing further discourages Special+Selected pairings in relaxed passes.",
-              "Default 4.0. This pair is also hard-blocked in pass 0 regardless of this value.",
+        mkDbl(w, gl, "compatSpecialSelected  —  Penalty for a 'Special'+'Selected' pair in the same boat",
+              "score −= wCompat × compatSpecialSelected    (per Special+Selected pair, passes 1–2 only)",
+              "compatSpecialSelected is the base penalty for placing one 'Special' and one 'Selected' "
+              "rower in the same team. In pass 0 this is a HARD block — these two are never placed "
+              "together regardless of this value. In passes 1 and 2 (relaxed mode, used only when "
+              "the strict pass completely fails) the hard block is lifted and only this soft penalty "
+              "discourages the pairing.",
+              "Increase if you want to further discourage Special+Selected pairings even in the "
+              "unlikely case that relaxed passes are needed. "
+              "At very high values it approaches a second hard block in relaxed mode. "
+              "Decrease if your club rarely has true Special+Selected conflicts and strict pass "
+              "failures are common, as relaxing the penalty gives the generator more options.",
+              "Special+Selected pairings become even more costly in passes 1–2. "
+              "At compatSpecialSelected > 8 the generator will strongly prefer to fail gracefully "
+              "rather than pair them, potentially leaving some seats empty in extreme cases.",
+              "Default: 4.0. Effective penalty = wCompat × 4.0 (typically 8.0–16.0).",
               m_expert.compatSpecialSelected, 0.0, 15.0, 0.5,
               [this](double v){ m_expert.compatSpecialSelected = v; m_db->saveExpertSetting("compatSpecialSelected", v); });
         vl->addWidget(g);
     }
 
-    // ─────────────────────────────────────────────────────────────
-    vl->addWidget(mkHeader("Stroke Length Matching"));
+    // ══ 7. STROKE LENGTH MATCHING ═══════════════════════════════
+    vl->addWidget(mkHeader("7 — Stroke Length Matching Penalties"));
     {
         auto* g = new QGroupBox;
         auto* gl = new QVBoxLayout(g);
-        gl->addWidget(mkDesc(
-            "Stroke length values: Short=1, Medium=2, Long=3. Gap = |rower_i − rower_j|. "
-            "The penalty is applied for every pair of rowers in the team that both have a "
-            "stroke length set (value > 0). Two separate penalty scales apply depending on "
-            "whether the boat has ≤2 or >2 seats, since technique matching is critical in small boats."));
-        mkDbl(w, gl, "Penalty for gap=1 in 2-seat boats",
-              "score −= strokeSmallGap1  (per pair, |gap|=1, cap ≤ 2)",
-              "e.g. Short+Medium or Medium+Long in the same 2-seat boat.",
-              "Increasing makes adjacent stroke lengths increasingly discouraged in 2-seat boats.",
-              "Default 3.0.",
+        gl->addWidget(new QLabel(
+            "<b>Context:</b> Stroke length (Short=1, Medium=2, Long=3) is set per rower in the Rowers tab. "
+            "The generator computes gap = |strokeLength_i − strokeLength_j| for every pair in the team. "
+            "Mismatched stroke lengths create drag inefficiency and make rhythm coordination harder. "
+            "Two separate penalty scales apply: one for 2-seat boats (where mismatch is critical) "
+            "and one for larger boats (where it is less critical). Only rowers with a set value (>0) "
+            "are included — rowers with no stroke length set contribute 0 to the penalty."
+        ));
+        mkDbl(w, gl, "strokeSmallGap1  —  Penalty for adjacent stroke lengths in a 2-seat boat",
+              "score −= strokeSmallGap1    (per pair with |gap|=1 and boat cap ≤ 2)",
+              "strokeSmallGap1 is the penalty for placing a Short+Medium or Medium+Long pair in a "
+              "2-seat boat. A gap of 1 means the rowers are one step apart on the scale — adjacent "
+              "but not identical. This is a moderate mismatch in a small boat where both rowers "
+              "must maintain a shared rhythm with no other crew members to absorb the difference.",
+              "Increase if your 2-seat boats are very rhythm-sensitive (e.g. training sculls) and "
+              "you want the generator to keep adjacent stroke lengths apart. "
+              "Decrease if adjacent lengths are acceptable in 2-seat boats at your club.",
+              "The generator becomes reluctant to put adjacent stroke lengths together in 2-seat boats. "
+              "At strokeSmallGap1 > obmannBonus (20) it effectively becomes a hard block for 2-seat boats.",
+              "Default: 3.0. At default wSkill=4 a Short+Long pair in a 2-seat boat costs much more (12.0).",
               m_expert.strokeSmallGap1, 0.0, 20.0, 0.5,
               [this](double v){ m_expert.strokeSmallGap1 = v; m_db->saveExpertSetting("strokeSmallGap1", v); });
-        mkDbl(w, gl, "Penalty for gap=2 in 2-seat boats",
-              "score −= strokeSmallGap2  (per pair, |gap|=2, cap ≤ 2)",
-              "e.g. Short+Long in the same 2-seat boat — the maximum mismatch.",
-              "Increasing effectively hard-blocks Short+Long pairings in 2-seat boats.",
-              "Default 12.0. Set above the obmann bonus (20) to make it near-impossible.",
+        mkDbl(w, gl, "strokeSmallGap2  —  Penalty for maximum stroke length mismatch in a 2-seat boat",
+              "score −= strokeSmallGap2    (per pair with |gap|=2 and boat cap ≤ 2)",
+              "strokeSmallGap2 is the penalty for placing a Short+Long pair in a 2-seat boat — the "
+              "worst possible mismatch. These two rowers have fundamentally different stroke mechanics "
+              "and placing them together in a 2-seat boat would make coordinated rowing very difficult.",
+              "Increase to make Short+Long pairings in 2-seat boats near-impossible (the default 12.0 "
+              "is already strong). At values above 20 it matches the Obmann bonus and becomes dominant. "
+              "Decrease if your 2-seat boats are used for mixed-technique training where mismatch is intended.",
+              "Short+Long pairs become extremely unlikely in 2-seat boats. "
+              "The generator will strongly prefer to separate them even at the cost of other factors.",
+              "Default: 12.0. Already strong — Short+Long in a 2-seat boat is treated as a near-block.",
               m_expert.strokeSmallGap2, 0.0, 40.0, 1.0,
               [this](double v){ m_expert.strokeSmallGap2 = v; m_db->saveExpertSetting("strokeSmallGap2", v); });
-        mkDbl(w, gl, "Penalty per gap unit in larger boats",
-              "score −= strokeLargePerGap × |gap|  (per pair, cap > 2)",
-              "e.g. gap=2 → penalty = 2 × strokeLargePerGap.",
-              "Increasing prefers same stroke length but allows mismatches when other factors win.",
-              "Default 2.5.",
+        mkDbl(w, gl, "strokeLargePerGap  —  Penalty per stroke-length gap unit in larger boats",
+              "score −= strokeLargePerGap × |gap|    (per pair, boat cap > 2)",
+              "strokeLargePerGap scales the stroke length mismatch penalty for boats with more than "
+              "2 seats. Because larger crews can absorb individual differences better, the penalty "
+              "is lower and proportional to the gap rather than using a fixed scale. "
+              "A gap of 1 costs strokeLargePerGap × 1, a gap of 2 costs strokeLargePerGap × 2.",
+              "Increase if larger boats also need careful stroke length matching — e.g. for a "
+              "competitive squad where technique uniformity is important across all boat sizes. "
+              "Decrease (or set to 0) if stroke length should only matter for 2-seat boats.",
+              "Stroke length differences become more costly in larger boats. "
+              "At strokeLargePerGap = 5, a Short+Long pair in a 4-seat boat costs 10.0 — "
+              "comparable to the Obmann bonus.",
+              "Default: 2.5. Effective penalty per pair: 2.5 (gap=1) or 5.0 (gap=2).",
               m_expert.strokeLargePerGap, 0.0, 10.0, 0.5,
               [this](double v){ m_expert.strokeLargePerGap = v; m_db->saveExpertSetting("strokeLargePerGap", v); });
         vl->addWidget(g);
     }
 
-    // ─────────────────────────────────────────────────────────────
-    vl->addWidget(mkHeader("Body Size Matching"));
+    // ══ 8. BODY SIZE MATCHING ════════════════════════════════════
+    vl->addWidget(mkHeader("8 — Body Size Matching Penalties"));
     {
         auto* g = new QGroupBox;
         auto* gl = new QVBoxLayout(g);
-        gl->addWidget(mkDesc(
-            "Body size values: Small=1, Medium=2, Tall=3. Gap = |rower_i − rower_j|. "
-            "Applied pairwise. Body size matters less than stroke length so defaults are lower."));
-        mkDbl(w, gl, "Penalty for gap=1 in 2-seat boats",
-              "score −= bodySmallGap1  (per pair, |gap|=1, cap ≤ 2)",
-              "e.g. Small+Medium or Medium+Tall.",
-              "Increasing nudges 2-seat boats toward same body size.",
-              "Default 1.5.",
+        gl->addWidget(new QLabel(
+            "<b>Context:</b> Body size (Small=1, Medium=2, Tall=3) is set per rower in the Rowers tab. "
+            "It follows the same pairwise gap logic as Stroke Length but with lower default penalties "
+            "because body size affects boat balance and seating comfort less critically than stroke mechanics. "
+            "The same two-scale system applies: 2-seat boats use fixed thresholds, larger boats use per-gap scaling."
+        ));
+        mkDbl(w, gl, "bodySmallGap1  —  Penalty for adjacent body sizes in a 2-seat boat",
+              "score −= bodySmallGap1    (per pair with |gap|=1 and boat cap ≤ 2)",
+              "bodySmallGap1 is the penalty for placing Small+Medium or Medium+Tall rowers together "
+              "in a 2-seat boat. One size step apart is generally acceptable in most boats but can "
+              "create minor balance issues in very sensitive sculling pairs.",
+              "Increase if your 2-seat boats are balance-sensitive (e.g. lightweight competition sculls). "
+              "Decrease or leave at default if body size is a minor consideration for 2-seat placements.",
+              "The generator becomes more reluctant to put adjacent body sizes in 2-seat boats. "
+              "Keep well below strokeSmallGap1 (default 3.0) since body size is less critical.",
+              "Default: 1.5. Much lower than stroke length since adjacent sizes rarely cause problems.",
               m_expert.bodySmallGap1, 0.0, 15.0, 0.5,
               [this](double v){ m_expert.bodySmallGap1 = v; m_db->saveExpertSetting("bodySmallGap1", v); });
-        mkDbl(w, gl, "Penalty for gap=2 in 2-seat boats",
-              "score −= bodySmallGap2  (per pair, |gap|=2, cap ≤ 2)",
-              "e.g. Small+Tall.",
-              "Increasing strongly discourages extreme body size mismatches in 2-seat boats.",
-              "Default 8.0.",
+        mkDbl(w, gl, "bodySmallGap2  —  Penalty for maximum body size mismatch in a 2-seat boat",
+              "score −= bodySmallGap2    (per pair with |gap|=2 and boat cap ≤ 2)",
+              "bodySmallGap2 is the penalty for placing a Small+Tall pair in a 2-seat boat. "
+              "This is the extreme case: a very small and a very tall rower together may create "
+              "balance issues, differ significantly in reach and leverage, and find shared rhythm harder.",
+              "Increase if your club has had practical problems with extreme size mismatches in pairs. "
+              "At 8.0 (default) it is moderately discouraged but not blocked. "
+              "Set to 20+ to treat it as a near-hard-block.",
+              "Small+Tall pairings in 2-seat boats become increasingly unlikely. "
+              "At very high values the generator will accept worse skill/compat matches to avoid the pairing.",
+              "Default: 8.0. Substantial but not dominant — allows the pairing when no better option exists.",
               m_expert.bodySmallGap2, 0.0, 30.0, 1.0,
               [this](double v){ m_expert.bodySmallGap2 = v; m_db->saveExpertSetting("bodySmallGap2", v); });
-        mkDbl(w, gl, "Penalty per gap unit in larger boats",
-              "score −= bodyLargePerGap × |gap|  (per pair, cap > 2)",
-              "",
-              "Increasing gently prefers similar body sizes in larger crews.",
-              "Default 1.0.",
+        mkDbl(w, gl, "bodyLargePerGap  —  Penalty per body size gap unit in larger boats",
+              "score −= bodyLargePerGap × |gap|    (per pair, boat cap > 2)",
+              "bodyLargePerGap scales the body size mismatch penalty for boats with more than 2 seats. "
+              "Larger boats are much less sensitive to individual body size differences since the "
+              "average effect across 4+ rowers is small. The penalty is intentionally low.",
+              "Increase if your club uses coxless fours or eights where body size uniformity is "
+              "important for boat balance. Decrease or set to 0 if body size is irrelevant for "
+              "larger boats at your club.",
+              "Body size differences in larger boats become slightly more costly. "
+              "Rarely needs to exceed 2.0 unless body size data is very important to your club.",
+              "Default: 1.0. Very low — a Small+Tall pair in a 4-seat boat costs only 2.0.",
               m_expert.bodyLargePerGap, 0.0, 8.0, 0.5,
               [this](double v){ m_expert.bodyLargePerGap = v; m_db->saveExpertSetting("bodyLargePerGap", v); });
         vl->addWidget(g);
     }
 
-    // ─────────────────────────────────────────────────────────────
-    vl->addWidget(mkHeader("Group & Value Attributes"));
+    // ══ 9. GROUP & VALUE ATTRIBUTES ══════════════════════════════
+    vl->addWidget(mkHeader("9 — Group Attributes & Value Balance Attributes"));
     {
         auto* g = new QGroupBox;
         auto* gl = new QVBoxLayout(g);
-        gl->addWidget(mkDesc(
-            "Grp Attr 1/2 (Group attributes): rowers with the same non-zero value are preferred together in the same boat.\n"
-            "Val Attr 1/2 (Value attributes): the average of this value should be similar across all boats (capacity > 2)."));
-        mkDbl(w, gl, "Group attribute pair bonus",
-              "score += grpAttrBonus  (per matching pair, GrpAttr1 or GrpAttr2)",
-              "If two rowers in the same boat share the same non-zero GrpAttr1 value, "
-              "this bonus is added. Applied independently for GrpAttr1 and GrpAttr2.",
-              "Increasing makes the generator cluster same-group rowers more aggressively.",
-              "Default 3.0.",
+        gl->addWidget(new QLabel(
+            "<b>Context:</b> The Rowers tab has four custom attributes: Grp Attr 1, Grp Attr 2 "
+            "(group-together attributes) and Val Attr 1, Val Attr 2 (balance-across-boats attributes). "
+            "They are all numeric 0–10, where 0 means 'not set'. "
+            "Group attributes reward placing rowers with the same value in the same boat — useful for "
+            "things like 'training group', 'member class', or 'training partner pairs'. "
+            "Value attributes reward having a similar average across all boats — useful for things like "
+            "'technique score', 'fitness rating', or any quality you want evenly distributed."
+        ));
+        mkDbl(w, gl, "grpAttrBonus  —  Bonus per matching pair in a Group Attribute",
+              "score += grpAttrBonus    (per pair where GrpAttr1_i == GrpAttr1_j, and separately for GrpAttr2)",
+              "grpAttrBonus is added to the team score for every pair of rowers in the team who share "
+              "the same non-zero value in GrpAttr1 (and independently in GrpAttr2). "
+              "This encourages the generator to cluster rowers with the same group label together. "
+              "Example: if GrpAttr1 represents training group (1=beginners group, 2=advanced), "
+              "setting a value here makes the generator try to keep each group together.",
+              "Increase when group cohesion is important — e.g. training sessions where rowers from "
+              "the same program should stay together for coaching purposes. "
+              "Decrease when mixing groups is desired — e.g. to give beginners exposure to advanced rowers. "
+              "Set to 0 to ignore group attributes entirely.",
+              "Rowers with matching group attributes are more strongly clustered. "
+              "At grpAttrBonus > 10 the clustering can override skill balance.",
+              "Default: 3.0. A team of 4 with all same group value earns up to 6 × 3.0 = 18.0 bonus (6 pairs).",
               m_expert.grpAttrBonus, 0.0, 15.0, 0.5,
               [this](double v){ m_expert.grpAttrBonus = v; m_db->saveExpertSetting("grpAttrBonus", v); });
-        mkDbl(w, gl, "Value attribute variance weight",
-              "score −= valAttrVarianceWeight × variance(ValAttr)  [per attr, cap > 2]",
-              "variance is the mean squared deviation of ValAttr1 (and separately ValAttr2) "
-              "from the team mean. Values of 0 are excluded. Applied only when capacity > 2.",
-              "Increasing forces the generator to produce more equally-balanced boats "
-              "across whatever the value attribute represents (e.g. technique score).",
-              "Default 0.4.",
+        mkDbl(w, gl, "valAttrVarianceWeight  —  Penalty weight for unequal value-attribute average across teams",
+              "score −= valAttrVarianceWeight × variance(ValAttr1_in_team)    [cap > 2, applied per attribute]",
+              "valAttrVarianceWeight scales how much the generator penalises uneven ValAttr values "
+              "within a team. It follows the same variance logic as Strength: the mean squared deviation "
+              "of ValAttr1 (and separately ValAttr2) across team members (with value > 0) is computed "
+              "and multiplied by this weight. The goal is that all boats end up with a similar average. "
+              "Example: if ValAttr1 is a technique score (1=poor, 10=excellent), this nudges the "
+              "generator to spread technique levels evenly rather than concentrating all experts in one boat.",
+              "Increase when fair distribution of a measured quality across boats is important — "
+              "e.g. competitive training where equal boat speed is desired. "
+              "Decrease (or set to 0) if ValAttr data is incomplete or balance is not a priority.",
+              "Teams with extreme value spread are penalised more. "
+              "At 1.0 a variance of 8 (very unequal) costs 8.0 — substantial compared to other factors.",
+              "Default: 0.4. Typical effective penalty: 0.8–3.2 for a 4-rower team.",
               m_expert.valAttrVarianceWeight, 0.0, 5.0, 0.1,
               [this](double v){ m_expert.valAttrVarianceWeight = v; m_db->saveExpertSetting("valAttrVarianceWeight", v); });
         vl->addWidget(g);
     }
 
-    // ─────────────────────────────────────────────────────────────
-    vl->addWidget(mkHeader("Role Selection (Obmann & Steerer)"));
+    // ══ 10. ROLE SELECTION ═══════════════════════════════════════
+    vl->addWidget(mkHeader("10 — Obmann & Steerer Role Selection Weights"));
     {
         auto* g = new QGroupBox;
         auto* gl = new QVBoxLayout(g);
-        gl->addWidget(mkDesc(
-            "After a team is assigned to a boat, Obmann and Steerer roles are chosen by scoring "
-            "candidates. These weights affect who is preferred.\n"
-            "obmannScore(r) = ageBand × obmannAgeWeight  −  recentObmann × obmannOverusePenalty\n"
-            "steerScore(r)  = (100 − effectiveBand) × steerYouthWeight  −  recentSteering × steerOverusePenalty\n"
-            "where effectiveBand = ageBand if set, else 50 (mid-range).\n"
-            "recentObmann / recentSteering = count of that role in the last N sessions (overuseThreshold)."));
-        mkDbl(w, gl, "Obmann age weight",
-              "obmannScore += ageBand × obmannAgeWeight",
-              "ageBand is the lower bound of the rower's decade (20, 30, …, 80). "
-              "Higher ageBand = older = preferred as Obmann.",
-              "Increasing makes age a stronger factor in Obmann selection. "
-              "Set to 0 to ignore age for Obmann.",
-              "Default 0.5. Example: ageBand=60, weight=0.5 → +30 score.",
+        gl->addWidget(new QLabel(
+            "<b>Context:</b> After teams are placed, Obmann and Steerer roles are assigned per boat "
+            "(only for boats with capacity > 2). Role selection uses separate scoring independent from "
+            "the team placement scoring above. Each eligible rower is scored and the highest scorer wins. "
+            "Obmann: older rowers preferred (higher ageBand score), frequent recent Obmann duty penalised. "
+            "Steerer: younger rowers preferred (lower ageBand score), frequent recent duty penalised. "
+            "ageBand values: 20, 30, 40, 50, 60, 70, 80 (the lower decade bound, e.g. 60 = 60-70 age group)."
+        ));
+        mkDbl(w, gl, "obmannAgeWeight  —  How much older age is preferred for Obmann",
+              "obmannScore += ageBand × obmannAgeWeight    (per Obmann-capable candidate)",
+              "obmannAgeWeight controls how much the rower's age decade influences Obmann selection. "
+              "ageBand is the lower bound of their decade (20/30/40/50/60/70/80). "
+              "A rower aged 60–70 has ageBand=60; at obmannAgeWeight=0.5 they score +30 from age alone. "
+              "A rower with no age set (ageBand=0) contributes 0 from this term.",
+              "Increase if you want to strongly prefer older, experienced members as Obmann. "
+              "Decrease if the age preference should be a gentle nudge rather than decisive. "
+              "Set to 0 if age should not influence Obmann selection at all (overuse penalty still applies).",
+              "Older rowers gain a larger score advantage for the Obmann role. "
+              "At 1.0, a 70-year-old scores +70 from age — decisively outweighing the overuse penalty.",
+              "Default: 0.5. A 60-year-old scores +30; a 30-year-old scores +15 — a moderate preference.",
               m_expert.obmannAgeWeight, 0.0, 3.0, 0.1,
               [this](double v){ m_expert.obmannAgeWeight = v; m_db->saveExpertSetting("obmannAgeWeight", v); });
-        mkDbl(w, gl, "Obmann overuse penalty",
-              "obmannScore −= recentObmann × obmannOverusePenalty",
-              "recentObmann = how many times this person was Obmann in the last N sessions.",
-              "Increasing rotates the Obmann role more evenly across qualified rowers. "
-              "Set to 0 to always prefer the oldest qualified rower.",
-              "Default 3.0.",
+        mkDbl(w, gl, "obmannOverusePenalty  —  Penalty for being Obmann too recently",
+              "obmannScore −= recentObmann × obmannOverusePenalty    (recentObmann = sessions in last N)",
+              "obmannOverusePenalty is subtracted from a rower's Obmann score for each time they "
+              "served as Obmann in the most recent N sessions (N = overuseThreshold, see below). "
+              "This rotates the role across all qualified rowers rather than always picking the oldest. "
+              "recentObmann is loaded from the assignment_roles table in the database.",
+              "Increase when you want strict rotation — a rower who was Obmann twice recently should "
+              "be skipped almost completely. "
+              "Decrease if the age preference should dominate and the same person can be Obmann repeatedly. "
+              "Set to 0 to always pick the oldest qualified rower regardless of history.",
+              "Rowers who were recently Obmann are penalised more heavily, rotating the role faster. "
+              "At 5.0, two recent Obmann sessions cost −10.0 — enough to overcome an age advantage of 20 years.",
+              "Default: 3.0. One recent session = −3.0 penalty; two recent = −6.0.",
               m_expert.obmannOverusePenalty, 0.0, 10.0, 0.5,
               [this](double v){ m_expert.obmannOverusePenalty = v; m_db->saveExpertSetting("obmannOverusePenalty", v); });
-        mkDbl(w, gl, "Steerer youth weight",
-              "steerScore += (100 − effectiveBand) × steerYouthWeight",
-              "Younger rowers (lower ageBand) score higher as foot-steerers.",
-              "Increasing prefers younger steerers more strongly. "
-              "Set to 0 to ignore age for steerer selection.",
-              "Default 0.3. Example: ageBand=30 → 100−30=70 → 70×0.3=21 score.",
+        mkDbl(w, gl, "steerYouthWeight  —  How much younger age is preferred for Steerer",
+              "steerScore += (100 − effectiveBand) × steerYouthWeight    (effectiveBand = ageBand or 50)",
+              "steerYouthWeight controls how much the foot-steerer role favours younger rowers. "
+              "The formula uses (100 − ageBand) so a younger rower scores higher. "
+              "effectiveBand = ageBand if set, otherwise 50 (mid-range) for rowers without age data. "
+              "A rower aged 20–30 (ageBand=20) scores (100−20) × steerYouthWeight = 80 × 0.3 = 24.",
+              "Increase if foot-steering should strongly favour the youngest qualified rower. "
+              "Decrease if age should be a minor factor in steerer selection. "
+              "Set to 0 to ignore age for steerer selection (overuse penalty still applies).",
+              "Younger qualified rowers gain a stronger advantage for the Steerer role. "
+              "At 1.0, a 25-year-old scores +75 compared to a 55-year-old's +45 — a decisive gap.",
+              "Default: 0.3. A 25-year-old scores +22.5; a 55-year-old scores +13.5.",
               m_expert.steerYouthWeight, 0.0, 3.0, 0.1,
               [this](double v){ m_expert.steerYouthWeight = v; m_db->saveExpertSetting("steerYouthWeight", v); });
-        mkDbl(w, gl, "Steerer overuse penalty",
-              "steerScore −= recentSteering × steerOverusePenalty",
-              "recentSteering = how many times this person was Steerer in the last N sessions.",
-              "Increasing rotates the Steerer role more evenly. "
-              "Set to 0 to always prefer the youngest qualified rower.",
-              "Default 3.0.",
+        mkDbl(w, gl, "steerOverusePenalty  —  Penalty for being Steerer too recently",
+              "steerScore −= recentSteering × steerOverusePenalty    (recentSteering = sessions in last N)",
+              "steerOverusePenalty is subtracted from a rower's Steerer score for each time they "
+              "served as foot-steerer in the most recent N sessions. Same mechanism as Obmann overuse. "
+              "This ensures the steering duty rotates across all canSteer-capable rowers.",
+              "Increase for strict steering rotation — once a rower steered last session they should "
+              "not be chosen again unless no one else is available. "
+              "Decrease to allow the same person to steer repeatedly if they are clearly the best candidate.",
+              "The steering role rotates faster across all qualified rowers.",
+              "Default: 3.0. Same as obmannOverusePenalty for symmetric rotation.",
               m_expert.steerOverusePenalty, 0.0, 10.0, 0.5,
               [this](double v){ m_expert.steerOverusePenalty = v; m_db->saveExpertSetting("steerOverusePenalty", v); });
-        mkInt(w, gl, "Overuse threshold (N sessions)",
-              "overuse warning shown when count ≥ overuseThreshold in last N sessions",
-              "When a rower's Obmann or Steerer count in the last N sessions reaches this number, "
-              "they are flagged as 'overused' in the Statistics tab. The overuse penalty is applied "
-              "to their role scoring.",
-              "Increasing means more sessions are needed before the overuse flag appears. "
-              "Decreasing rotates roles more aggressively.",
-              "Default 3. Affects Statistics 'overused' label and role scoring penalty.",
-              m_expert.overuseThreshold, 1, 10,
+        mkInt(w, gl, "overuseThreshold  —  How many recent sessions define 'overused'",
+              "overused flag shown when recentCount ≥ overuseThreshold    (in the Statistics tab)",
+              "overuseThreshold defines the window size N used for overuse tracking. "
+              "recentObmann and recentSteering count how many times a rower held that role in "
+              "the last overuseThreshold assignments. When the count reaches overuseThreshold, "
+              "the Statistics tab flags the rower as 'overused'. The same window is used for "
+              "the overuse penalty in role scoring above.",
+              "Increase if your club has sessions frequently (e.g. 3+ per week) and you want "
+              "overuse to be measured over a longer period. "
+              "Decrease for clubs with infrequent sessions where even 2 consecutive Obmann appearances "
+              "should trigger rotation.",
+              "The overuse flag appears less frequently (rowers need more sessions to be flagged). "
+              "The penalty window is also wider, so the rotation effect is spread over more sessions.",
+              "Default: 3. A rower who was Obmann in 3 of the last 3 sessions is flagged.",
+              m_expert.overuseThreshold, 1, 20,
               [this](int v){ m_expert.overuseThreshold = v; m_db->saveExpertSetting("overuseThreshold", static_cast<double>(v)); });
         vl->addWidget(g);
     }
 
-    // ─────────────────────────────────────────────────────────────
-    vl->addWidget(mkHeader("Generator Search Depth"));
+    // ══ 11. GENERATOR SEARCH DEPTH ═══════════════════════════════
+    vl->addWidget(mkHeader("11 — Generator Search Depth"));
     {
         auto* g = new QGroupBox;
         auto* gl = new QVBoxLayout(g);
-        gl->addWidget(mkDesc(
-            "The generator is stochastic: it shuffles rowers randomly and picks the best team "
-            "it finds in a fixed number of attempts. More attempts = better solutions but slower."));
-        mkInt(w, gl, "Shuffle attempts per boat (fillBoatAttempts)",
-              "for attempt in 0..fillBoatAttempts: shuffle → build → score → keep best",
-              "Each attempt shuffles available rowers randomly and greedily builds a valid team. "
-              "The highest-scoring valid team across all attempts is committed.",
-              "Increasing finds better teams at the cost of longer generation time. "
-              "Decreasing speeds up generation but may miss good combinations.",
-              "Default 600. Halving to 300 is rarely noticeable; reducing to <50 may degrade quality.",
+        gl->addWidget(new QLabel(
+            "<b>Context:</b> The generator is stochastic. It does not find the mathematically optimal "
+            "solution; instead it randomly shuffles rowers and greedily builds candidate teams, "
+            "then keeps the best-scoring valid team across many attempts. More attempts means a better "
+            "chance of finding a high-quality solution, but also means longer generation time. "
+            "The algorithm runs up to 3 passes (strict → relaxed compat → fully relaxed), "
+            "and within each pass runs up to passAttempts full-assignment attempts."
+        ));
+        mkInt(w, gl, "fillBoatAttempts  —  Random shuffle attempts per boat per pass",
+              "for attempt in 0 … fillBoatAttempts:  shuffle → build team → score → keep best",
+              "fillBoatAttempts is the number of random team compositions tried for each individual "
+              "boat within a single full-assignment attempt. In each try, the available rower list is "
+              "shuffled randomly and a greedy algorithm builds the first valid team it finds. "
+              "The highest-scoring valid team across all attempts is committed for that boat. "
+              "Higher values = better chance of finding a genuinely good combination, "
+              "but each boat takes proportionally longer to fill.",
+              "Increase when you have a complex setup (many constraints, large whitelist/blacklist, "
+              "many special attributes) and the generator produces mediocre results. "
+              "You might also increase after adding many new rowers or boats. "
+              "Decrease to speed up generation in simple scenarios (few rowers, few constraints). "
+              "Rarely useful to exceed 1000 — the improvement diminishes above 600.",
+              "Each additional attempt improves solution quality logarithmically — "
+              "doubling from 600 to 1200 gives a small improvement; halving to 300 may be barely noticeable. "
+              "Generation time scales linearly with this value.",
+              "Default: 600. Halving to 300 is barely noticeable; below 50 quality may degrade.",
               m_expert.fillBoatAttempts, 10, 5000,
               [this](int v){ m_expert.fillBoatAttempts = v; m_db->saveExpertSetting("fillBoatAttempts", static_cast<double>(v)); });
-        mkInt(w, gl, "Full-assignment attempts per pass (passAttempts)",
-              "for fa in 0..passAttempts: try to fill all boats → keep first success",
-              "In each of the 3 generation passes, the generator tries to fill all boats "
-              "this many times. If all boats fill in one attempt the pass ends immediately.",
-              "Increasing gives more chances to find a feasible assignment in difficult situations. "
-              "Rarely needs to exceed 20.",
-              "Default 15.",
+        mkInt(w, gl, "passAttempts  —  Full-assignment attempts per generation pass",
+              "for fa in 0 … passAttempts:  fill all boats in sequence → keep first fully successful attempt",
+              "passAttempts is the number of times the generator tries to fill ALL boats in one full "
+              "assignment attempt within a single pass. If the first full attempt successfully fills "
+              "every boat, it stops immediately. The loop only matters when early boats 'use up' "
+              "rowers that later boats need — a second attempt shuffles differently and may succeed. "
+              "This value rarely needs to exceed 20; most assignments succeed on the first attempt.",
+              "Increase if you frequently see 'could not generate a valid assignment' errors even "
+              "though Check shows no hard problems — this suggests rower allocation order is "
+              "causing some boats to fail. "
+              "Decrease to the minimum (1) only for testing or when generation speed is critical.",
+              "The generator gets more chances to find a feasible full assignment, "
+              "reducing 'no valid assignment' errors at the cost of slightly longer generation time.",
+              "Default: 15. Most scenarios succeed in 1–3 attempts; rarely useful above 30.",
               m_expert.passAttempts, 1, 100,
               [this](int v){ m_expert.passAttempts = v; m_db->saveExpertSetting("passAttempts", static_cast<double>(v)); });
         vl->addWidget(g);
     }
 
-    // Reset button
-    auto* resetBtn = new QPushButton("Reset all to defaults");
+    // ── Reset button ─────────────────────────────────────────────
+    vl->addSpacing(10);
+    auto* resetBtn = new QPushButton("↺  Reset all settings to factory defaults");
     resetBtn->setObjectName("dangerBtn");
+    resetBtn->setToolTip("Restores all 27 settings to their original coded values and saves them to the database.");
     vl->addWidget(resetBtn, 0, Qt::AlignLeft);
     QObject::connect(resetBtn, &QPushButton::clicked, w, [this, outer]() {
         m_expert = ExpertSettings{};
-        // Persist all defaults
         auto s = [this](const QString& k, double v){ m_db->saveExpertSetting(k, v); };
         s("weightRank1",4.0); s("weightRank2",2.0); s("weightRank3",1.0);
         s("weightRank4",0.5); s("weightRank5",0.5);
@@ -2232,19 +2463,15 @@ QWidget* MainWindow::buildExpertTab() {
         s("obmannAgeWeight",0.5); s("obmannOverusePenalty",3.0);
         s("steerYouthWeight",0.3); s("steerOverusePenalty",3.0);
         s("overuseThreshold",3.0); s("fillBoatAttempts",600.0); s("passAttempts",15.0);
-        // Rebuild the tab by replacing it
-        int idx = m_tabs->indexOf(outer->parentWidget() ? outer->parentWidget() : outer);
-        if (idx < 0) {
-            // Find by title
-            for (int i = 0; i < m_tabs->count(); ++i)
-                if (m_tabs->tabText(i) == "Expert Settings") { idx = i; break; }
-        }
-        if (idx >= 0) {
-            m_tabs->removeTab(idx);
-            m_tabs->insertTab(idx, buildExpertTab(), "Expert Settings");
-            m_tabs->setCurrentIndex(idx);
-        }
-        statusBar()->showMessage("Expert settings reset to defaults.", 2000);
+        // Rebuild tab
+        for (int i = 0; i < m_tabs->count(); ++i)
+            if (m_tabs->tabText(i) == "Expert Settings") {
+                m_tabs->removeTab(i);
+                m_tabs->insertTab(i, buildExpertTab(), "Expert Settings");
+                m_tabs->setCurrentIndex(i);
+                break;
+            }
+        statusBar()->showMessage("All 27 expert settings reset to factory defaults and saved.", 3000);
     });
 
     vl->addStretch();
@@ -2252,6 +2479,7 @@ QWidget* MainWindow::buildExpertTab() {
     outerVL->addWidget(scroll);
     return outer;
 }
+
 
 // ---------------------------------------------------------------
 // Expert settings persistence
