@@ -1204,29 +1204,29 @@ QString AssignmentDialog::formatPreview(const Assignment& a) const
         };
 
         // Print Obmann first — include group tags too
-        if (chosenObmann != -1)
-            for (const Rower& r : m_rowers)
-                if (r.id() == chosenObmann) {
-                    QStringList tags;
-                    tags << "[Obmann]";
-                    if (chosenObmann == chosenSteerer) tags << "[Steering]";
-                    tags << groupTags(chosenObmann);          // ← group tags always shown
-                    text += QString("  %1  %2\n").arg(r.name(), -22).arg(tags.join(" "));
-                    break;
-                }
+        if (chosenObmann != -1) {
+            // Find name — may not be in m_rowers if sick-filtered; fall back to ID
+            QString obName;
+            for (const Rower& r : m_rowers) if (r.id() == chosenObmann) { obName = r.name(); break; }
+            if (obName.isEmpty()) obName = QString("Rower#%1").arg(chosenObmann);
+            QStringList tags;
+            tags << "[Obmann]";
+            if (chosenObmann == chosenSteerer) tags << "[Steering]";
+            tags << groupTags(chosenObmann);
+            text += QString("  %1  %2\n").arg(obName, -22).arg(tags.join(" "));
+        }
 
         for (int rid : it.value()) {
             if (rid == chosenObmann) continue;
-            for (const Rower& r : m_rowers) {
-                if (r.id() != rid) continue;
-                QStringList tags;
-                if (rid == chosenSteerer) tags << "[Steering]";
-                tags << groupTags(rid);
-                text += QString("  %1%2\n")
-                            .arg(r.name(), -22)
-                            .arg(tags.isEmpty() ? QString() : "  " + tags.join(" "));
-                break;
-            }
+            QString name;
+            for (const Rower& r : m_rowers) if (r.id() == rid) { name = r.name(); break; }
+            if (name.isEmpty()) name = QString("Rower#%1").arg(rid);
+            QStringList tags;
+            if (rid == chosenSteerer) tags << "[Steering]";
+            tags << groupTags(rid);
+            text += QString("  %1%2\n")
+                        .arg(name, -22)
+                        .arg(tags.isEmpty() ? QString() : "  " + tags.join(" "));
         }
         text += "\n";
     }

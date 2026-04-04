@@ -751,48 +751,85 @@ QString MainWindow::formatAssignmentText(const Assignment& assignment) {
     text += QString("Created:    %1\n").arg(assignment.createdAt().toString("dd.MM.yyyy hh:mm:ss"));
     text += QString("=").repeated(W) + "\n\n";
 
-    // Load history for weight reduction (recent 3 sessions)
-    QMap<int,QString> existingRoles = m_db->loadRoles(assignment.id());
-    QList<DatabaseManager::RowerStats> stats = m_db->loadStats();
-    // Build quick lookup: rowerId -> recent obmann/steering counts
-    QMap<int,int> recentObmann, recentSteering;
-    for (const DatabaseManager::RowerStats& s : stats) {
-        recentObmann[s.rowerId]   = s.recentObmann;
-        recentSteering[s.rowerId] = s.recentSteering;
+    // Load already-persisted roles — never re-pick on display
+    QMap<int,QString> savedRoles = m_db->loadRoles(assignment.id());
+    // savedRoles: rowerId -> "obmann" | "steering" | "obmann_steering"
+
+    // If no roles have been saved yet (first display after generation), pick and persist once
+    if (savedRoles.isEmpty()) {
+        QList<DatabaseManager::RowerStats> stats = m_db->loadStats();
+        QMap<int,int> recentObmann, recentSteering;
+        for (const DatabaseManager::RowerStats& s : stats) {
+            recentObmann[s.rowerId]   = s.recentObmann;
+            recentSteering[s.rowerId] = s.recentSteering;
+        }
+        auto obmannScore = [&](int rid) -> double {
+            for (const Rower& r : m_rowers) {
+                if (r.id() != rid) continue;
+                if (!r.isObmann()) return -1e9;
+                double score = r.ageBand() * 0.5 - recentObmann.value(rid, 0) * 3.0;
+                return score;
+            }
+            return -1e9;
+        };
+        auto steerScore = [&](int rid) -> double {
+            for (const Rower& r : m_rowers) {
+                if (r.id() != rid) continue;
+                if (!r.canSteer()) return -1e9;
+                int band = r.ageBand() > 0 ? r.ageBand() : 50;
+                return (100 - band) * 0.3 - recentSteering.value(rid, 0) * 3.0;
+            }
+            return -1e9;
+        };
+
+        const auto& map = assignment.boatRowerMap();
+        for (auto it = map.constBegin(); it != map.constEnd(); ++it) {
+            int boatId = it.key();
+            Boat foundBoat;
+            for (const Boat& b : m_boats) if (b.id() == boatId) { foundBoat = b; break; }
+            bool isSteered  = foundBoat.id() != -1 && foundBoat.steeringType() == SteeringType::Steered;
+            bool needsRoles = foundBoat.id() == -1 || foundBoat.capacity() > 2;
+            if (!needsRoles) continue;
+
+            const QList<int>& rowerIds = it.value();
+            int chosenObmann = -1;
+            double bestOb = -1e18;
+            for (int rid : rowerIds) {
+                double s = obmannScore(rid);
+                if (s > -1e8 && s > bestOb) { bestOb = s; chosenObmann = rid; }
+            }
+            if (chosenObmann == -1 && !rowerIds.isEmpty())
+                chosenObmann = rowerIds.at(QRandomGenerator::global()->bounded(
+                    static_cast<quint32>(rowerIds.size())));
+
+            int chosenSteerer = -1;
+            if (isSteered) {
+                double bestSt = -1e18;
+                for (int rid : rowerIds) {
+                    double s = steerScore(rid);
+                    if (s > -1e8 && s > bestSt) { bestSt = s; chosenSteerer = rid; }
+                }
+            }
+
+            // Persist once
+            if (chosenObmann != -1 && chosenObmann == chosenSteerer) {
+                m_db->saveRole(assignment.id(), boatId, chosenObmann, "obmann_steering");
+                savedRoles[chosenObmann] = "obmann_steering";
+            } else {
+                if (chosenObmann != -1) {
+                    m_db->saveRole(assignment.id(), boatId, chosenObmann, "obmann");
+                    savedRoles[chosenObmann] = "obmann";
+                }
+                if (chosenSteerer != -1) {
+                    m_db->saveRole(assignment.id(), boatId, chosenSteerer, "steering");
+                    savedRoles[chosenSteerer] = "steering";
+                }
+            }
+        }
     }
 
-    // Role scoring helpers
-    auto obmannScore = [&](int rid) -> double {
-        double score = 0.0;
-        for (const Rower& r : m_rowers) {
-            if (r.id() != rid) continue;
-            if (!r.isObmann()) return -1e9;   // must be qualified
-            // Older = preferred (higher age band = higher score)
-            score += r.ageBand() * 0.5;
-            // Penalise if overused in recent sessions
-            score -= recentObmann.value(rid, 0) * 3.0;
-            break;
-        }
-        return score;
-    };
-    auto steerScore = [&](int rid) -> double {
-        double score = 0.0;
-        for (const Rower& r : m_rowers) {
-            if (r.id() != rid) continue;
-            if (!r.canSteer()) return -1e9;
-            // Younger = preferred (lower age band = higher score, 0=unknown treated as mid)
-            int band = r.ageBand() > 0 ? r.ageBand() : 50;
-            score += (100 - band) * 0.3;
-            score -= recentSteering.value(rid, 0) * 3.0;
-            break;
-        }
-        return score;
-    };
-
+    // Now render using the stable savedRoles map — no further randomness
     const auto& map = assignment.boatRowerMap();
-    // Collect roles determined this time so we can persist them
-    QMap<int, QPair<int,QString>> boatRoles;  // boatId -> (rowerId, role)
-
     for (auto it = map.constBegin(); it != map.constEnd(); ++it) {
         int boatId = it.key();
         const QList<int>& rowerIds = it.value();
@@ -805,62 +842,26 @@ QString MainWindow::formatAssignmentText(const Assignment& assignment) {
             text += QString("  [%1|Cap:%2|%3|%4]\n")
                         .arg(Boat::boatTypeToString(foundBoat.boatType()).left(5))
                         .arg(foundBoat.capacity())
-                        .arg(Boat::steeringTypeToString(foundBoat.steeringType()).left(5))
+                        .arg(Boat::steeringTypeToString(foundBoat.steeringType()).left(10))
                         .arg(Boat::propulsionTypeToString(foundBoat.propulsionType()).left(6));
 
-        // Foot-Steered (SteeringType::Steered) = needs a designated foot-steerer
-        bool isSteered = foundBoat.id() != -1 &&
-                         foundBoat.steeringType() == SteeringType::Steered;
+        bool needsRoles = foundBoat.id() == -1 || foundBoat.capacity() > 2;
 
-        // Boats with capacity 1 or 2 need no Obmann and no Steering designation
-        bool needsRoles = (foundBoat.id() == -1 || foundBoat.capacity() > 2);
-
-        // ---- Choose Obmann (age-weighted, history-penalised) ----
-        int chosenObmann = -1;
-        if (needsRoles) {
-            double bestObScore = -1e18;
-            for (int rid : rowerIds) {
-                double s = obmannScore(rid);
-                if (s > -1e8 && s > bestObScore) { bestObScore = s; chosenObmann = rid; }
-            }
-            // If no qualified Obmann, randomly pick anyone
-            if (chosenObmann == -1 && !rowerIds.isEmpty()) {
-                int idx = QRandomGenerator::global()->bounded(static_cast<quint32>(rowerIds.size()));
-                chosenObmann = rowerIds.at(idx);
-            }
-        }
-
-        // ---- Choose Steerer (age-weighted, history-penalised) ----
+        // Find Obmann and Steerer for this boat from saved roles
+        int chosenObmann  = -1;
         int chosenSteerer = -1;
-        if (needsRoles && isSteered) {
-            double bestStScore = -1e18;
+        if (needsRoles) {
             for (int rid : rowerIds) {
-                double s = steerScore(rid);
-                if (s > -1e8 && s > bestStScore) { bestStScore = s; chosenSteerer = rid; }
+                QString role = savedRoles.value(rid);
+                if (role == "obmann" || role == "obmann_steering") chosenObmann  = rid;
+                if (role == "steering" || role == "obmann_steering") chosenSteerer = rid;
             }
         }
 
-        // Obmann and Steerer CAN be the same person
-        if (needsRoles && chosenObmann == -1)
-            text += "  *** No Obmann! ***\n";
+        // Print Obmann first
+        if (needsRoles && chosenObmann == -1 && !rowerIds.isEmpty())
+            text += "  (no Obmann designated)\n";
 
-        // Determine combined role for DB
-        QString roleStr;
-        if (chosenObmann == chosenSteerer && chosenObmann != -1)
-            roleStr = "obmann_steering";
-        else {
-            if (chosenObmann != -1) {
-                m_db->saveRole(assignment.id(), boatId, chosenObmann, "obmann");
-            }
-            if (chosenSteerer != -1 && chosenSteerer != chosenObmann) {
-                m_db->saveRole(assignment.id(), boatId, chosenSteerer, "steering");
-            }
-        }
-        if (!roleStr.isEmpty() && chosenObmann != -1)
-            m_db->saveRole(assignment.id(), boatId, chosenObmann, roleStr);
-
-        // ---- Print ----
-        // Obmann first
         if (chosenObmann != -1) {
             for (const Rower& r : m_rowers) {
                 if (r.id() != chosenObmann) continue;
@@ -873,15 +874,15 @@ QString MainWindow::formatAssignmentText(const Assignment& assignment) {
         }
         for (int rid : rowerIds) {
             if (rid == chosenObmann) continue;
-            for (const Rower& r : m_rowers) {
-                if (r.id() != rid) continue;
-                QStringList tags;
-                if (rid == chosenSteerer) tags << "[Steering]";
-                text += QString("  %1%2\n")
-                            .arg(r.name().left(22), -22)
-                            .arg(tags.isEmpty() ? QString() : " " + tags.join(" "));
-                break;
-            }
+            // Look up name — search all m_rowers (including the full list)
+            QString name;
+            for (const Rower& r : m_rowers) if (r.id() == rid) { name = r.name(); break; }
+            if (name.isEmpty()) name = QString("Rower#%1").arg(rid);
+            QStringList tags;
+            if (rid == chosenSteerer) tags << "[Steering]";
+            text += QString("  %1%2\n")
+                        .arg(name.left(22), -22)
+                        .arg(tags.isEmpty() ? QString() : " " + tags.join(" "));
         }
         text += "\n";
     }
