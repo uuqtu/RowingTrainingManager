@@ -1,0 +1,35 @@
+For the rowers in the attributes renam "Steerer" to "Food Steerer".
+
+In the boats change the steering to "Food Steered" or "Hand Steered".
+
+The logic stays the same and "Hand-Steered" means "Food Steered" and  "Steered" means "Food Steered" for you to know how to rename  the names and logic.
+
+
+
+Add in the main screen with Boats, Rowers, Assignments, Distance, Statistics another tab called Options.
+
+
+
+Add one section where I can add rowers in sick mode.
+
+If a rower from Rowers is in sick mode it shall not appear in any other screen in the generator etc.
+
+
+
+The Equipment limits shouls apply in the following way.
+
+If a boat is set to riemen, the riemen consumed is equal to the amount of rowers. Same for the Skulls.
+
+If this number is higher then the available pairs this should not allow to generate and be added to the message why it was impossible.
+
+
+
+Add an attribute strength which shall be considered in the logic in the following way. If the boat has a capacity bigger then 2 the boats shall try to have the same strength in their built classes. Meaning that this does not overrule any other logic but adds the ability to balance the strength if there are still viable options to switch.
+
+
+
+If the boat has a capacity of 1 or 2 no obmann is needed same is for steering, this can in the case of 1 and 2 just be ignored.
+
+Make sure that in the distance tab only the distances get prefilled if the people were in the same boat not if they were in the same assingment.
+
+Make also a Distance Detail tab where one can se person per assignment and the assignments are the coluns, show the past 14 assignments write the assignment text rotated to save space
