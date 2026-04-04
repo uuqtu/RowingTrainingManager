@@ -66,17 +66,33 @@ void AssignmentDialog::setupUi()
     m_tabs->addTab(buildOptionsTab(),   "4 — Options");
     splitter->addWidget(m_tabs);
 
-    // Right: preview
+    // Right: preview with Text / Table tabs
     auto* previewW = new QWidget;
     auto* previewVL = new QVBoxLayout(previewW);
     previewVL->setContentsMargins(0, 0, 0, 0);
     previewVL->addWidget(new QLabel("Preview  (generated result):"));
+
+    auto* previewTabs = new QTabWidget;
+
     m_previewEdit = new QTextEdit;
     m_previewEdit->setReadOnly(true);
     m_previewEdit->setPlaceholderText("Click 'Generate' to see the result here before saving…");
     QFont mono("Courier New", 11);
     m_previewEdit->setFont(mono);
-    previewVL->addWidget(m_previewEdit);
+    previewTabs->addTab(m_previewEdit, "Text");
+
+    m_previewTable = new QTableWidget(0, 0);
+    m_previewTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    m_previewTable->setSelectionMode(QAbstractItemView::NoSelection);
+    m_previewTable->horizontalHeader()->setDefaultSectionSize(120);
+    m_previewTable->verticalHeader()->setVisible(false);
+    m_previewTable->setStyleSheet(
+        "QTableWidget { gridline-color: #2a3548; }"
+        "QHeaderView::section { background:#1a2535; color:#8fb4d8; font-weight:600; "
+        "padding:4px; border:1px solid #2a3548; }");
+    previewTabs->addTab(m_previewTable, "Table");
+
+    previewVL->addWidget(previewTabs);
     splitter->addWidget(previewW);
     splitter->setSizes({520, 480});
     root->addWidget(splitter, 1);
@@ -1263,6 +1279,7 @@ void AssignmentDialog::onGenerate()
         m_assignment.setCheckedRowerIds({});
         m_assignment.setPriorityOrder({"__crazy__"});
         m_previewEdit->setPlainText(formatPreview(m_assignment));
+        populatePreviewTable(m_assignment);
         m_statusLabel->setText("<font color='#cc6644'>Crazy mode — random distribution applied!</font>");
         m_acceptBtn->setEnabled(true);
         return;
@@ -1280,6 +1297,7 @@ void AssignmentDialog::onGenerate()
                         "only holds %3. Fix this in the Groups tab before generating.</font>")
                     .arg(g.name).arg(g.rowerIds.size()).arg(boatCap));
             m_previewEdit->clear();
+            if (m_previewTable) { m_previewTable->clear(); m_previewTable->setRowCount(0); m_previewTable->setColumnCount(0); }
             m_acceptBtn->setEnabled(false);
             return;
         }
@@ -1296,23 +1314,40 @@ void AssignmentDialog::onGenerate()
     QList<Rower> effectiveRowers = rowersWithGroupsApplied(selectedRowers);
 
     // Pre-seed pinned groups
+    // A pinned boat is FULLY pinned only when its group fills all seats.
+    // If the group is smaller than the boat's capacity, the boat stays in
+    // freeBoats so the generator can fill the remaining seats.
     QList<Boat> pinnedBoats, freeBoats;
     QList<int>  pinnedRowerIds;
+
     for (const RowingGroup& g : m_groups) {
         if (g.boatId == -1) continue;
+        // Find the boat capacity
+        int boatCap = 0;
         for (const Boat& b : selectedBoats)
-            if (b.id() == g.boatId) { pinnedBoats << b; break; }
+            if (b.id() == g.boatId) { boatCap = b.capacity(); break; }
+        // Only fully-pinned if group fills every seat
+        bool fullyPinned = (boatCap > 0 && g.rowerIds.size() >= boatCap);
+        if (fullyPinned) {
+            for (const Boat& b : selectedBoats)
+                if (b.id() == g.boatId) { pinnedBoats << b; break; }
+        }
         for (int rid : g.rowerIds) pinnedRowerIds << rid;
     }
+
     for (const Boat& b : selectedBoats) {
         bool pinned = false;
         for (const Boat& pb : pinnedBoats) if (pb.id() == b.id()) { pinned = true; break; }
         if (!pinned) freeBoats << b;
     }
+
+    // freeRowers = everyone not consumed by a fully-pinned group
     QList<Rower> freeRowers;
     for (const Rower& r : effectiveRowers)
         if (!pinnedRowerIds.contains(r.id())) freeRowers << r;
 
+    // Pre-seed the assignment with pinned group members for ALL pinned groups
+    // (both fully-pinned and partially-pinned)
     Assignment preSeeded;
     preSeeded.setName(name);
     preSeeded.setCreatedAt(QDateTime::currentDateTime());
@@ -1322,15 +1357,35 @@ void AssignmentDialog::onGenerate()
             preSeeded.assignRowerToBoat(g.boatId, rid);
     }
 
-    if (!freeBoats.isEmpty()) {
+    // For partially-pinned boats that remain in freeBoats, tell the generator
+    // how many seats are already occupied so it fills only the remainder.
+    // We do this by reducing the capacity of those boats for the generator call.
+    QList<Boat> generatorBoats;
+    for (const Boat& b : freeBoats) {
+        // Count how many seats are already pre-seeded in this boat
+        int preSeatedCount = 0;
+        const auto& psMap = preSeeded.boatRowerMap();
+        if (psMap.contains(b.id())) preSeatedCount = psMap[b.id()].size();
+
+        if (preSeatedCount > 0 && preSeatedCount < b.capacity()) {
+            // Partially filled — give generator a reduced-capacity copy
+            Boat partial = b;
+            partial.setCapacity(b.capacity() - preSeatedCount);
+            generatorBoats << partial;
+        } else if (preSeatedCount == 0) {
+            generatorBoats << b;
+        }
+        // If preSeatedCount >= capacity: fully covered, skip (shouldn't happen here)
+    }
+
+    if (!generatorBoats.isEmpty()) {
         AssignmentGenerator gen;
-        GeneratorResult result = gen.generate(freeBoats, freeRowers, name, priority);
+        GeneratorResult result = gen.generate(generatorBoats, freeRowers, name, priority);
 
         // Build context for diagnostic (full picture, not just free portion)
         AssignmentGenerator::DiagContext ctx;
         ctx.allSelectedRowers = selectedRowers;
-        ctx.allSelectedBoats  = selectedBoats;
-        ctx.maxSkullPairs     = m_globalScullOars;
+        ctx.allSelectedBoats  = selectedBoats;        ctx.maxSkullPairs     = m_globalScullOars;
         ctx.maxRiemenPairs    = m_globalSweepOars;
         for (const RowingGroup& g : m_groups) {
             if (g.rowerIds.isEmpty()) continue;
@@ -1354,7 +1409,7 @@ void AssignmentDialog::onGenerate()
         }
 
         if (!result.success) {
-            QString diag = gen.diagnose(freeBoats, freeRowers, priority, ctx);
+            QString diag = gen.diagnose(generatorBoats, freeRowers, priority, ctx);
             QString report = "GENERATION FAILED\n";
             report += QString("Error: %1\n\n").arg(result.errorMessage);
             report += diag;
@@ -1375,7 +1430,7 @@ void AssignmentDialog::onGenerate()
             QString previewText = formatPreview(m_assignment);
             previewText += "\n--- NOTE: Constraints were relaxed ---\n";
             previewText += result.errorMessage + "\n\n";
-            previewText += gen.diagnose(freeBoats, freeRowers, priority, ctx);
+            previewText += gen.diagnose(generatorBoats, freeRowers, priority, ctx);
             m_previewEdit->setPlainText(previewText);
             // Save state and show success
             goto stateCapture;
@@ -1387,6 +1442,7 @@ void AssignmentDialog::onGenerate()
 
     m_assignment = preSeeded;
     m_previewEdit->setPlainText(formatPreview(m_assignment));
+    populatePreviewTable(m_assignment);
 
 stateCapture:
 
@@ -1714,4 +1770,103 @@ void AssignmentDialog::onMovePriorityDown() {
     auto* item = m_priorityList->takeItem(row);
     m_priorityList->insertItem(row + 1, item);
     m_priorityList->setCurrentRow(row + 1);
+}
+
+// ---------------------------------------------------------------
+// Table view of preview (dialog)
+// ---------------------------------------------------------------
+void AssignmentDialog::populatePreviewTable(const Assignment& a)
+{
+    if (!m_previewTable) return;
+    m_previewTable->clear();
+    m_previewTable->setRowCount(0);
+    m_previewTable->setColumnCount(0);
+
+    const auto& bmap = a.boatRowerMap();
+    if (bmap.isEmpty()) return;
+
+    QList<int> boatIds = bmap.keys();
+    int numCols = boatIds.size();
+
+    int maxRowers = 0;
+    for (int bid : boatIds) maxRowers = qMax(maxRowers, bmap[bid].size());
+
+    m_previewTable->setColumnCount(numCols);
+    m_previewTable->setRowCount(1 + maxRowers);  // row 0 = meta
+    m_previewTable->verticalHeader()->setVisible(false);
+
+    for (int c = 0; c < numCols; ++c) {
+        int boatId = boatIds.at(c);
+        Boat foundBoat;
+        for (const Boat& b : m_boats) if (b.id() == boatId) { foundBoat = b; break; }
+        QString header = foundBoat.id() != -1 ? foundBoat.name() : QString("Boat#%1").arg(boatId);
+        m_previewTable->setHorizontalHeaderItem(c, new QTableWidgetItem(header));
+
+        // Row 0: metadata
+        QString meta;
+        if (foundBoat.id() != -1)
+            meta = QString("%1|Cap:%2|%3|%4")
+                .arg(Boat::boatTypeToString(foundBoat.boatType()))
+                .arg(foundBoat.capacity())
+                .arg(Boat::steeringTypeToString(foundBoat.steeringType()).left(5))
+                .arg(Boat::propulsionTypeToString(foundBoat.propulsionType()).left(5));
+        auto* metaItem = new QTableWidgetItem(meta);
+        metaItem->setForeground(QColor("#5a7a9a"));
+        QFont fi = metaItem->font(); fi.setItalic(true); metaItem->setFont(fi);
+        m_previewTable->setItem(0, c, metaItem);
+    }
+
+    // Use pickRoles to determine roles for each boat
+    for (int c = 0; c < numCols; ++c) {
+        int boatId = boatIds.at(c);
+        const QList<int>& rowerIds = bmap[boatId];
+        Boat foundBoat;
+        for (const Boat& b : m_boats) if (b.id() == boatId) { foundBoat = b; break; }
+
+        bool isSteered  = foundBoat.id() != -1 && foundBoat.steeringType() == SteeringType::Steered;
+        bool needsRoles = foundBoat.id() == -1 || foundBoat.capacity() > 2;
+
+        int chosenObmann  = -1;
+        int chosenSteerer = -1;
+        if (needsRoles) {
+            auto [ob, st] = pickRoles(rowerIds, m_rowers, isSteered);
+            chosenObmann  = ob;
+            chosenSteerer = st;
+        }
+
+        // Obmann first
+        QList<int> ordered;
+        if (chosenObmann != -1) ordered << chosenObmann;
+        for (int rid : rowerIds) if (rid != chosenObmann) ordered << rid;
+
+        for (int r = 0; r < ordered.size(); ++r) {
+            int rid = ordered.at(r);
+            QString name;
+            for (const Rower& ro : m_rowers) if (ro.id() == rid) { name = ro.name(); break; }
+            if (name.isEmpty()) name = QString("Rower#%1").arg(rid);
+
+            QStringList tags;
+            if (rid == chosenObmann)
+                tags << (rid == chosenSteerer ? "[Obmann][Steering]" : "[Obmann]");
+            else if (rid == chosenSteerer)
+                tags << "[Steering]";
+            // Group tags
+            for (const RowingGroup& g : m_groups)
+                if (g.rowerIds.contains(rid)) tags << QString("[%1]").arg(g.name);
+
+            if (!tags.isEmpty()) name += "  " + tags.join(" ");
+
+            auto* cell = new QTableWidgetItem(name);
+            if (rid == chosenObmann) {
+                cell->setForeground(QColor("#f0c060"));
+                QFont f = cell->font(); f.setBold(true); cell->setFont(f);
+            } else if (rid == chosenSteerer) {
+                cell->setForeground(QColor("#60c0f0"));
+            }
+            m_previewTable->setItem(1 + r, c, cell);
+        }
+    }
+
+    m_previewTable->resizeColumnsToContents();
+    m_previewTable->horizontalHeader()->setStretchLastSection(true);
 }

@@ -142,8 +142,19 @@ double AssignmentGenerator::scoreTeam(const QList<int>& team,
         }
     }
 
+    // Obmann bonus: strongly prefer teams that contain at least one isObmann rower
+    // for boats with capacity > 2. Large enough to dominate other soft factors.
+    double obmannBonus = 0.0;
+    if (boat.capacity() > 2) {
+        bool hasObmann = false;
+        for (const Rower* r : members)
+            if (r->isObmann()) { hasObmann = true; break; }
+        if (hasObmann) obmannBonus = 20.0;
+    }
+
     if (priority.trainingMode) {
-        return -attrVariance - strengthVariance * 0.3 + whitelistBonus + avgProp * 3.0 - racingBeginnerPenalty;
+        return -attrVariance - strengthVariance * 0.3 + whitelistBonus + avgProp * 3.0
+               - racingBeginnerPenalty + obmannBonus;
     }
 
     double wSkill  = priority.weightFor(ScoringPriority::Skill);
@@ -156,7 +167,8 @@ double AssignmentGenerator::scoreTeam(const QList<int>& team,
          - attrVariance * 0.5
          - strengthVariance * 0.3
          + whitelistBonus
-         - racingBeginnerPenalty;
+         - racingBeginnerPenalty
+         + obmannBonus;
 }
 
 // ---------------------------------------------------------------

@@ -13,6 +13,7 @@ class QLineEdit;
 class QPushButton;
 class QLabel;
 class QTextEdit;
+class QTableWidget;
 class QTabWidget;
 class QComboBox;
 class QCheckBox;
@@ -82,6 +83,7 @@ private:
 
     ScoringPriority buildPriority() const;
     QString formatPreview(const Assignment& a) const;
+    void    populatePreviewTable(const Assignment& a);
     QList<Rower> rowersWithGroupsApplied(const QList<Rower>& base) const;
 
     QList<int> claimedRowerIds() const;
@@ -136,7 +138,8 @@ private:
     QPushButton* m_generateBtn = nullptr;
     QPushButton* m_checkBtn    = nullptr;
     QPushButton* m_acceptBtn   = nullptr;
-    QTextEdit*   m_previewEdit = nullptr;
+    QTextEdit*   m_previewEdit  = nullptr;
+    QTableWidget* m_previewTable = nullptr;   // table view of generated assignment
 
     QTabWidget*  m_tabs = nullptr;
 };

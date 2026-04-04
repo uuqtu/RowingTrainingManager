@@ -1,35 +1,29 @@
-For the rowers in the attributes renam "Steerer" to "Food Steerer".
+Try to always find a OBmann in the generation. solutions where every boat >2 seats has a obmann is to be preferred over alternative solutions.
 
-In the boats change the steering to "Food Steered" or "Hand Steered".
+In the Assignment Preview add a sub-tab view (In the Assignment Generator and also in the Assignment)
+One in the current way (default selected ) and another one in a table view where it looks like tables in Excel
 
-The logic stays the same and "Hand-Steered" means "Food Steered" and  "Steered" means "Food Steered" for you to know how to rename  the names and logic.
+Do not change anything else in the existing code because it works pretty good.
+What you shall change above that is this:
 
+I want on the save assignments also the option to lock the assignment, so that it can be opened but no change to it is allowed any more
 
+Save assignment shal also save the assignment name I input in the top, this is not saved and not loaded when i double click it.
 
-Add in the main screen with Boats, Rowers, Assignments, Distance, Statistics another tab called Options.
+Also check in the generation if people have been very often in one boat togehter, if that is the case give it a slight penalty.
 
+Add a whitelist for boats for the rowers in the same way as it exists for other rowers.
+Ione or many a whitelist entry for boats exists, the person wants only to drive these boats. (any of those)
 
+Add a blacklist for boats for the rowers in the same way as it exists for other rowers.
+If a black list entry exists the persond does not want to drive in one of these boats.
 
-Add one section where I can add rowers in sick mode.
+change attr2 to Body size with the values small, medium, tall and try in the generation to mapp people together. This shall also appera nin the priority selector.
+Itself it should give a low penalty if mismatch. Especially when the boat size is cap = 2 make sure that only neighbouring values are used.
 
-If a rower from Rowers is in sick mode it shall not appear in any other screen in the generator etc.
-
-
-
-The Equipment limits shouls apply in the following way.
-
-If a boat is set to riemen, the riemen consumed is equal to the amount of rowers. Same for the Skulls.
-
-If this number is higher then the available pairs this should not allow to generate and be added to the message why it was impossible.
-
-
-
-Add an attribute strength which shall be considered in the logic in the following way. If the boat has a capacity bigger then 2 the boats shall try to have the same strength in their built classes. Meaning that this does not overrule any other logic but adds the ability to balance the strength if there are still viable options to switch.
+change attr1 to stroke length with the values short, medium, long and try in the generation to mapp people together with same values. This shall also appera nin the priority selector.
+Itself it should give a middle to high penalty if mismatch.  Especially when the boat size is cap = 2 make sure that only neighbouring values are used.
 
 
-
-If the boat has a capacity of 1 or 2 no obmann is needed same is for steering, this can in the case of 1 and 2 just be ignored.
-
-Make sure that in the distance tab only the distances get prefilled if the people were in the same boat not if they were in the same assingment.
-
-Make also a Distance Detail tab where one can se person per assignment and the assignments are the coluns, show the past 14 assignments write the assignment text rotated to save space
+Add four more attributes attr grp 1, attr grp 2, attr val 1 and attr val 2.
+the grp attributes shall try to group people as good as possible and the val attributes shall try to create balance by being same on average in the different boats (cap > 2)

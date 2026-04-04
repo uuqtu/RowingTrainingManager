@@ -337,12 +337,27 @@ QWidget* MainWindow::buildAssignmentsTab() {
     detailLabel->setStyleSheet("color: #8fb4d8; font-weight: 700; font-size: 13px;");
     rightLayout->addWidget(detailLabel);
 
+    // Two-tab view: text (default) and table
+    auto* viewTabs = new QTabWidget;
+
     m_assignmentView = new QTextEdit;
     m_assignmentView->setReadOnly(true);
     m_assignmentView->setPlaceholderText("Select an assignment to view details...");
     QFont monoFont("Courier New", 12);
     m_assignmentView->setFont(monoFont);
-    rightLayout->addWidget(m_assignmentView);
+    viewTabs->addTab(m_assignmentView, "Text");
+
+    m_assignmentTable = new QTableWidget(0, 0);
+    m_assignmentTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    m_assignmentTable->setSelectionMode(QAbstractItemView::NoSelection);
+    m_assignmentTable->horizontalHeader()->setDefaultSectionSize(120);
+    m_assignmentTable->verticalHeader()->setVisible(false);
+    m_assignmentTable->setStyleSheet(
+        "QTableWidget { gridline-color: #2a3548; }"
+        "QHeaderView::section { background:#1a2535; color:#8fb4d8; font-weight:600; padding:4px; border:1px solid #2a3548; }");
+    viewTabs->addTab(m_assignmentTable, "Table");
+
+    rightLayout->addWidget(viewTabs, 1);
 
     m_copyBtn = new QPushButton("Copy to Clipboard");
     m_copyBtn->setObjectName("primaryBtn");
@@ -890,6 +905,7 @@ QString MainWindow::formatAssignmentText(const Assignment& assignment) {
 }
 void MainWindow::displayAssignment(const Assignment& assignment) {
     m_assignmentView->setPlainText(formatAssignmentText(assignment));
+    if (m_assignmentTable) populateAssignmentTable(assignment);
 }
 
 void MainWindow::onCopyToClipboard() {
@@ -1491,4 +1507,111 @@ void MainWindow::onPrintAssignment()
         m_printBtn->setText("Printed!");
         QTimer::singleShot(2000, this, [this]() { m_printBtn->setText("Print"); });
     }
+}
+
+// ---------------------------------------------------------------
+// Table view for assignments (Excel-style: one column per boat)
+// ---------------------------------------------------------------
+void MainWindow::populateAssignmentTable(const Assignment& assignment) {
+    if (!m_assignmentTable) return;
+    m_assignmentTable->clear();
+    m_assignmentTable->setRowCount(0);
+    m_assignmentTable->setColumnCount(0);
+
+    const auto& bmap = assignment.boatRowerMap();
+    if (bmap.isEmpty()) return;
+
+    // Load saved roles so we can annotate without re-rolling
+    QMap<int,QString> savedRoles = m_db->loadRoles(assignment.id());
+
+    // Build column list in map order
+    QList<int> boatIds = bmap.keys();
+    int numCols = boatIds.size();
+
+    // Find max rower count across all boats for row count
+    int maxRowers = 0;
+    for (int bid : boatIds)
+        maxRowers = qMax(maxRowers, bmap[bid].size());
+
+    // +1 row for boat metadata (type/cap/steering/propulsion)
+    const int ROW_META  = 0;
+    const int ROW_START = 1;
+
+    m_assignmentTable->setColumnCount(numCols);
+    m_assignmentTable->setRowCount(ROW_START + maxRowers);
+    m_assignmentTable->horizontalHeader()->setVisible(true);
+    m_assignmentTable->verticalHeader()->setVisible(false);
+
+    // Column headers = boat names
+    for (int c = 0; c < numCols; ++c) {
+        int boatId = boatIds.at(c);
+        Boat foundBoat;
+        for (const Boat& b : m_boats) if (b.id() == boatId) { foundBoat = b; break; }
+        QString header = foundBoat.id() != -1 ? foundBoat.name() : QString("Boat#%1").arg(boatId);
+        m_assignmentTable->setHorizontalHeaderItem(c, new QTableWidgetItem(header));
+    }
+
+    // Row 0: boat metadata
+    for (int c = 0; c < numCols; ++c) {
+        int boatId = boatIds.at(c);
+        Boat foundBoat;
+        for (const Boat& b : m_boats) if (b.id() == boatId) { foundBoat = b; break; }
+        QString meta;
+        if (foundBoat.id() != -1)
+            meta = QString("%1 | Cap:%2 | %3 | %4")
+                .arg(Boat::boatTypeToString(foundBoat.boatType()))
+                .arg(foundBoat.capacity())
+                .arg(Boat::steeringTypeToString(foundBoat.steeringType()))
+                .arg(Boat::propulsionTypeToString(foundBoat.propulsionType()));
+        auto* metaItem = new QTableWidgetItem(meta);
+        metaItem->setForeground(QColor("#5a7a9a"));
+        QFont f = metaItem->font(); f.setItalic(true); metaItem->setFont(f);
+        m_assignmentTable->setItem(ROW_META, c, metaItem);
+    }
+
+    // Rower rows
+    for (int c = 0; c < numCols; ++c) {
+        int boatId = boatIds.at(c);
+        const QList<int>& rowerIds = bmap[boatId];
+
+        // Find Obmann first (to print first)
+        int obmannId = -1;
+        for (int rid : rowerIds) {
+            QString role = savedRoles.value(rid);
+            if (role == "obmann" || role == "obmann_steering") { obmannId = rid; break; }
+        }
+
+        // Build ordered list: obmann first, rest in original order
+        QList<int> ordered;
+        if (obmannId != -1) ordered << obmannId;
+        for (int rid : rowerIds) if (rid != obmannId) ordered << rid;
+
+        for (int r = 0; r < ordered.size(); ++r) {
+            int rid = ordered.at(r);
+            QString name;
+            for (const Rower& ro : m_rowers) if (ro.id() == rid) { name = ro.name(); break; }
+            if (name.isEmpty()) name = QString("Rower#%1").arg(rid);
+
+            // Append role tag
+            QString role = savedRoles.value(rid);
+            if (role == "obmann")         name += "  [Obmann]";
+            else if (role == "steering")  name += "  [Steering]";
+            else if (role == "obmann_steering") name += "  [Obmann][Steering]";
+
+            auto* cell = new QTableWidgetItem(name);
+
+            // Highlight Obmann row
+            if (role == "obmann" || role == "obmann_steering") {
+                cell->setForeground(QColor("#f0c060"));
+                QFont f = cell->font(); f.setBold(true); cell->setFont(f);
+            } else if (role == "steering") {
+                cell->setForeground(QColor("#60c0f0"));
+            }
+
+            m_assignmentTable->setItem(ROW_START + r, c, cell);
+        }
+    }
+
+    m_assignmentTable->resizeColumnsToContents();
+    m_assignmentTable->horizontalHeader()->setStretchLastSection(true);
 }

@@ -70,6 +70,7 @@ private:
     void loadAll();
     void refreshAssignmentList();
     void displayAssignment(const Assignment& assignment);
+    void populateAssignmentTable(const Assignment& assignment);
     QString formatAssignmentText(const Assignment& assignment);
 
     // Helpers
@@ -96,7 +97,8 @@ private:
 
     // Assignments tab
     QListWidget* m_assignmentList = nullptr;
-    QTextEdit* m_assignmentView = nullptr;
+    QTextEdit*   m_assignmentView = nullptr;
+    QTableWidget* m_assignmentTable = nullptr;   // table view
     QPushButton* m_copyBtn  = nullptr;
     QPushButton* m_printBtn = nullptr;
     PrinterDevice m_printer;
