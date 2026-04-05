@@ -40,6 +40,13 @@ QVariant RowerTableModel::data(const QModelIndex& index, int role) const {
         case ColAttrGrp2:          return r.attrGrp2() > 0 ? QString::number(r.attrGrp2()) : QString("—");
         case ColAttrVal1:          return r.attrVal1() > 0 ? QString::number(r.attrVal1()) : QString("—");
         case ColAttrVal2:          return r.attrVal2() > 0 ? QString::number(r.attrVal2()) : QString("—");
+        case ColLists: {
+            int rw = r.whitelist().size();
+            int rb = r.blacklist().size();
+            int bw = r.boatWhitelist().size();
+            int bb = r.boatBlacklist().size();
+            return QString("%1|%2|%3|%4").arg(rw).arg(rb).arg(bw).arg(bb);
+        }
         }
     }
     return {};
@@ -63,6 +70,7 @@ QVariant RowerTableModel::headerData(int section, Qt::Orientation orientation, i
         case ColAttrGrp2:          return "Grp Attr 2";
         case ColAttrVal1:          return "Val Attr 1";
         case ColAttrVal2:          return "Val Attr 2";
+        case ColLists:             return "Lists (RW|RB|BW|BB)";
         }
     }
     return QAbstractTableModel::headerData(section, orientation, role);
@@ -70,7 +78,8 @@ QVariant RowerTableModel::headerData(int section, Qt::Orientation orientation, i
 
 Qt::ItemFlags RowerTableModel::flags(const QModelIndex& index) const {
     if (!index.isValid()) return Qt::NoItemFlags;
-    if (index.column() == ColId) return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    if (index.column() == ColId || index.column() == ColLists)
+        return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     if (index.column() == ColCanSteer || index.column() == ColIsObmann)
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;

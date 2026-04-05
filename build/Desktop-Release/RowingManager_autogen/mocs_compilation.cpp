@@ -3,6 +3,8 @@
 #include "UVLADIE3JM/moc_assignmentgenerator.cpp"
 #include "UVLADIE3JM/moc_assignmentviewdialog.cpp"
 #include "UVLADIE3JM/moc_boattablemodel.cpp"
+#include "UVLADIE3JM/moc_chartwidgets.cpp"
 #include "UVLADIE3JM/moc_databasemanager.cpp"
 #include "UVLADIE3JM/moc_mainwindow.cpp"
+#include "UVLADIE3JM/moc_rowerlistsdialog.cpp"
 #include "UVLADIE3JM/moc_rowertablemodel.cpp"

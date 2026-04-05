@@ -1,6 +1,7 @@
 #pragma once
 #include "printerdevice.h"
 #include <QMainWindow>
+#include <QVBoxLayout>
 #include <QList>
 #include "boat.h"
 #include "rower.h"
@@ -36,10 +37,7 @@ private slots:
     void onAddRower();
     void onDeleteRower();
     void onRowerChanged(int row);
-    void onEditWhitelist();
-    void onEditBlacklist();
-    void onEditBoatWhitelist();
-    void onEditBoatBlacklist();
+    void onEditRowerLists();    // opens unified four-tab lists dialog
 
     // Assignments tab
     void onNewAssignment();
@@ -71,6 +69,9 @@ private:
     QWidget* buildDistanceDetailTab();
     QWidget* buildStatsTab();
     QWidget* buildOptionsTab();
+    QWidget* buildAnalysisTab();
+    void     refreshAnalysisTab();
+    void     buildAnalysisGraphics(QVBoxLayout* vl);
     QWidget* buildExpertTab();
 
     void loadAll();
@@ -103,8 +104,11 @@ private:
 
     // Assignments tab
     QListWidget* m_assignmentList = nullptr;
-    QTextEdit*   m_assignmentView = nullptr;
-    QTableWidget* m_assignmentTable = nullptr;   // table view
+    QTextEdit*    m_assignmentView       = nullptr;
+    QTableWidget* m_assignmentTable      = nullptr;
+    QTabWidget*   m_assignmentViewTabs   = nullptr;
+    QWidget*      m_assignmentScoreWidget = nullptr;
+    QWidget*      m_analysisInner = nullptr;
     QPushButton* m_copyBtn  = nullptr;
     QPushButton* m_printBtn = nullptr;
     PrinterDevice m_printer;

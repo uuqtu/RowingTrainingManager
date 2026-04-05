@@ -1,6 +1,7 @@
 /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/moc_assignmentviewdialog.cpp: /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/assignmentviewdialog.h \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/moc_predefs.h \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/assignment.h \
+  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/assignmentgenerator.h \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boat.h \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rower.h \
   /nix/store/cja56nc9b7zq7kah9laflv9kcl9rlmp8-linux-headers-6.16.7/include/asm-generic/errno-base.h \
@@ -10,6 +11,8 @@
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QDateTime \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QList \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QMap \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QObject \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QPair \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QString \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q17memory.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q20functional.h \

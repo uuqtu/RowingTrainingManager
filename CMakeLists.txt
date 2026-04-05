@@ -24,6 +24,8 @@ set(SOURCES
     src/assignmentgenerator.cpp
     src/printerdevice.cpp
     src/assignmentviewdialog.cpp
+    src/rowerlistsdialog.cpp
+    src/chartwidgets.cpp
 )
 
 set(HEADERS
@@ -38,6 +40,8 @@ set(HEADERS
     src/assignmentgenerator.h
     src/printerdevice.h
     src/assignmentviewdialog.h
+    src/rowerlistsdialog.h
+    src/chartwidgets.h
 )
 
 add_executable(RowingManager ${SOURCES} ${HEADERS})

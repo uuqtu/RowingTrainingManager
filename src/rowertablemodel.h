@@ -12,6 +12,7 @@ public:
         ColAge, ColStrength,
         ColStrokeLength, ColBodySize,
         ColAttrGrp1, ColAttrGrp2, ColAttrVal1, ColAttrVal2,
+        ColLists,   // "RW|RB|BW|BB" counts
         ColCount
         // Whitelist/Blacklist (rower + boat) edited via dialog buttons only
     };

@@ -108,6 +108,8 @@ private:
     ScoringPriority buildPriority() const;
     QString formatPreview(const Assignment& a) const;
     void    populatePreviewTable(const Assignment& a);
+    void    populateGraphicsTab(const Assignment& a, const ScoringPriority& priority);
+    void    populateScoreTab(const Assignment& a, const ScoringPriority& priority);
     QList<Rower> rowersWithGroupsApplied(const QList<Rower>& base) const;
 
     QList<int> claimedRowerIds() const;
@@ -166,6 +168,9 @@ private:
     QPushButton* m_acceptBtn   = nullptr;
     QTextEdit*   m_previewEdit  = nullptr;
     QTableWidget* m_previewTable = nullptr;   // table view of generated assignment
+    QWidget*      m_scoreTabWidget    = nullptr;
+    QWidget*      m_graphicsTabWidget = nullptr;
+    QTabWidget*   m_previewTabs       = nullptr;
 
     QTabWidget*  m_tabs = nullptr;
 };

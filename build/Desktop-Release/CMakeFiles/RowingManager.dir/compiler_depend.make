@@ -18,6 +18,8 @@ RowingManager_autogen/timestamp: /home/jeandarq0ne/Documents/Source/QT/RowingTea
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boat.h \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boattablemodel.cpp \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boattablemodel.h \
+  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/chartwidgets.cpp \
+  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/chartwidgets.h \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/databasemanager.cpp \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/databasemanager.h \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/main.cpp \
@@ -27,6 +29,8 @@ RowingManager_autogen/timestamp: /home/jeandarq0ne/Documents/Source/QT/RowingTea
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/printerdevice.h \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rower.cpp \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rower.h \
+  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rowerlistsdialog.cpp \
+  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rowerlistsdialog.h \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rowertablemodel.cpp \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rowertablemodel.h \
   /nix/store/cja56nc9b7zq7kah9laflv9kcl9rlmp8-linux-headers-6.16.7/include/asm-generic/errno-base.h \
@@ -171,6 +175,7 @@ RowingManager_autogen/timestamp: /home/jeandarq0ne/Documents/Source/QT/RowingTea
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qversiontagging.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qxptype_traits.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qyieldcpu.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/QColor \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qaction.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qbitmap.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qbrush.h \
@@ -198,7 +203,13 @@ RowingManager_autogen/timestamp: /home/jeandarq0ne/Documents/Source/QT/RowingTea
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qwindowdefs.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QDialog \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QMainWindow \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QVBoxLayout \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QWidget \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qboxlayout.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qdialog.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qgridlayout.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qlayout.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qlayoutitem.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qmainwindow.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qsizepolicy.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qtabwidget.h \
@@ -452,81 +463,22 @@ RowingManager_autogen/timestamp: /home/jeandarq0ne/Documents/Source/QT/RowingTea
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6WidgetsTools/Qt6WidgetsToolsTargets.cmake \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6WidgetsTools/Qt6WidgetsToolsVersionlessTargets.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/bin/cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeCXXCompiler.cmake.in \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeCXXCompilerABI.cpp \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeCXXInformation.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeCheckCompilerFlagCommonPatterns.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeCommonLanguageInclude.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeCompilerIdDetection.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeDetermineCXXCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeDetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeDetermineCompilerABI.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeDetermineCompilerId.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeDetermineCompilerSupport.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeDetermineSystem.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeFindBinUtils.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeFindDependencyMacro.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeGenericSystem.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeInitializeConfigs.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeLanguageInformation.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeParseImplicitIncludeInfo.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeParseImplicitLinkInfo.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeParseLibraryArchitecture.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeSystem.cmake.in \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeSystemSpecificInformation.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeSystemSpecificInitialize.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeTestCXXCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeTestCompilerCommon.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeUnixFindMake.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CheckCXXCompilerFlag.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CheckCXXSourceCompiles.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CheckIncludeFileCXX.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CheckLibraryExists.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/ADSP-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/ARMCC-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/ARMClang-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/AppleClang-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Borland-DetermineCompiler.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/CMakeCommonCompilerMacros.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Clang-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Clang-DetermineCompilerInternal.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Compaq-CXX-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Cray-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/CrayClang-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Diab-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Embarcadero-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Fujitsu-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/FujitsuClang-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/GHS-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/GNU-CXX-DetermineCompiler.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/GNU-CXX.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/GNU-FindBinUtils.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/GNU.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/HP-CXX-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/IAR-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/IBMCPP-CXX-DetermineVersionInternal.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/IBMClang-CXX-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Intel-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/IntelLLVM-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/LCC-CXX-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/MSVC-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/NVHPC-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/NVIDIA-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/OpenWatcom-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/OrangeC-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/PGI-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/PathScale-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Renesas-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/SCO-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/SunPro-CXX-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/TI-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/TIClang-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Tasking-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/VisualAge-CXX-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Watcom-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/XL-CXX-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/XLClang-CXX-DetermineCompiler.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/zOS-CXX-DetermineCompiler.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/FindOpenGL.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/FindPackageHandleStandardArgs.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/FindPackageMessage.cmake \
@@ -536,19 +488,15 @@ RowingManager_autogen/timestamp: /home/jeandarq0ne/Documents/Source/QT/RowingTea
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/GNUInstallDirs.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Internal/CMakeCXXLinkerInformation.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Internal/CMakeCommonLinkerInformation.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Internal/CMakeDetermineLinkerId.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Internal/CMakeInspectCXXLinker.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Internal/CheckCompilerFlag.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Internal/CheckFlagCommonConfig.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Internal/CheckSourceCompiles.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Internal/FeatureTesting.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Linker/GNU-CXX.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Linker/GNU.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/MacroAddFileDependencies.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linker/GNU.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linker/Linux-GNU-CXX.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linker/Linux-GNU.cmake \
-  /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linux-Determine-CXX.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linux-GNU-CXX.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linux-GNU.cmake \
   /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linux-Initialize.cmake \
@@ -831,6 +779,7 @@ CMakeFiles/RowingManager.dir/RowingManager_autogen/mocs_compilation.cpp.o: Rowin
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/mainwindow.h \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/printerdevice.h \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rower.h \
+  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rowerlistsdialog.h \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rowertablemodel.h \
   RowingManager_autogen/UVLADIE3JM/moc_assignmentdialog.cpp \
   RowingManager_autogen/UVLADIE3JM/moc_assignmentgenerator.cpp \
@@ -838,6 +787,7 @@ CMakeFiles/RowingManager.dir/RowingManager_autogen/mocs_compilation.cpp.o: Rowin
   RowingManager_autogen/UVLADIE3JM/moc_boattablemodel.cpp \
   RowingManager_autogen/UVLADIE3JM/moc_databasemanager.cpp \
   RowingManager_autogen/UVLADIE3JM/moc_mainwindow.cpp \
+  RowingManager_autogen/UVLADIE3JM/moc_rowerlistsdialog.cpp \
   RowingManager_autogen/UVLADIE3JM/moc_rowertablemodel.cpp \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QAbstractTableModel \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QDateTime \
@@ -1922,6 +1872,7 @@ CMakeFiles/RowingManager.dir/src/assignmentdialog.cpp.o: /home/jeandarq0ne/Docum
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QCheckBox \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QComboBox \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QDialog \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QFrame \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QGroupBox \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QHBoxLayout \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QHeaderView \
@@ -1931,6 +1882,7 @@ CMakeFiles/RowingManager.dir/src/assignmentdialog.cpp.o: /home/jeandarq0ne/Docum
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QListWidget \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QMessageBox \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QPushButton \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QScrollArea \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QSpinBox \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QSplitter \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QTabWidget \
@@ -1962,6 +1914,7 @@ CMakeFiles/RowingManager.dir/src/assignmentdialog.cpp.o: /home/jeandarq0ne/Docum
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qmessagebox.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qpushbutton.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qrubberband.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qscrollarea.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qsizepolicy.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qslider.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qspinbox.h \
@@ -2714,12 +2667,15 @@ CMakeFiles/RowingManager.dir/src/assignmentgenerator.cpp.o: /home/jeandarq0ne/Do
 
 CMakeFiles/RowingManager.dir/src/assignmentviewdialog.cpp.o: /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/assignmentviewdialog.cpp \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/assignment.h \
+  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/assignmentgenerator.h \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/assignmentviewdialog.h \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boat.h \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rower.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QDateTime \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QList \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QMap \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QObject \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QPair \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QString \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QTimer \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q17memory.h \
@@ -2908,10 +2864,12 @@ CMakeFiles/RowingManager.dir/src/assignmentviewdialog.cpp.o: /home/jeandarq0ne/D
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QApplication \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QDialog \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QDialogButtonBox \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QFrame \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QHBoxLayout \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QHeaderView \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QLabel \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QPushButton \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QScrollArea \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QTabWidget \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QTableWidget \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QTextEdit \
@@ -2934,6 +2892,7 @@ CMakeFiles/RowingManager.dir/src/assignmentviewdialog.cpp.o: /home/jeandarq0ne/D
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qlayoutitem.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qpushbutton.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qrubberband.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qscrollarea.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qsizepolicy.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qslider.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qstyle.h \
@@ -4970,6 +4929,7 @@ CMakeFiles/RowingManager.dir/src/mainwindow.cpp.o: /home/jeandarq0ne/Documents/S
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/mainwindow.h \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/printerdevice.h \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rower.h \
+  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rowerlistsdialog.h \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rowertablemodel.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QAbstractTableModel \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QDateTime \
@@ -6324,6 +6284,507 @@ CMakeFiles/RowingManager.dir/src/rower.cpp.o: /home/jeandarq0ne/Documents/Source
   /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/time.h \
   /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/wchar.h
 
+CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.o: /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rowerlistsdialog.cpp \
+  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boat.h \
+  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rower.h \
+  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rowerlistsdialog.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QList \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QString \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q17memory.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q20functional.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q20iterator.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q20memory.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q20type_traits.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q20utility.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q23type_traits.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q23utility.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qabstractitemmodel.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qalgorithms.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qalloc.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qanystringview.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qarraydata.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qarraydataops.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qarraydatapointer.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qassert.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qatomic.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qatomic_cxx11.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qbasicatomic.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qbindingstorage.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qbytearray.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qbytearrayalgorithms.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qbytearraylist.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qbytearrayview.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qchar.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcheckedint_impl.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcompare.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcompare_impl.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcomparehelpers.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcompilerdetection.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qconfig.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qconstructormacros.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcontainerfwd.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcontainerinfo.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcontainertools_impl.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcontiguouscache.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qdarwinhelpers.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qdatastream.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qdebug.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qendian.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qexceptionhandling.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qflags.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qfloat16.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qforeach.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qfunctionaltools_impl.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qfunctionpointer.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qgenericatomic.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qglobal.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qglobalstatic.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qhash.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qhashfunctions.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qiodevice.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qiodevicebase.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qitemselectionmodel.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qiterable.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qiterator.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qlatin1stringview.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qline.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qlist.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qlocale.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qlogging.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qmalloc.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qmap.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qmargins.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qmath.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qmetacontainer.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qmetatype.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qminmax.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qnamespace.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qnumeric.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qobject.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qobject_impl.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qobjectdefs.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qobjectdefs_impl.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qoverload.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qpair.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qpoint.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qprocessordetection.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qrect.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qrefcount.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qregularexpression.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qscopedpointer.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qscopeguard.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qset.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qshareddata.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qshareddata_impl.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qsharedpointer.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qsharedpointer_impl.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qsize.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qspan.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qstdlibdetection.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qstring.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qstringalgorithms.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qstringbuilder.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qstringconverter.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qstringconverter_base.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qstringfwd.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qstringlist.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qstringmatcher.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qstringtokenizer.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qstringview.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qswap.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qsysinfo.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qsystemdetection.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtaggedpointer.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtclasshelpermacros.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtconfiginclude.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtconfigmacros.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtcore-config.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtcoreexports.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtcoreglobal.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtdeprecationdefinitions.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtdeprecationmarkers.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtenvironmentvariables.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtextstream.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtformat_impl.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtmetamacros.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtnoop.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtpreprocessorsupport.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtresource.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qttranslation.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qttypetraits.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtversion.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtversionchecks.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtypeinfo.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtypes.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qurl.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qutf8stringview.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qvariant.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qvarlengtharray.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qversiontagging.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qxptype_traits.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qyieldcpu.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qaction.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qbitmap.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qbrush.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qcolor.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qcursor.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qfont.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qfontinfo.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qfontmetrics.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qfontvariableaxis.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qicon.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qimage.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qkeysequence.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qpaintdevice.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qpalette.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qpicture.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qpixelformat.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qpixmap.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qpolygon.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qregion.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qrgb.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qrgba64.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qtextdocument.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qtgui-config.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qtguiexports.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qtguiglobal.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qtransform.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qvalidator.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qwindowdefs.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QDialog \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QDialogButtonBox \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QHBoxLayout \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QLabel \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QListWidget \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QListWidgetItem \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QPushButton \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QTabWidget \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QVBoxLayout \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qabstractbutton.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qabstractitemdelegate.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qabstractitemview.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qabstractscrollarea.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qabstractslider.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qabstractspinbox.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qboxlayout.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qdialog.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qdialogbuttonbox.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qframe.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qgridlayout.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qlabel.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qlayout.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qlayoutitem.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qlistview.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qlistwidget.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qpushbutton.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qrubberband.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qsizepolicy.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qslider.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qstyle.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qstyleoption.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qtabbar.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qtabwidget.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qtwidgets-config.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qtwidgetsexports.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qtwidgetsglobal.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qwidget.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/algorithm \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/array \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/atomic \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/backward/auto_ptr.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/backward/binders.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bit \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/algorithmfwd.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/align.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/alloc_traits.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/allocated_ptr.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/allocator.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/atomic_base.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/atomic_lockfree_defines.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/basic_string.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/basic_string.tcc \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/char_traits.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/charconv.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/chrono.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/concept_check.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/cpp_type_traits.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/cxxabi_forced.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/cxxabi_init_exception.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/enable_special_members.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/erase_if.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/exception.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/exception_defines.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/exception_ptr.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/functexcept.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/functional_hash.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/hash_bytes.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/hashtable.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/hashtable_policy.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/invoke.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/ios_base.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/list.tcc \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/locale_classes.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/locale_classes.tcc \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/localefwd.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/memory_resource.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/memoryfwd.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/move.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/nested_exception.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/new_allocator.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/node_handle.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/ostream_insert.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/parse_numbers.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/postypes.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/predefined_ops.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/ptr_traits.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/range_access.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/refwrap.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/requires_hosted.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/shared_ptr.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/shared_ptr_atomic.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/shared_ptr_base.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/specfun.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/std_abs.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/std_function.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_algo.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_algobase.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_bvector.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_construct.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_function.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_heap.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_iterator.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_iterator_base_funcs.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_iterator_base_types.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_list.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_map.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_multimap.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_multiset.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_numeric.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_pair.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_raw_storage_iter.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_relops.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_set.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_tempbuf.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_tree.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_uninitialized.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_vector.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stream_iterator.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/streambuf.tcc \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/streambuf_iterator.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/string_view.tcc \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stringfwd.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/uniform_int_dist.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/unique_ptr.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/unordered_map.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/unordered_set.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/uses_allocator.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/uses_allocator_args.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/utility.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/vector.tcc \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/version.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/cassert \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/cctype \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/cerrno \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/chrono \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/climits \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/clocale \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/cmath \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/compare \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/concepts \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/cstddef \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/cstdint \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/cstdio \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/cstdlib \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/cstring \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/ctime \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/cwchar \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/debug/assertions.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/debug/debug.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/exception \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/ext/aligned_buffer.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/ext/alloc_traits.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/ext/atomicity.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/ext/concurrence.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/ext/numeric_traits.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/ext/string_conversions.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/ext/type_traits.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/functional \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/initializer_list \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/iosfwd \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/iterator \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/limits \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/list \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/map \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/memory \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/new \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/numeric \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/optional \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/pstl/execution_defs.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/pstl/glue_algorithm_defs.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/pstl/glue_memory_defs.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/pstl/glue_numeric_defs.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/pstl/pstl_config.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/ratio \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/set \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/stdexcept \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/stdlib.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/streambuf \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/string \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/string_view \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/system_error \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/tr1/bessel_function.tcc \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/tr1/beta_function.tcc \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/tr1/ell_integral.tcc \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/tr1/exp_integral.tcc \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/tr1/gamma.tcc \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/tr1/hypergeometric.tcc \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/tr1/legendre_function.tcc \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/tr1/modified_bessel_func.tcc \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/tr1/poly_hermite.tcc \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/tr1/poly_laguerre.tcc \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/tr1/riemann_zeta.tcc \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/tr1/special_function_util.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/tuple \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/type_traits \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/typeinfo \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/unordered_map \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/unordered_set \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/utility \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/variant \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/vector \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/version \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/atomic_word.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/c++allocator.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/c++config.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/c++locale.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/cpu_defines.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/error_constants.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/gthr-default.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/gthr.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/os_defines.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/lib/gcc/x86_64-unknown-linux-gnu/14.3.0/include/limits.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/lib/gcc/x86_64-unknown-linux-gnu/14.3.0/include/stdarg.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/lib/gcc/x86_64-unknown-linux-gnu/14.3.0/include/stdbool.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/lib/gcc/x86_64-unknown-linux-gnu/14.3.0/include/stddef.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/lib/gcc/x86_64-unknown-linux-gnu/14.3.0/include/stdint.h \
+  /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/lib/gcc/x86_64-unknown-linux-gnu/14.3.0/include/syslimits.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/alloca.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/asm-generic/errno-base.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/asm-generic/errno.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/asm/errno.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/assert.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/atomic_wide_counter.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/byteswap.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/cpu-set.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/endian.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/endianness.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/errno.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/floatn-common.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/floatn.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/flt-eval-method.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/fp-fast.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/fp-logb.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/iscanonical.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/libc-header-start.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/libm-simd-decl-stubs.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/local_lim.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/locale.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/long-double.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/math-vector.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/mathcalls-helper-functions.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/mathcalls-narrow.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/mathcalls.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/posix1_lim.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/posix2_lim.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/pthread_stack_min-dynamic.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/pthreadtypes-arch.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/pthreadtypes.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/sched.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/select-decl.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/select.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/select2.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/setjmp.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/stdint-intn.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/stdint-least.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/stdint-uintn.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/stdio.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/stdio2-decl.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/stdio2.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/stdio_lim.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/stdlib-bsearch.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/stdlib-float.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/stdlib.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/string_fortified.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/strings_fortified.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/struct_mutex.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/struct_rwlock.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/thread-shared-types.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/time.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/time64.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/timesize.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/timex.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/FILE.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/__FILE.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/__fpos64_t.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/__fpos_t.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/__locale_t.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/__mbstate_t.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/__sigset_t.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/clock_t.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/clockid_t.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/cookie_io_functions_t.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/error_t.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/locale_t.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/mbstate_t.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/sigset_t.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/struct_FILE.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/struct___jmp_buf_tag.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/struct_itimerspec.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/struct_sched_param.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/struct_timespec.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/struct_timeval.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/struct_tm.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/time_t.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/timer_t.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/wint_t.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/typesizes.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/uintn-identity.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/uio_lim.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/waitflags.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/waitstatus.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/wchar.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/wchar2-decl.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/wchar2.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/wordsize.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/xopen_lim.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/ctype.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/endian.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/errno.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/features-time64.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/features.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/gnu/stubs-64.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/gnu/stubs.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/limits.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/linux/errno.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/linux/limits.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/locale.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/math.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/pthread.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/sched.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/stdc-predef.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/stdint.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/stdio.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/stdlib.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/string.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/strings.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/sys/cdefs.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/sys/select.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/sys/single_threaded.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/sys/types.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/time.h \
+  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/wchar.h
+
 CMakeFiles/RowingManager.dir/src/rowertablemodel.cpp.o: /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rowertablemodel.cpp \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boat.h \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rower.h \
@@ -6820,6 +7281,7 @@ RowingManager: /nix/store/09wbn9wfigxq0lf95wr8naidwlhg1chf-libpng-apng-1.6.55/li
   CMakeFiles/RowingManager.dir/src/mainwindow.cpp.o \
   CMakeFiles/RowingManager.dir/src/printerdevice.cpp.o \
   CMakeFiles/RowingManager.dir/src/rower.cpp.o \
+  CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.o \
   CMakeFiles/RowingManager.dir/src/rowertablemodel.cpp.o
 
 
@@ -6843,11 +7305,11 @@ CMakeFiles/RowingManager.dir/src/assignment.cpp.o:
 
 /nix/store/n8d8ch4ify4rbmyyvgzcqnpr0qak7b2s-freetype-2.13.3/lib/libfreetype.so.6:
 
+/nix/store/mg151w65chcirlr7398jrz916wrfh3gg-glib-2.86.3/lib/libgthread-2.0.so.0:
+
 /nix/store/kmb3gcijmv3j1gqp24j0q1liwrhb03z3-double-conversion-3.3.1/lib/libdouble-conversion.so.3:
 
 /nix/store/km4g87jxsqxvcq344ncyb8h1i6f3cqxh-glibc-2.40-218/lib/librt.so.1:
-
-/nix/store/km4g87jxsqxvcq344ncyb8h1i6f3cqxh-glibc-2.40-218/lib/libc_nonshared.a:
 
 /nix/store/km4g87jxsqxvcq344ncyb8h1i6f3cqxh-glibc-2.40-218/lib/ld-linux-x86-64.so.2:
 
@@ -6883,13 +7345,11 @@ CMakeFiles/RowingManager.dir/src/assignment.cpp.o:
 
 /nix/store/2ikmh7bqngbjkkrmhwdb5yld6akncnd5-dbus-1.14.10-lib/lib/libdbus-1.so.3:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qscrollarea.h:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QListWidgetItem:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QStyledItemDelegate:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QStatusBar:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QFrame:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/QPalette:
 
@@ -6905,7 +7365,13 @@ CMakeFiles/RowingManager.dir/src/assignment.cpp.o:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qjsonparseerror.h:
 
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qjsondocument.h:
+
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcborvalue.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcborcommon.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QJsonObject:
 
 /nix/store/km4g87jxsqxvcq344ncyb8h1i6f3cqxh-glibc-2.40-218/lib/libc.so.6:
 
@@ -6935,6 +7401,8 @@ CMakeFiles/RowingManager.dir/src/boat.cpp.o:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qslider.h:
 
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qscrollarea.h:
+
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qrubberband.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qmessagebox.h:
@@ -6945,15 +7413,11 @@ CMakeFiles/RowingManager.dir/src/boat.cpp.o:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qlistview.h:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qlayout.h:
-
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qlabel.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qdialogbuttonbox.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qcombobox.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qboxlayout.h:
 
 CMakeFiles/RowingManager.dir/src/assignmentviewdialog.cpp.o:
 
@@ -6964,8 +7428,6 @@ CMakeFiles/RowingManager.dir/src/assignmentviewdialog.cpp.o:
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qabstractitemdelegate.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qabstractbutton.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QVBoxLayout:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QTextEdit:
 
@@ -6982,6 +7444,8 @@ CMakeFiles/RowingManager.dir/src/assignmentviewdialog.cpp.o:
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QLabel:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QHeaderView:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QFrame:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QComboBox:
 
@@ -7015,6 +7479,8 @@ CMakeFiles/RowingManager.dir/src/assignmentviewdialog.cpp.o:
 
 /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/local_lim.h:
 
+/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/libm-simd-decl-stubs.h:
+
 /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/flt-eval-method.h:
 
 /nix/store/s7j6ldh3ra79p2gxxb8hrc8c0w896mky-md4c-0.5.2-lib/lib/libmd4c.so.0:
@@ -7031,6 +7497,8 @@ CMakeFiles/RowingManager.dir/src/assignmentviewdialog.cpp.o:
 
 RowingManager_autogen/UVLADIE3JM/moc_rowertablemodel.cpp:
 
+RowingManager_autogen/UVLADIE3JM/moc_mainwindow.cpp:
+
 RowingManager_autogen/UVLADIE3JM/moc_boattablemodel.cpp:
 
 RowingManager_autogen/UVLADIE3JM/moc_assignmentviewdialog.cpp:
@@ -7042,6 +7510,8 @@ RowingManager_autogen/UVLADIE3JM/moc_assignmentgenerator.cpp:
 /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/sys/types.h:
 
 /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/sys/time.h:
+
+/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/sys/select.h:
 
 /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/sys/cdefs.h:
 
@@ -7077,6 +7547,8 @@ RowingManager_autogen/UVLADIE3JM/moc_assignmentgenerator.cpp:
 
 /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/__sigset_t.h:
 
+/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/__locale_t.h:
+
 /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/typesizes.h:
 
 /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/__fpos_t.h:
@@ -7106,6 +7578,8 @@ RowingManager_autogen/UVLADIE3JM/moc_assignmentgenerator.cpp:
 /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/select2.h:
 
 /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/select.h:
+
+/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/select-decl.h:
 
 /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/pthreadtypes.h:
 
@@ -7213,6 +7687,8 @@ RowingManager_autogen/UVLADIE3JM/moc_assignmentdialog.cpp:
 
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/optional:
 
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/numeric:
+
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/new:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/libQt6Gui.so.6.10.1:
@@ -7226,6 +7702,8 @@ RowingManager_autogen/UVLADIE3JM/moc_assignmentdialog.cpp:
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/limits:
 
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/initializer_list:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/functional:
 
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/ext/type_traits.h:
 
@@ -7315,6 +7793,8 @@ RowingManager_autogen/UVLADIE3JM/moc_assignmentdialog.cpp:
 
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_algo.h:
 
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/std_function.h:
+
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/specfun.h:
 
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/shared_ptr_base.h:
@@ -7330,100 +7810,6 @@ RowingManager_autogen/UVLADIE3JM/moc_assignmentdialog.cpp:
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/new_allocator.h:
 
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/nested_exception.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/memory_resource.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qabstractslider.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/localefwd.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/version:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/locale_classes.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/ios_base.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/invoke.h:
-
-/nix/store/alrbhz7im0w0jdwcfdgcfk7pxhkl1fzj-gcc-14.3.0-lib/lib/libgcc_s.so:
-
-/nix/store/09wbn9wfigxq0lf95wr8naidwlhg1chf-libpng-apng-1.6.55/lib/libpng16.so.16:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_relops.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/hashtable.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QTabWidget:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_map.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/exception_ptr.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/exception_defines.h:
-
-/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/strings.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/exception.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/erase_if.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/cxxabi_init_exception.h:
-
-/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/sched.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/cxxabi_forced.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/concept_check.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/error_constants.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/basic_string.tcc:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/basic_string.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/atomic_lockfree_defines.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/algorithmfwd.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bit:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/cpp_type_traits.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/backward/binders.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/backward/auto_ptr.h:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/UnixPaths.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linux.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linux-GNU.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linux-GNU-CXX.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linux-Determine-CXX.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linker/Linux-GNU-CXX.cmake:
-
-/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/stdlib.h:
-
-/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/locale_t.h:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linker/GNU.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/MacroAddFileDependencies.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Linker/GNU-CXX.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Core/Qt6CoreMacros.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicCMakeHelpers.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Widgets/Qt6WidgetsTargets.cmake:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/atomic_base.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtaggedpointer.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicTestHelpers.cmake:
 
@@ -7447,15 +7833,19 @@ RowingManager_autogen/UVLADIE3JM/moc_assignmentdialog.cpp:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qyieldcpu.h:
 
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicCMakeHelpers.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Core/Qt6CoreMacros.cmake:
+
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicCMakeEarlyPolicyHelpers.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QOffscreenIntegrationPluginTargets-release.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Sql/Qt6SqlConfigVersionImpl.cmake:
 
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/allocated_ptr.h:
-
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/Qt6ConfigVersion.cmake:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/allocated_ptr.h:
 
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/system_error:
 
@@ -7479,6 +7869,16 @@ RowingManager_autogen/UVLADIE3JM/moc_assignmentdialog.cpp:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qdialog.h:
 
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qboxlayout.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6DBus/Qt6DBusAdditionalTargetInfo.cmake:
+
+/nix/store/km4g87jxsqxvcq344ncyb8h1i6f3cqxh-glibc-2.40-218/lib/libc_nonshared.a:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QWidget:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q23type_traits.h:
+
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QMainWindow:
 
 /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/databasemanager.h:
@@ -7497,11 +7897,11 @@ CMakeFiles/4.1.2/CMakeSystem.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QEglFSX11IntegrationPluginConfig.cmake:
 
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QVBoxLayout:
+
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qlayoutitem.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6GuiTools/Qt6GuiToolsAdditionalTargetInfo.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeUnixFindMake.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qregion.h:
 
@@ -7511,10 +7911,6 @@ CMakeFiles/4.1.2/CMakeSystem.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qdebug.h:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Core/Qt6CoreVersionlessAliasTargets.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qatomic.h:
-
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/tr1/exp_integral.tcc:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtInstallPaths.cmake:
@@ -7523,11 +7919,17 @@ CMakeFiles/4.1.2/CMakeSystem.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6CoreTools/Qt6CoreToolsConfigVersionImpl.cmake:
 
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/basic_string.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Sql/Qt6SqlVersionlessAliasTargets.cmake:
+
 /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/printerdevice.cpp:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QInputDialog:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qrgba64.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qkeysequence.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qmainwindow.h:
 
@@ -7536,10 +7938,6 @@ CMakeFiles/4.1.2/CMakeSystem.cmake:
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QComposePlatformInputContextPluginConfig.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qatomic_cxx11.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/functexcept.h:
-
-/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boat.h:
 
 /nix/store/44iwa5fdrx4hgzf3l9j9q9y5zffwgigy-libglvnd-1.7.0/lib/libEGL.so.1:
 
@@ -7573,23 +7971,19 @@ CMakeFiles/4.1.2/CMakeSystem.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qutf8stringview.h:
 
-/nix/store/x0pzlm34sbaz7kshyj6889lqihs368gd-libxext-1.3.6/lib/libXext.so.6:
+CMakeFiles/RowingManager.dir/src/printerdevice.cpp.o:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Core/Qt6CoreConfig.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtypes.h:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicGitHelpers.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qapplication.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qassert.h:
 
-CMakeFiles/RowingManager.dir/src/printerdevice.cpp.o:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicGitHelpers.cmake:
-
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q20algorithm.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtresource.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/backward/auto_ptr.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtextstream.h:
 
@@ -7603,9 +7997,9 @@ CMakeFiles/RowingManager.dir/src/printerdevice.cpp.o:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicSbomGenerationHelpers.cmake:
 
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linker/Linux-GNU.cmake:
-
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6DBus/Qt6DBusConfig.cmake:
+
+/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linker/Linux-GNU.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/Qt6VersionlessAliasTargets.cmake:
 
@@ -7614,6 +8008,12 @@ CMakeFiles/RowingManager.dir/src/printerdevice.cpp.o:
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Sql/Qt6QPSQLDriverPluginConfig.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtclasshelpermacros.h:
+
+/nix/store/x0pzlm34sbaz7kshyj6889lqihs368gd-libxext-1.3.6/lib/libXext.so.6:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtypes.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Core/Qt6CoreConfig.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtypeinfo.h:
 
@@ -7637,15 +8037,13 @@ CMakeFiles/RowingManager.dir/src/printerdevice.cpp.o:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qswap.h:
 
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qlayout.h:
+
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/tr1/riemann_zeta.tcc:
 
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_heap.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicSbomQtEntityHelpers.cmake:
-
-RowingManager_autogen/UVLADIE3JM/moc_mainwindow.cpp:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Diab-DetermineCompiler.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qmath.h:
 
@@ -7656,28 +8054,6 @@ RowingManager_autogen/UVLADIE3JM/moc_mainwindow.cpp:
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QMinimalIntegrationPluginTargets-release.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qstringtokenizer.h:
-
-/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/math.h:
-
-/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/math-vector.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Core/Qt6CoreTargets-release.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q20utility.h:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/GHS-DetermineCompiler.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/GNU-CXX-DetermineCompiler.cmake:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/allocator.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicWindowsHelpers.cmake:
-
-/nix/store/sl7j5z4lij096xayzgwiv20p7crx2h5j-icu4c-76.1/lib/libicudata.so.76:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QPushButton:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qsharedpointer.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QMinimalIntegrationPluginAdditionalTargetInfo.cmake:
 
@@ -7699,13 +8075,15 @@ RowingManager_autogen/UVLADIE3JM/moc_mainwindow.cpp:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicSbomPythonHelpers.cmake:
 
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/enable_special_members.h:
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_iterator.h:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6DBusTools/Qt6DBusToolsConfig.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qstdlibdetection.h:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qpalette.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Widgets/Qt6WidgetsPlugins.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/Qt6Config.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qsharedpointer_impl.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qtextformat.h:
 
@@ -7723,9 +8101,7 @@ RowingManager_autogen/UVLADIE3JM/moc_mainwindow.cpp:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/Qt6Targets.cmake:
 
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/chrono.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QXdgDesktopPortalThemePluginConfig.cmake:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qbrush.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/QColor:
 
@@ -7745,25 +8121,11 @@ CMakeFiles/RowingManager.dir/src/databasemanager.cpp.o:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6CoreTools/Qt6CoreToolsTargets.cmake:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QEglFSEmulatorIntegrationPluginTargets-release.cmake:
+/nix/store/sl7j5z4lij096xayzgwiv20p7crx2h5j-icu4c-76.1/lib/libicudata.so.76:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Widgets/Qt6WidgetsConfigVersion.cmake:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QPushButton:
 
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/SunPro-CXX-DetermineCompiler.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Widgets/Qt6WidgetsTargets-release.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Fujitsu-DetermineCompiler.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicSbomPurlHelpers.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qttranslation.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/memoryfwd.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Sql/Qt6QMYSQLDriverPluginAdditionalTargetInfo.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeDetermineCXXCompiler.cmake:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qsharedpointer.h:
 
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/atomic:
 
@@ -7773,117 +8135,9 @@ CMakeFiles/RowingManager.dir/src/databasemanager.cpp.o:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qheaderview.h:
 
+/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rowerlistsdialog.cpp:
+
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QXcbIntegrationPluginTargets-release.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Tasking-DetermineCompiler.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qarraydatapointer.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qconfig.h:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/TI-DetermineCompiler.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qstringmatcher.h:
-
-RowingManager_autogen/moc_predefs.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Core/Qt6CoreConfigExtras.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtdeprecationmarkers.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/unique_ptr.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qiterator.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qstatusbar.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/algorithm:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/FindOpenGL.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/Qt6ConfigExtras.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qbytearrayview.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qurl.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qlist.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qscopeguard.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qpoint.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qspan.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QMinimalIntegrationPluginTargets.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q20functional.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QJpegPluginConfig.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6WidgetsTools/Qt6WidgetsToolsAdditionalTargetInfo.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qtabwidget.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qversiontagging.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qpair.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/parse_numbers.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QString:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qfunctionpointer.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QPair:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/PathScale-DetermineCompiler.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qmalloc.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qgroupbox.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qalgorithms.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6WidgetsTools/Qt6WidgetsToolsConfig.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/OrangeC-DetermineCompiler.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qdatastream.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qobject_impl.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicPluginHelpers.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QICOPluginTargets-release.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qiterable.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qobjectdefs.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stream_iterator.h:
-
-/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/CMakeLists.txt:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/array:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtcoreglobal.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qscopedpointer.h:
-
-/nix/store/vry1ic8kdpmw42mp3qphjnwdh7n946gb-fontconfig-2.17.1-lib/lib/libfontconfig.so.1:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcontiguouscache.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qinputdialog.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/align.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qtransform.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcalendar.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qlatin1stringview.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qjsonobject.h:
 
@@ -7899,15 +8153,15 @@ RowingManager_autogen/moc_predefs.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6GuiConfigVersionImpl.cmake:
 
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/locale_classes.tcc:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QIbusPlatformInputContextPluginTargets.cmake:
-
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qitemselectionmodel.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qicon.h:
 
 /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/assignmentgenerator.cpp:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtaggedpointer.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/atomic_base.h:
 
 /nix/store/cja56nc9b7zq7kah9laflv9kcl9rlmp8-linux-headers-6.16.7/include/asm-generic/errno-base.h:
 
@@ -7931,11 +8185,25 @@ RowingManager_autogen/moc_predefs.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qnumeric.h:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcoreevent.h:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Widgets/Qt6WidgetsTargets-release.cmake:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Core/Qt6CoreTargets.cmake:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicSbomPurlHelpers.cmake:
 
-/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/assignmentdialog.cpp:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qttranslation.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qarraydatapointer.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qconfig.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/typeinfo:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qlocale.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qstringmatcher.h:
+
+/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linker/Linux-GNU-CXX.cmake:
+
+RowingManager_autogen/moc_predefs.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qjsonvalue.h:
 
@@ -7943,17 +8211,83 @@ RowingManager_autogen/moc_predefs.h:
 
 /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boattablemodel.h:
 
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/ADSP-DetermineCompiler.cmake:
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/unique_ptr.h:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qvalidator.h:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qiterator.h:
 
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/alloc_traits.h:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qbytearrayview.h:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicSbomAttributionHelpers.cmake:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qurl.h:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qarraydataops.h:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qlist.h:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Core/Qt6CoreAdditionalTargetInfo.cmake:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qscopeguard.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qpoint.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qspan.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QMinimalIntegrationPluginTargets.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtdeprecationmarkers.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Core/Qt6CoreConfigExtras.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q20functional.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QJpegPluginConfig.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6WidgetsTools/Qt6WidgetsToolsAdditionalTargetInfo.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qtabwidget.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qversiontagging.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qpair.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/parse_numbers.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QString:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QEglFSKmsEglDeviceIntegrationPluginTargets.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcompare_impl.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicExternalProjectHelpers.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QTuioTouchPluginTargets.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qfunctionpointer.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QPair:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qmalloc.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qgroupbox.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qalgorithms.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6WidgetsTools/Qt6WidgetsToolsConfig.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qiterable.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qobjectdefs.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stream_iterator.h:
+
+/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/CMakeLists.txt:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qscopedpointer.h:
+
+/nix/store/vry1ic8kdpmw42mp3qphjnwdh7n946gb-fontconfig-2.17.1-lib/lib/libfontconfig.so.1:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcontiguouscache.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcalendar.h:
+
+/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/chartwidgets.cpp:
+
+/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/assignmentdialog.cpp:
 
 /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/struct_mutex.h:
 
@@ -7965,19 +8299,9 @@ RowingManager_autogen/moc_predefs.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QGtk3ThemePluginConfig.cmake:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/Qt6Config.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qsharedpointer_impl.h:
-
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/move.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qrgb.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/typeinfo:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qlocale.h:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeDetermineCompilerId.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q20memory.h:
 
@@ -7999,11 +8323,15 @@ RowingManager_autogen/moc_predefs.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qsystemdetection.h:
 
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/AppleClang-DetermineCompiler.cmake:
-
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/cassert:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcontainerinfo.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6GuiVersionlessAliasTargets.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qshareddata.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Sql/Qt6QSQLiteDriverPluginAdditionalTargetInfo.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qabstractscrollarea.h:
 
@@ -8029,28 +8357,6 @@ RowingManager_autogen/moc_predefs.h:
 
 /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeCXXInformation.cmake:
 
-/nix/store/km4g87jxsqxvcq344ncyb8h1i6f3cqxh-glibc-2.40-218/lib/libm.so:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q20type_traits.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/iosfwd:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtmetamacros.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/hash_bytes.h:
-
-/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rower.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/vector.tcc:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qpixmap.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtformat_impl.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/FindWrapOpenGL.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qmetacontainer.h:
-
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qcolor.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicFindPackageHelpers.cmake:
@@ -8073,11 +8379,29 @@ RowingManager_autogen/moc_predefs.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qttypetraits.h:
 
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Linker/GNU.cmake:
+/nix/store/km4g87jxsqxvcq344ncyb8h1i6f3cqxh-glibc-2.40-218/lib/libm.so:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qshareddata_impl.h:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q20type_traits.h:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qbytearraylist.h:
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/iosfwd:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtmetamacros.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/vector.tcc:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qpixmap.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtformat_impl.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/FindWrapOpenGL.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qmetacontainer.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QEglFSEmulatorIntegrationPluginTargets-release.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Widgets/Qt6WidgetsConfigVersion.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qdatastream.h:
 
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/lib/gcc/x86_64-unknown-linux-gnu/14.3.0/include/syslimits.h:
 
@@ -8089,11 +8413,17 @@ RowingManager_autogen/moc_predefs.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Widgets/Qt6WidgetsVersionlessAliasTargets.cmake:
 
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qlatin1stringview.h:
+
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qtwidgetsexports.h:
+
+/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Linker/GNU-CXX.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QObject:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qfontvariableaxis.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/concept_check.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qline.h:
 
@@ -8101,29 +8431,19 @@ RowingManager_autogen/moc_predefs.h:
 
 /nix/store/cja56nc9b7zq7kah9laflv9kcl9rlmp8-linux-headers-6.16.7/include/asm-generic/errno.h:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QXcbEglIntegrationPluginConfig.cmake:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicWindowsHelpers.cmake:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QVkKhrDisplayIntegrationPluginTargets.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QGtk3ThemePluginTargets.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6GuiTools/Qt6GuiToolsConfigVersionImpl.cmake:
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/allocator.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qchar.h:
+
+/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/chartwidgets.h:
 
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/tr1/beta_function.tcc:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qtgui-config.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcompare.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicExternalProjectHelpers.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QTuioTouchPluginTargets.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcompare_impl.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Sql/Qt6SqlVersionlessAliasTargets.cmake:
 
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_list.h:
 
@@ -8133,9 +8453,19 @@ RowingManager_autogen/moc_predefs.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcompilerdetection.h:
 
-/nix/store/44iwa5fdrx4hgzf3l9j9q9y5zffwgigy-libglvnd-1.7.0/lib/libGLdispatch.so.0:
+/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rowerlistsdialog.h:
 
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Clang-DetermineCompiler.cmake:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6DBusTools/Qt6DBusToolsConfigVersionImpl.cmake:
+
+/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/sys/single_threaded.h:
+
+/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/clock_t.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6GuiTools/Qt6GuiToolsDependencies.cmake:
+
+/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linux-GNU-CXX.cmake:
+
+/nix/store/44iwa5fdrx4hgzf3l9j9q9y5zffwgigy-libglvnd-1.7.0/lib/libGLdispatch.so.0:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qarraydata.h:
 
@@ -8144,8 +8474,6 @@ RowingManager_autogen/moc_predefs.h:
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/random:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qprocessordetection.h:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/IntelLLVM-DetermineCompiler.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qwindowdefs.h:
 
@@ -8191,25 +8519,11 @@ CMakeFiles/RowingManager.dir/src/assignmentdialog.cpp.o:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QXdgDesktopPortalThemePluginTargets-release.cmake:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QJsonObject:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/VisualAge-CXX-DetermineCompiler.cmake:
-
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcontainertools_impl.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QEglFSIntegrationPluginTargets.cmake:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6GuiVersionlessAliasTargets.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Sql/Qt6QSQLiteDriverPluginAdditionalTargetInfo.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qshareddata.h:
-
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicTargetHelpers.cmake:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/ext/numeric_traits.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qexceptionhandling.h:
 
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/shared_ptr_atomic.h:
 
@@ -8218,6 +8532,10 @@ CMakeFiles/RowingManager.dir/src/assignmentdialog.cpp.o:
 /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/clockid_t.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QXcbEglIntegrationPluginTargets.cmake:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/ext/numeric_traits.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qexceptionhandling.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qforeach.h:
 
@@ -8237,25 +8555,19 @@ CMakeFiles/RowingManager.dir/src/assignmentdialog.cpp.o:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qglobalstatic.h:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qkeysequence.h:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeFindBinUtils.cmake:
-
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qhashfunctions.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qiodevicebase.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6DBusTools/Qt6DBusToolsTargets-release.cmake:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q23type_traits.h:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q20utility.h:
 
-/nix/store/zc8xw2hmch7sq82bz20xrrqf2fibgwcz-systemd-minimal-libs-258.3/lib/libudev.so.1:
+/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/math.h:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcoreapplication_platform.h:
+/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/math-vector.h:
 
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/char_traits.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QJpegPluginTargets.cmake:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Core/Qt6CoreTargets-release.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q23utility.h:
 
@@ -8264,6 +8576,10 @@ CMakeFiles/RowingManager.dir/src/assignmentdialog.cpp.o:
 CMakeFiles/4.1.2/CMakeCXXCompiler.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qlogging.h:
+
+/nix/store/km4g87jxsqxvcq344ncyb8h1i6f3cqxh-glibc-2.40-218/lib/libdl.so.2:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qmap.h:
 
 /nix/store/km4g87jxsqxvcq344ncyb8h1i6f3cqxh-glibc-2.40-218/lib/Scrt1.o:
 
@@ -8287,6 +8603,10 @@ CMakeFiles/4.1.2/CMakeCXXCompiler.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QMap:
 
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qmetatype.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6GuiConfigVersion.cmake:
+
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qrect.h:
 
 /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/assignmentviewdialog.cpp:
@@ -8295,9 +8615,41 @@ CMakeFiles/4.1.2/CMakeCXXCompiler.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qpixelformat.h:
 
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bit:
+
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qrefcount.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qset.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Core/Qt6CoreAdditionalTargetInfo.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qobject_impl.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicPluginHelpers.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QICOPluginTargets-release.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QVkKhrDisplayIntegrationPluginTargets.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QXcbEglIntegrationPluginConfig.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6GuiTools/Qt6GuiToolsConfigVersionImpl.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QGtk3ThemePluginTargets.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Widgets/Qt6WidgetsTargets.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcoreevent.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Core/Qt6CoreTargets.cmake:
+
+/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/strings.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/exception.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qatomic.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Core/Qt6CoreVersionlessAliasTargets.cmake:
 
 CMakeFiles/RowingManager.dir/RowingManager_autogen/mocs_compilation.cpp.o:
 
@@ -8318,8 +8670,6 @@ CMakeFiles/RowingManager.dir/RowingManager_autogen/mocs_compilation.cpp.o:
 /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/stdio2.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6CoreTools/Qt6CoreToolsVersionlessTargets.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6DBus/Qt6DBusAdditionalTargetInfo.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6DBus/Qt6DBusConfigVersionImpl.cmake:
 
@@ -8351,13 +8701,7 @@ CMakeFiles/RowingManager.dir/RowingManager_autogen/mocs_compilation.cpp.o:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Sql/Qt6QMYSQLDriverPluginTargets.cmake:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6DBusTools/Qt6DBusToolsConfigVersionImpl.cmake:
-
-/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/sys/single_threaded.h:
-
-/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/clock_t.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6GuiTools/Qt6GuiToolsDependencies.cmake:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Sql/Qt6QODBCDriverPluginTargets-release.cmake:
 
 /nix/store/km4g87jxsqxvcq344ncyb8h1i6f3cqxh-glibc-2.40-218/lib/crtn.o:
 
@@ -8365,13 +8709,13 @@ CMakeFiles/RowingManager.dir/RowingManager_autogen/mocs_compilation.cpp.o:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6DBusTools/Qt6DBusToolsDependencies.cmake:
 
-/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/sys/select.h:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeDetermineCompilerABI.cmake:
-
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6GuiAdditionalTargetInfo.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QICOPluginAdditionalTargetInfo.cmake:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/unordered_set:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6GuiConfig.cmake:
 
 /nix/store/km4g87jxsqxvcq344ncyb8h1i6f3cqxh-glibc-2.40-218/lib/libc.so:
 
@@ -8379,9 +8723,11 @@ CMakeFiles/RowingManager.dir/RowingManager_autogen/mocs_compilation.cpp.o:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6GuiDependencies.cmake:
 
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/LCC-CXX-DetermineCompiler.cmake:
-
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6GuiTargets-release.cmake:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/version:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/locale_classes.h:
 
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/lib/gcc/x86_64-unknown-linux-gnu/14.3.0/libgcc.a:
 
@@ -8439,6 +8785,20 @@ CMakeFiles/RowingManager.dir/RowingManager_autogen/mocs_compilation.cpp.o:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QMinimalIntegrationPluginConfig.cmake:
 
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qabstractslider.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/localefwd.h:
+
+/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/struct___jmp_buf_tag.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QEglFSKmsEglDeviceIntegrationPluginTargets-release.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qshareddata_impl.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qbytearraylist.h:
+
+/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Linker/GNU.cmake:
+
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Sql/Qt6SqlDependencies.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QEglFSKmsGbmIntegrationPluginAdditionalTargetInfo.cmake:
@@ -8451,7 +8811,21 @@ CMakeFiles/RowingManager.dir/RowingManager_autogen/mocs_compilation.cpp.o:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QEglFSX11IntegrationPluginAdditionalTargetInfo.cmake:
 
+/nix/store/alrbhz7im0w0jdwcfdgcfk7pxhkl1fzj-gcc-14.3.0-lib/lib/libgcc_s.so:
+
+/nix/store/09wbn9wfigxq0lf95wr8naidwlhg1chf-libpng-apng-1.6.55/lib/libpng16.so.16:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_relops.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/hashtable.h:
+
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QEglFSX11IntegrationPluginTargets-release.cmake:
+
+/nix/store/44iwa5fdrx4hgzf3l9j9q9y5zffwgigy-libglvnd-1.7.0/lib/libGLX.so:
+
+/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/struct_timeval.h:
+
+/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/FindVulkan.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QCheckBox:
 
@@ -8459,29 +8833,11 @@ CMakeFiles/RowingManager.dir/RowingManager_autogen/mocs_compilation.cpp.o:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QEglFSX11IntegrationPluginTargets.cmake:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Sql/Qt6QODBCDriverPluginTargets-release.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Intel-DetermineCompiler.cmake:
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/erase_if.h:
 
 /nix/store/yzyh44g07mb5d3151lvv0ll8rdmg1fbl-harfbuzz-12.1.0/lib/libharfbuzz.so.0:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QEvdevKeyboardPluginAdditionalTargetInfo.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qbrush.h:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/ARMClang-DetermineCompiler.cmake:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/std_function.h:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeDetermineCompiler.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtSql/QSqlDatabase:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linux-Initialize.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QIbusPlatformInputContextPluginConfig.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QEvdevKeyboardPluginTargets-release.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QEvdevKeyboardPluginTargets.cmake:
 
@@ -8515,6 +8871,8 @@ CMakeFiles/RowingManager.dir/RowingManager_autogen/mocs_compilation.cpp.o:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Sql/Qt6SqlPlugins.cmake:
 
+CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.o:
+
 /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/mathcalls-narrow.h:
 
 /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/endianness.h:
@@ -8525,33 +8883,29 @@ CMakeFiles/RowingManager.dir/RowingManager_autogen/mocs_compilation.cpp.o:
 
 /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeInitializeConfigs.cmake:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QEvdevTouchScreenPluginConfig.cmake:
+/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linux.cmake:
 
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Compaq-CXX-DetermineCompiler.cmake:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QEvdevTouchScreenPluginConfig.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qstyle.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QEvdevTouchScreenPluginTargets-release.cmake:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qjsondocument.h:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeDetermineCompilerSupport.cmake:
-
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QGifPluginAdditionalTargetInfo.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QGifPluginConfig.cmake:
 
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/list.tcc:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QGifPluginTargets-release.cmake:
-
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QGtk3ThemePluginAdditionalTargetInfo.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6DBusTools/Qt6DBusToolsConfig.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qstdlibdetection.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/enable_special_members.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QGtk3ThemePluginTargets-release.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QICOPluginConfig.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/TIClang-DetermineCompiler.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QICOPluginTargets.cmake:
 
@@ -8567,6 +8921,8 @@ CMakeFiles/RowingManager.dir/RowingManager_autogen/mocs_compilation.cpp.o:
 
 /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CheckIncludeFileCXX.cmake:
 
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/cxxabi_init_exception.h:
+
 /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/iscanonical.h:
 
 /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/struct_sched_param.h:
@@ -8577,7 +8933,13 @@ CMakeFiles/RowingManager.dir/RowingManager_autogen/mocs_compilation.cpp.o:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QJpegPluginTargets-release.cmake:
 
+RowingManager_autogen/UVLADIE3JM/moc_rowerlistsdialog.cpp:
+
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QLinuxFbIntegrationPluginConfig.cmake:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/error_constants.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/basic_string.tcc:
 
 /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/error_t.h:
 
@@ -8623,8 +8985,6 @@ CMakeFiles/RowingManager.dir/src/rowertablemodel.cpp.o:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QTuioTouchPluginConfig.cmake:
 
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/IBMCPP-CXX-DetermineVersionInternal.cmake:
-
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Core/Qt6CoreConfigVersionImpl.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QTuioTouchPluginTargets-release.cmake:
@@ -8632,8 +8992,6 @@ CMakeFiles/RowingManager.dir/src/rowertablemodel.cpp.o:
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QVkKhrDisplayIntegrationPluginAdditionalTargetInfo.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QVkKhrDisplayIntegrationPluginConfig.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeSystem.cmake.in:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QVncIntegrationPluginAdditionalTargetInfo.cmake:
 
@@ -8656,8 +9014,6 @@ CMakeFiles/RowingManager.dir/src/rower.cpp.o:
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6GuiPlugins.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QWaylandIntegrationPluginTargets-release.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/IAR-DetermineCompiler.cmake:
 
 /nix/store/w37ax8k2r2w2yblmpxsqljfl42sd7jsv-libusb-1.0.29-dev/include/libusb-1.0/libusb.h:
 
@@ -8689,15 +9045,19 @@ CMakeFiles/RowingManager.dir/src/rower.cpp.o:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QXcbIntegrationPluginTargets.cmake:
 
+RowingManager_autogen/mocs_compilation.cpp:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QXdgDesktopPortalThemePluginAdditionalTargetInfo.cmake:
+
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QXdgDesktopPortalThemePluginTargets.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6GuiTools/Qt6GuiToolsConfig.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Core/Qt6CoreDependencies.cmake:
 
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/CrayClang-DetermineCompiler.cmake:
-
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6GuiTools/Qt6GuiToolsConfigVersion.cmake:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/atomic_lockfree_defines.h:
 
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_uninitialized.h:
 
@@ -8723,11 +9083,13 @@ CMakeFiles/RowingManager.dir/src/rower.cpp.o:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Sql/Qt6QPSQLDriverPluginAdditionalTargetInfo.cmake:
 
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/numeric:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qpolygon.h:
 
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeTestCompilerCommon.cmake:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Sql/Qt6QPSQLDriverPluginTargets.cmake:
 
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Internal/CMakeDetermineLinkerId.cmake:
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/backward/binders.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/cpp_type_traits.h:
 
 /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/stdlib-bsearch.h:
 
@@ -8742,8 +9104,6 @@ CMakeFiles/RowingManager.dir/src/rower.cpp.o:
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Sql/Qt6QSQLiteDriverPluginTargets.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Sql/Qt6SqlAdditionalTargetInfo.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/PGI-DetermineCompiler.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QMessageBox:
 
@@ -8769,6 +9129,8 @@ CMakeFiles/RowingManager.dir/src/rower.cpp.o:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Widgets/Qt6WidgetsMacros.cmake:
 
+/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/MacroAddFileDependencies.cmake:
+
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qbasicatomic.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6WidgetsTools/Qt6WidgetsToolsConfigVersionImpl.cmake:
@@ -8783,7 +9145,13 @@ CMakeFiles/RowingManager.dir/src/rower.cpp.o:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6WidgetsTools/Qt6WidgetsToolsDependencies.cmake:
 
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/NVHPC-DetermineCompiler.cmake:
+/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/UnixPaths.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qspinbox.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Sql/Qt6SqlConfig.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6WidgetsTools/Qt6WidgetsToolsTargets-release.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6WidgetsTools/Qt6WidgetsToolsVersionlessTargets.cmake:
 
@@ -8793,33 +9161,13 @@ CMakeFiles/RowingManager.dir/src/rower.cpp.o:
 
 /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/bin/cmake:
 
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_iterator.h:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qstatusbar.h:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qpalette.h:
+/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/FindOpenGL.cmake:
 
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeCXXCompiler.cmake.in:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/Qt6ConfigExtras.cmake:
 
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CheckCXXSourceCompiles.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/XLClang-CXX-DetermineCompiler.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qmetatype.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6GuiConfigVersion.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeCXXCompilerABI.cpp:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/clocale:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/functional_hash.h:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeCommonLanguageInclude.cmake:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/functional:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeCompilerIdDetection.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeDetermineSystem.cmake:
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/algorithm:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6DBus/Qt6DBusTargets.cmake:
 
@@ -8831,93 +9179,13 @@ CMakeFiles/RowingManager.dir/src/rower.cpp.o:
 
 /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeGenericSystem.cmake:
 
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeParseImplicitIncludeInfo.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeParseImplicitLinkInfo.cmake:
-
-RowingManager_autogen/mocs_compilation.cpp:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QXdgDesktopPortalThemePluginAdditionalTargetInfo.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeParseLibraryArchitecture.cmake:
-
 /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeSystemSpecificInformation.cmake:
-
-/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/__locale_t.h:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeTestCXXCompiler.cmake:
 
 /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CheckCXXCompilerFlag.cmake:
 
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/ARMCC-DetermineCompiler.cmake:
-
-/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/struct___jmp_buf_tag.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QEglFSKmsEglDeviceIntegrationPluginTargets-release.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Borland-DetermineCompiler.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Clang-DetermineCompilerInternal.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Cray-DetermineCompiler.cmake:
-
-/nix/store/km4g87jxsqxvcq344ncyb8h1i6f3cqxh-glibc-2.40-218/lib/libdl.so.2:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qmap.h:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/FujitsuClang-DetermineCompiler.cmake:
-
-/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/select-decl.h:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/zOS-CXX-DetermineCompiler.cmake:
+/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CheckCXXSourceCompiles.cmake:
 
 /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/GNU-CXX.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcborcommon.h:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/GNU-FindBinUtils.cmake:
-
-/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/libm-simd-decl-stubs.h:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/HP-CXX-DetermineCompiler.cmake:
-
-/nix/store/44iwa5fdrx4hgzf3l9j9q9y5zffwgigy-libglvnd-1.7.0/lib/libGLX.so:
-
-/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/struct_timeval.h:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/FindVulkan.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/IBMClang-CXX-DetermineCompiler.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/MSVC-DetermineCompiler.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/NVIDIA-DetermineCompiler.cmake:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/unordered_set:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6GuiConfig.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/OpenWatcom-DetermineCompiler.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Renesas-DetermineCompiler.cmake:
-
-/nix/store/mg151w65chcirlr7398jrz916wrfh3gg-glib-2.86.3/lib/libgthread-2.0.so.0:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/SCO-DetermineCompiler.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qpolygon.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Sql/Qt6QPSQLDriverPluginTargets.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Watcom-DetermineCompiler.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qspinbox.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Sql/Qt6SqlConfig.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6WidgetsTools/Qt6WidgetsToolsTargets-release.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/XL-CXX-DetermineCompiler.cmake:
 
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_tree.h:
 
@@ -8925,13 +9193,7 @@ RowingManager_autogen/mocs_compilation.cpp:
 
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/atomic_word.h:
 
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/Embarcadero-DetermineCompiler.cmake:
-
 /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/FindThreads.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QEglFSKmsEglDeviceIntegrationPluginTargets.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Internal/CMakeInspectCXXLinker.cmake:
 
 /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Internal/CheckCompilerFlag.cmake:
 
@@ -8939,4 +9201,94 @@ RowingManager_autogen/mocs_compilation.cpp:
 
 /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Internal/CheckSourceCompiles.cmake:
 
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Internal/FeatureTesting.cmake:
+/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/stdlib.h:
+
+/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/locale_t.h:
+
+/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linker/GNU.cmake:
+
+/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linux-GNU.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtSql/QSqlDatabase:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QIbusPlatformInputContextPluginConfig.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QEvdevKeyboardPluginTargets-release.cmake:
+
+/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linux-Initialize.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtcoreglobal.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/array:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/algorithmfwd.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qinputdialog.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qtransform.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/align.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qvalidator.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicSbomAttributionHelpers.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qarraydataops.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/alloc_traits.h:
+
+/nix/store/zc8xw2hmch7sq82bz20xrrqf2fibgwcz-systemd-minimal-libs-258.3/lib/libudev.so.1:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcoreapplication_platform.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QJpegPluginTargets.cmake:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/char_traits.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QXdgDesktopPortalThemePluginConfig.cmake:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/chrono.h:
+
+/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/sched.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/cxxabi_forced.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/exception_defines.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QTabWidget:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_map.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/exception_ptr.h:
+
+/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boat.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/functexcept.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/clocale:
+
+/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/CMakeCommonLanguageInclude.cmake:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/functional_hash.h:
+
+/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rower.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/hash_bytes.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/invoke.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/ios_base.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QGifPluginTargets-release.cmake:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/list.tcc:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QIbusPlatformInputContextPluginTargets.cmake:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/locale_classes.tcc:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/memory_resource.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Sql/Qt6QMYSQLDriverPluginAdditionalTargetInfo.cmake:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/memoryfwd.h:

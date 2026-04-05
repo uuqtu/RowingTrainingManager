@@ -651,3 +651,210 @@ QString AssignmentGenerator::diagnose(
     out += "=== END DIAGNOSTIC ===\n";
     return out;
 }
+// ---------------------------------------------------------------
+// computeScoreDetails — full breakdown of all scoring terms
+// ---------------------------------------------------------------
+QList<ScoreDetail> AssignmentGenerator::computeScoreDetails(
+    const Assignment& assignment,
+    const QList<Boat>& boats,
+    const QList<Rower>& allRowers,
+    const ScoringPriority& priority) const
+{
+    QList<ScoreDetail> result;
+    const auto& bmap = assignment.boatRowerMap();
+
+    for (auto it = bmap.constBegin(); it != bmap.constEnd(); ++it) {
+        int boatId = it.key();
+        const QList<int>& team = it.value();
+        if (team.isEmpty()) continue;
+
+        Boat boat;
+        for (const Boat& b : boats) if (b.id() == boatId) { boat = b; break; }
+
+        ScoreDetail d;
+        d.boatId       = boatId;
+        d.trainingMode = priority.trainingMode;
+        d.crazyMode    = priority.crazyMode;
+        d.wSkill       = priority.weightFor(ScoringPriority::Skill);
+        d.wCompat      = priority.weightFor(ScoringPriority::Compatibility);
+        d.wProp        = priority.weightFor(ScoringPriority::Propulsion);
+
+        QList<const Rower*> members;
+        for (int id : team)
+            for (const Rower& r : allRowers)
+                if (r.id() == id) { members << &r; break; }
+
+        // ── Skill ────────────────────────────────────────────────
+        QList<int> skillVals;
+        for (const Rower* r : members) skillVals << Rower::skillToInt(r->skill());
+        double avgSkill = 0;
+        for (int v : skillVals) avgSkill += v;
+        avgSkill /= skillVals.size();
+        double skillVar = 0;
+        for (int v : skillVals) skillVar += (v - avgSkill) * (v - avgSkill);
+        d.avgSkill     = avgSkill;
+        d.skillBalance = -skillVar / skillVals.size();
+
+        // ── Propulsion ───────────────────────────────────────────
+        double propSum = 0;
+        for (const Rower* r : members) {
+            double ps = 0;
+            if (boat.propulsionType() != PropulsionType::Both) {
+                if (r->propulsionAbility() == boat.propulsionType()) ps = 1.0;
+                else if (r->propulsionAbility() == PropulsionType::Both) ps = 0.5;
+            } else { ps = 1.0; }
+            propSum += ps;
+        }
+        d.avgProp = propSum / members.size();
+
+        // ── Compat ───────────────────────────────────────────────
+        using CT = CompatibilityTier;
+        double compatPen = 0;
+        for (int i = 0; i < members.size(); ++i)
+            for (int j = i+1; j < members.size(); ++j) {
+                CT a = members[i]->compatibility(), b2 = members[j]->compatibility();
+                if (a == CT::Infinite || b2 == CT::Infinite) continue;
+                if (a == CT::Normal   || b2 == CT::Normal)   continue;
+                if (a == CT::Special  && b2 == CT::Special)
+                    compatPen += priority.compatSpecialSpecial;
+                else if ((a == CT::Special && b2 == CT::Selected) ||
+                         (a == CT::Selected && b2 == CT::Special))
+                    compatPen += priority.compatSpecialSelected;
+            }
+        d.compatPenalty = compatPen;
+
+        // ── Strength variance ────────────────────────────────────
+        if (boat.capacity() > 2) {
+            QList<int> sv;
+            for (const Rower* r : members) if (r->strength() > 0) sv << r->strength();
+            if (sv.size() >= 2) {
+                double avg = 0; for (int v : sv) avg += v; avg /= sv.size();
+                double var = 0; for (int v : sv) var += (v-avg)*(v-avg);
+                d.strengthVariance = var / sv.size();
+            }
+        }
+
+        // ── Racing/Beginner ──────────────────────────────────────
+        if (boat.boatType() == BoatType::Racing)
+            for (const Rower* r : members)
+                if (r->skill() == SkillLevel::Student || r->skill() == SkillLevel::Beginner)
+                    d.racingBegPenalty += priority.racingBeginnerPenalty;
+
+        // ── Obmann ───────────────────────────────────────────────
+        if (boat.capacity() > 2)
+            for (const Rower* r : members)
+                if (r->isObmann()) { d.obmannBonus = priority.obmannBonus; break; }
+
+        // ── Stroke ───────────────────────────────────────────────
+        QList<int> svals;
+        for (const Rower* r : members) if (r->strokeLength() > 0) svals << r->strokeLength();
+        if (svals.size() >= 2)
+            for (int i = 0; i < svals.size(); ++i)
+                for (int j = i+1; j < svals.size(); ++j) {
+                    int gap = qAbs(svals[i]-svals[j]);
+                    if (boat.capacity() <= 2)
+                        d.strokePenalty += (gap>1)?priority.strokeSmallGap2:(gap==1?priority.strokeSmallGap1:0);
+                    else
+                        d.strokePenalty += gap * priority.strokeLargePerGap;
+                }
+
+        // ── Body ─────────────────────────────────────────────────
+        QList<int> bvals;
+        for (const Rower* r : members) if (r->bodySize() > 0) bvals << r->bodySize();
+        if (bvals.size() >= 2)
+            for (int i = 0; i < bvals.size(); ++i)
+                for (int j = i+1; j < bvals.size(); ++j) {
+                    int gap = qAbs(bvals[i]-bvals[j]);
+                    if (boat.capacity() <= 2)
+                        d.bodyPenalty += (gap>1)?priority.bodySmallGap2:(gap==1?priority.bodySmallGap1:0);
+                    else
+                        d.bodyPenalty += gap * priority.bodyLargePerGap;
+                }
+
+        // ── Group attrs ──────────────────────────────────────────
+        for (int attrIdx = 0; attrIdx < 2; ++attrIdx)
+            for (int i = 0; i < members.size(); ++i) {
+                int vi = attrIdx==0 ? members[i]->attrGrp1() : members[i]->attrGrp2();
+                if (vi==0) continue;
+                for (int j = i+1; j < members.size(); ++j) {
+                    int vj = attrIdx==0 ? members[j]->attrGrp1() : members[j]->attrGrp2();
+                    if (vj==vi) d.grpBonus += priority.grpAttrBonus;
+                }
+            }
+
+        // ── Val attrs ────────────────────────────────────────────
+        if (boat.capacity() > 2)
+            for (int attrIdx = 0; attrIdx < 2; ++attrIdx) {
+                QList<int> vals;
+                for (const Rower* r : members) {
+                    int v = attrIdx==0 ? r->attrVal1() : r->attrVal2();
+                    if (v>0) vals << v;
+                }
+                if (vals.size() >= 2) {
+                    double avg = 0; for (int v : vals) avg += v; avg /= vals.size();
+                    double var = 0; for (int v : vals) var += (v-avg)*(v-avg);
+                    d.valPenalty += var/vals.size() * priority.valAttrVarianceWeight;
+                }
+            }
+
+        // ── Co-occurrence ────────────────────────────────────────
+        if (!priority.coOccurrence.isEmpty())
+            for (int i = 0; i < members.size(); ++i)
+                for (int j = i+1; j < members.size(); ++j) {
+                    int a = qMin(members[i]->id(), members[j]->id());
+                    int b2 = qMax(members[i]->id(), members[j]->id());
+                    int cnt = priority.coOccurrence.value({a,b2}, 0);
+                    if (cnt > 0) d.coOccurrencePenalty += cnt * priority.coOccurrenceFactor;
+                }
+
+        // ── Total ────────────────────────────────────────────────
+        if (priority.trainingMode)
+            d.totalScore = -d.strengthVariance*priority.strengthVarianceWeight
+                + d.avgProp*3.0 - d.racingBegPenalty + d.obmannBonus
+                - d.strokePenalty - d.bodyPenalty + d.grpBonus
+                - d.valPenalty - d.coOccurrencePenalty;
+        else
+            d.totalScore = d.wSkill*(d.avgSkill+d.skillBalance)
+                + d.wCompat*(-d.compatPenalty)
+                + d.wProp*d.avgProp*3.0
+                - d.strengthVariance*priority.strengthVarianceWeight
+                + d.obmannBonus - d.racingBegPenalty
+                - d.strokePenalty - d.bodyPenalty
+                + d.grpBonus - d.valPenalty - d.coOccurrencePenalty;
+
+        // ── Per-rower detail ─────────────────────────────────────
+        for (const Rower* r : members) {
+            ScoreDetail::RowerDetail rd;
+            rd.rowerId = r->id();
+            rd.skillInt = Rower::skillToInt(r->skill());
+            if (boat.propulsionType() != PropulsionType::Both) {
+                if (r->propulsionAbility() == boat.propulsionType()) rd.propScore = 1.0;
+                else if (r->propulsionAbility() == PropulsionType::Both) rd.propScore = 0.5;
+            } else rd.propScore = 1.0;
+            rd.strength    = r->strength();
+            rd.strokeLength= r->strokeLength();
+            rd.bodySize    = r->bodySize();
+            rd.attrGrp1    = r->attrGrp1();
+            rd.attrGrp2    = r->attrGrp2();
+            rd.attrVal1    = r->attrVal1();
+            rd.attrVal2    = r->attrVal2();
+            rd.isObmann    = r->isObmann();
+            rd.canSteer    = r->canSteer();
+            rd.compatTier  = Rower::compatToString(r->compatibility());
+            // Whitelist contribution (this rower's direction only)
+            for (int wId : r->whitelist())
+                if (team.contains(wId)) rd.whitelistContrib += priority.whitelistBonus;
+            // Co-occurrence contribution
+            if (!priority.coOccurrence.isEmpty())
+                for (int oid : team) {
+                    if (oid == r->id()) continue;
+                    int a = qMin(r->id(), oid), b2 = qMax(r->id(), oid);
+                    int cnt = priority.coOccurrence.value({a,b2}, 0);
+                    rd.coOccContrib += cnt * priority.coOccurrenceFactor;
+                }
+            d.rowers << rd;
+        }
+        result << d;
+    }
+    return result;
+}

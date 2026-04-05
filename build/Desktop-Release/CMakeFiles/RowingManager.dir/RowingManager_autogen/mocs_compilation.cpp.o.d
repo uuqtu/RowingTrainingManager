@@ -485,6 +485,12 @@ CMakeFiles/RowingManager.dir/RowingManager_autogen/mocs_compilation.cpp.o: \
  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/../../../../src/boattablemodel.h \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QAbstractTableModel \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qabstractitemmodel.h \
+ /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/moc_chartwidgets.cpp \
+ /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/../../../../src/chartwidgets.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QWidget \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qwidget.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/QColor \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qcolor.h \
  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/moc_databasemanager.cpp \
  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/../../../../src/databasemanager.h \
  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/moc_mainwindow.cpp \
@@ -495,5 +501,13 @@ CMakeFiles/RowingManager.dir/RowingManager_autogen/mocs_compilation.cpp.o: \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QMainWindow \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qmainwindow.h \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qtabwidget.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QVBoxLayout \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qboxlayout.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qlayout.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qlayoutitem.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qboxlayout.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qgridlayout.h \
  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/../../../../src/rowertablemodel.h \
+ /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/moc_rowerlistsdialog.cpp \
+ /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/../../../../src/rowerlistsdialog.h \
  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/moc_rowertablemodel.cpp

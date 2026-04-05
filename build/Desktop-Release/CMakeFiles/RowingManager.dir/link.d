@@ -15,6 +15,8 @@ RowingManager: \
   CMakeFiles/RowingManager.dir/src/assignmentgenerator.cpp.o \
   CMakeFiles/RowingManager.dir/src/printerdevice.cpp.o \
   CMakeFiles/RowingManager.dir/src/assignmentviewdialog.cpp.o \
+  CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.o \
+  CMakeFiles/RowingManager.dir/src/chartwidgets.cpp.o \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/libQt6Widgets.so.6.10.1 \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/libQt6Sql.so.6.10.1 \
   /nix/store/q0rms8inhvb30vhfsaq89krqckvx0zny-libusb-1.0.29/lib/libusb-1.0.so \
@@ -121,6 +123,10 @@ CMakeFiles/RowingManager.dir/src/assignmentgenerator.cpp.o:
 CMakeFiles/RowingManager.dir/src/printerdevice.cpp.o:
 
 CMakeFiles/RowingManager.dir/src/assignmentviewdialog.cpp.o:
+
+CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.o:
+
+CMakeFiles/RowingManager.dir/src/chartwidgets.cpp.o:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/libQt6Widgets.so.6.10.1:
 

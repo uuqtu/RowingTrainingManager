@@ -2,6 +2,8 @@
 #include "assignmentdialog.h"
 #include "assignmentgenerator.h"
 #include "assignmentviewdialog.h"
+#include "rowerlistsdialog.h"
+#include "chartwidgets.h"
 
 #include <QTabWidget>
 #include <QTableView>
@@ -182,6 +184,7 @@ void MainWindow::setupUi() {
     m_tabs->addTab(buildDistanceTab(),       "Distance");
     m_tabs->addTab(buildDistanceDetailTab(),"Dist. Detail");
     m_tabs->addTab(buildStatsTab(),          "Statistics");
+    m_tabs->addTab(buildAnalysisTab(),       "Analysis");
     m_tabs->addTab(buildOptionsTab(),        "Options");
     m_tabs->addTab(buildExpertTab(),        "Expert Settings");
     setCentralWidget(m_tabs);
@@ -285,27 +288,19 @@ QWidget* MainWindow::buildRowersTab() {
     addBtn->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_N));
     auto* delBtn = new QPushButton("✕  Delete Selected");
     delBtn->setObjectName("dangerBtn");
-    auto* wlBtn   = new QPushButton("Rower Whitelist...");
-    auto* blBtn   = new QPushButton("Rower Blacklist...");
-    auto* bwlBtn  = new QPushButton("Boat Whitelist...");
-    auto* bblBtn  = new QPushButton("Boat Blacklist...");
+    auto* listsBtn = new QPushButton("📋  Lists...");
+    listsBtn->setToolTip("Edit Rower Whitelist, Rower Blacklist, Boat Whitelist and Boat Blacklist for the selected rower");
 
     btnLayout->addWidget(addBtn);
     btnLayout->addWidget(delBtn);
     btnLayout->addSpacing(20);
-    btnLayout->addWidget(wlBtn);
-    btnLayout->addWidget(blBtn);
-    btnLayout->addWidget(bwlBtn);
-    btnLayout->addWidget(bblBtn);
+    btnLayout->addWidget(listsBtn);
     btnLayout->addStretch();
     layout->addLayout(btnLayout);
 
-    connect(addBtn,  &QPushButton::clicked, this, &MainWindow::onAddRower);
-    connect(delBtn,  &QPushButton::clicked, this, &MainWindow::onDeleteRower);
-    connect(wlBtn,   &QPushButton::clicked, this, &MainWindow::onEditWhitelist);
-    connect(blBtn,   &QPushButton::clicked, this, &MainWindow::onEditBlacklist);
-    connect(bwlBtn,  &QPushButton::clicked, this, &MainWindow::onEditBoatWhitelist);
-    connect(bblBtn,  &QPushButton::clicked, this, &MainWindow::onEditBoatBlacklist);
+    connect(addBtn,   &QPushButton::clicked, this, &MainWindow::onAddRower);
+    connect(delBtn,   &QPushButton::clicked, this, &MainWindow::onDeleteRower);
+    connect(listsBtn, &QPushButton::clicked, this, &MainWindow::onEditRowerLists);
     connect(m_rowerModel, &RowerTableModel::rowerChanged, this, &MainWindow::onRowerChanged);
 
     return w;
@@ -359,8 +354,9 @@ QWidget* MainWindow::buildAssignmentsTab() {
     detailLabel->setStyleSheet("color: #8fb4d8; font-weight: 700; font-size: 13px;");
     rightLayout->addWidget(detailLabel);
 
-    // Two-tab view: text (default) and table
+    // Two-tab view: text (default), table, and scoring detail
     auto* viewTabs = new QTabWidget;
+    m_assignmentViewTabs = viewTabs;
 
     m_assignmentView = new QTextEdit;
     m_assignmentView->setReadOnly(true);
@@ -378,6 +374,10 @@ QWidget* MainWindow::buildAssignmentsTab() {
         "QTableWidget { gridline-color: #2a3548; }"
         "QHeaderView::section { background:#1a2535; color:#8fb4d8; font-weight:600; padding:4px; border:1px solid #2a3548; }");
     viewTabs->addTab(m_assignmentTable, "Table");
+
+    // Scoring tab — populated when an assignment is selected
+    m_assignmentScoreWidget = new QWidget;
+    viewTabs->addTab(m_assignmentScoreWidget, "Scoring");
 
     rightLayout->addWidget(viewTabs, 1);
 
@@ -638,32 +638,20 @@ static void editList(const QString& title, const QString& description,
     }
 }
 
-void MainWindow::onEditWhitelist() {
+void MainWindow::onEditRowerLists() {
     auto sel = m_rowerTable->selectionModel()->selectedRows();
     if (sel.isEmpty()) { statusBar()->showMessage("Select a rower first.", 2000); return; }
     int row = sel.first().row();
     Rower rower = m_rowerModel->rowerAt(row);
-    editList("Whitelist — " + rower.name(),
-             "Check rowers who MUST row in the same boat as " + rower.name() + ":",
-             rower, m_rowers, true, this);
-    m_rowerModel->updateRower(row, rower);
-    m_db->saveRower(rower);
-    m_rowers = m_rowerModel->rowers();
-    statusBar()->showMessage("Whitelist saved for " + rower.name(), 2000);
-}
 
-void MainWindow::onEditBlacklist() {
-    auto sel = m_rowerTable->selectionModel()->selectedRows();
-    if (sel.isEmpty()) { statusBar()->showMessage("Select a rower first.", 2000); return; }
-    int row = sel.first().row();
-    Rower rower = m_rowerModel->rowerAt(row);
-    editList("Blacklist — " + rower.name(),
-             "Check rowers who must NEVER row in the same boat as " + rower.name() + ":",
-             rower, m_rowers, false, this);
-    m_rowerModel->updateRower(row, rower);
-    m_db->saveRower(rower);
-    m_rowers = m_rowerModel->rowers();
-    statusBar()->showMessage("Blacklist saved for " + rower.name(), 2000);
+    RowerListsDialog dlg(rower, m_rowers, m_boats, this);
+    if (dlg.exec() == QDialog::Accepted) {
+        Rower updated = dlg.result();
+        m_rowerModel->updateRower(row, updated);
+        m_db->saveRower(updated);
+        m_rowers = m_rowerModel->rowers();
+        statusBar()->showMessage("Lists saved for " + updated.name(), 2000);
+    }
 }
 
 // ---------------------------------------------------------------
@@ -943,9 +931,10 @@ QString MainWindow::formatAssignmentText(const Assignment& assignment) {
         }
 
         // Print Obmann first
-        if (needsRoles && chosenObmann == -1 && !rowerIds.isEmpty())
+        if (needsRoles && chosenObmann == -1 && !rowerIds.isEmpty()) {
             text += "  *** No Obmann available for this boat! ***\n";
             text += "  *** First rower is Obmann ***\n";
+        }
 
         if (chosenObmann != -1) {
             for (const Rower& r : m_rowers) {
@@ -976,6 +965,163 @@ QString MainWindow::formatAssignmentText(const Assignment& assignment) {
 void MainWindow::displayAssignment(const Assignment& assignment) {
     m_assignmentView->setPlainText(formatAssignmentText(assignment));
     if (m_assignmentTable) populateAssignmentTable(assignment);
+
+    // Populate scoring detail tab
+    if (m_assignmentScoreWidget && m_assignmentViewTabs) {
+        // Replace old scoring widget with fresh one
+        int scoreTabIdx = m_assignmentViewTabs->indexOf(m_assignmentScoreWidget);
+        if (scoreTabIdx >= 0) {
+            m_assignmentViewTabs->removeTab(scoreTabIdx);
+            delete m_assignmentScoreWidget;
+        }
+
+        // Build scoring view inline (same logic as AssignmentViewDialog::buildScoreView)
+        auto* outer = new QWidget;
+        auto* outerVL = new QVBoxLayout(outer);
+        outerVL->setContentsMargins(0, 0, 0, 0);
+        auto* scroll = new QScrollArea;
+        scroll->setWidgetResizable(true);
+        scroll->setFrameShape(QFrame::NoFrame);
+        auto* inner = new QWidget;
+        auto* vl = new QVBoxLayout(inner);
+        vl->setContentsMargins(8, 8, 8, 8);
+        vl->setSpacing(12);
+
+        ScoringPriority priority;
+        AssignmentGenerator gen;
+        QList<ScoreDetail> details = gen.computeScoreDetails(assignment, m_boats, m_rowers, priority);
+
+        if (details.isEmpty()) {
+            vl->addWidget(new QLabel("<i style='color:#556677;'>No scoring data available.</i>"));
+        }
+
+        for (const ScoreDetail& d : details) {
+            QString boatName = QString("Boat#%1").arg(d.boatId);
+            for (const Boat& b : m_boats) if (b.id() == d.boatId) { boatName = b.name(); break; }
+
+            auto* boatHeader = new QLabel(
+                QString("<b style='color:#8fb4d8; font-size:13px;'>%1</b>"
+                        "  <span style='color:#5a7a9a;'>— Total Score: <b style='color:%2;'>%3</b></span>")
+                    .arg(boatName.toHtmlEscaped())
+                    .arg(d.totalScore >= 0 ? "#66cc66" : "#cc6666")
+                    .arg(QString::number(d.totalScore, 'f', 2)));
+            boatHeader->setStyleSheet("background:#0d1a2a; padding:4px 8px; border-radius:4px;");
+            vl->addWidget(boatHeader);
+
+            // Boat-level table
+            auto* bt = new QTableWidget(0, 2);
+            bt->horizontalHeader()->setVisible(false);
+            bt->verticalHeader()->setVisible(false);
+            bt->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+            bt->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+            bt->setEditTriggers(QAbstractItemView::NoEditTriggers);
+            bt->setSelectionMode(QAbstractItemView::NoSelection);
+            bt->setStyleSheet("QTableWidget{background:#0a1520;gridline-color:#1a2538;}"
+                              "QTableWidget::item{padding:3px 6px;}");
+
+            auto addBR = [&](const QString& n, const QString& v, const QString& c=""){
+                int r = bt->rowCount(); bt->insertRow(r);
+                auto* ni = new QTableWidgetItem(n); ni->setForeground(QColor("#8090a0"));
+                auto* vi = new QTableWidgetItem(v);
+                if (!c.isEmpty()) vi->setForeground(QColor(c));
+                bt->setItem(r,0,ni); bt->setItem(r,1,vi);
+            };
+            auto fmt = [](double v){ return QString("%1%2").arg(v>=0?"+":"").arg(v,0,'f',2); };
+
+            addBR("Mode", d.trainingMode?"Training":d.crazyMode?"Crazy":"Normal");
+            addBR("Weights (wSkill/wCompat/wProp)",
+                  QString("%1/%2/%3").arg(d.wSkill,0,'f',1).arg(d.wCompat,0,'f',1).arg(d.wProp,0,'f',1));
+            if (!d.trainingMode) {
+                addBR("  avgSkill",     QString::number(d.avgSkill,'f',2));
+                addBR("  skillBalance", fmt(d.skillBalance), d.skillBalance>=0?"#66cc66":"#cc8844");
+                addBR("  wSkill×(avgSkill+skillBalance)", fmt(d.wSkill*(d.avgSkill+d.skillBalance)));
+                addBR("  compatPenalty (raw)", QString::number(d.compatPenalty,'f',2));
+                addBR("  wCompat×(−compat)", fmt(-d.wCompat*d.compatPenalty),
+                      d.compatPenalty>0?"#cc8844":"#66cc66");
+            }
+            addBR("  avgProp",              QString::number(d.avgProp,'f',3));
+            addBR("  wProp×avgProp×3",      fmt(d.wProp*d.avgProp*3.0), "#66cc66");
+            addBR("  strengthVariance",     QString::number(d.strengthVariance,'f',2));
+            addBR("  −strengthVar×weight",  fmt(-d.strengthVariance*priority.strengthVarianceWeight),
+                  d.strengthVariance>0?"#cc8844":"#8090a0");
+            addBR("  obmannBonus",     fmt(d.obmannBonus),       d.obmannBonus>0?"#66cc66":"#8090a0");
+            addBR("  racingBegPenalty",fmt(-d.racingBegPenalty), d.racingBegPenalty>0?"#cc6666":"#8090a0");
+            addBR("  strokePenalty",   fmt(-d.strokePenalty),    d.strokePenalty>0?"#cc8844":"#8090a0");
+            addBR("  bodyPenalty",     fmt(-d.bodyPenalty),      d.bodyPenalty>0?"#cc8844":"#8090a0");
+            addBR("  grpBonus",        fmt(d.grpBonus),          d.grpBonus>0?"#66cc66":"#8090a0");
+            addBR("  valPenalty",      fmt(-d.valPenalty),       d.valPenalty>0?"#cc8844":"#8090a0");
+            addBR("  coOccurPenalty",  fmt(-d.coOccurrencePenalty),d.coOccurrencePenalty>0?"#cc8844":"#8090a0");
+            addBR("━━ TOTAL SCORE ━━", fmt(d.totalScore),         d.totalScore>=0?"#88ff88":"#ff8888");
+
+            bt->resizeRowsToContents();
+            bt->setFixedHeight(bt->rowCount()*22+4);
+            vl->addWidget(bt);
+
+            // Per-rower table
+            int nR = d.rowers.size();
+            if (nR == 0) { auto* sep = new QFrame; sep->setFrameShape(QFrame::HLine); vl->addWidget(sep); continue; }
+
+            vl->addWidget(new QLabel(QString("<span style='color:#6a8aaa;font-size:11px;'>Rower details (%1)</span>").arg(nR)));
+
+            auto* rt = new QTableWidget(0, 1+nR);
+            rt->verticalHeader()->setVisible(false);
+            rt->setEditTriggers(QAbstractItemView::NoEditTriggers);
+            rt->setSelectionMode(QAbstractItemView::NoSelection);
+            rt->setStyleSheet("QTableWidget{background:#0a1520;gridline-color:#1a2538;}"
+                              "QTableWidget::item{padding:3px 6px;}");
+            rt->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+            for (int ci=1;ci<=nR;++ci) rt->horizontalHeader()->setSectionResizeMode(ci,QHeaderView::Stretch);
+            rt->setHorizontalHeaderItem(0, new QTableWidgetItem("Parameter"));
+            for (int i=0;i<nR;++i) {
+                QString rn = QString("Rower#%1").arg(d.rowers[i].rowerId);
+                for (const Rower& r:m_rowers) if(r.id()==d.rowers[i].rowerId){rn=r.name();break;}
+                auto* h=new QTableWidgetItem(rn); QFont f=h->font();f.setBold(true);h->setFont(f);
+                rt->setHorizontalHeaderItem(i+1,h);
+            }
+
+            const QString SL[]={"—","Short","Medium","Long"}, BS[]={"—","Small","Medium","Tall"};
+            struct R{QString label;std::function<QString(const ScoreDetail::RowerDetail&)>fn;};
+            QList<R> rowdefs;
+            rowdefs.append(R{"Skill",      [](const ScoreDetail::RowerDetail& r){return QString::number(r.skillInt);}});
+            rowdefs.append(R{"Propulsion", [](const ScoreDetail::RowerDetail& r){return r.propScore==1.0?"Exact":r.propScore==0.5?"Both":"None";}});
+            rowdefs.append(R{"Compat",     [](const ScoreDetail::RowerDetail& r){return r.compatTier;}});
+            rowdefs.append(R{"Strength",   [](const ScoreDetail::RowerDetail& r){return r.strength>0?QString::number(r.strength):QString("—");}});
+            rowdefs.append(R{"Stroke Len", [SL](const ScoreDetail::RowerDetail& r){return r.strokeLength>=0&&r.strokeLength<=3?SL[r.strokeLength]:QString("—");}});
+            rowdefs.append(R{"Body Size",  [BS](const ScoreDetail::RowerDetail& r){return r.bodySize>=0&&r.bodySize<=3?BS[r.bodySize]:QString("—");}});
+            rowdefs.append(R{"GrpAttr1",   [](const ScoreDetail::RowerDetail& r){return r.attrGrp1>0?QString::number(r.attrGrp1):QString("—");}});
+            rowdefs.append(R{"GrpAttr2",   [](const ScoreDetail::RowerDetail& r){return r.attrGrp2>0?QString::number(r.attrGrp2):QString("—");}});
+            rowdefs.append(R{"ValAttr1",   [](const ScoreDetail::RowerDetail& r){return r.attrVal1>0?QString::number(r.attrVal1):QString("—");}});
+            rowdefs.append(R{"ValAttr2",   [](const ScoreDetail::RowerDetail& r){return r.attrVal2>0?QString::number(r.attrVal2):QString("—");}});
+            rowdefs.append(R{"Obmann",     [](const ScoreDetail::RowerDetail& r){return QString(r.isObmann?"Yes":"No");}});
+            rowdefs.append(R{"CanSteer",   [](const ScoreDetail::RowerDetail& r){return QString(r.canSteer?"Yes":"No");}});
+            rowdefs.append(R{"WL bonus",   [](const ScoreDetail::RowerDetail& r){return r.whitelistContrib>0?QString("+%1").arg(r.whitelistContrib,0,'f',2):QString("0");}});
+            rowdefs.append(R{"CoOcc pen",  [](const ScoreDetail::RowerDetail& r){return r.coOccContrib>0?QString("−%1").arg(r.coOccContrib,0,'f',2):QString("0");}});
+
+            rt->setRowCount(rowdefs.size());
+            for (int ri=0;ri<rowdefs.size();++ri) {
+                auto* lbl=new QTableWidgetItem(rowdefs[ri].label); lbl->setForeground(QColor("#8090a0"));
+                rt->setItem(ri,0,lbl);
+                for (int ci=0;ci<nR;++ci) rt->setItem(ri,ci+1,new QTableWidgetItem(rowdefs[ri].fn(d.rowers[ci])));
+            }
+            rt->resizeRowsToContents();
+            rt->setFixedHeight(rt->rowCount()*22+26);
+            vl->addWidget(rt);
+
+            auto* sep=new QFrame; sep->setFrameShape(QFrame::HLine); sep->setStyleSheet("color:#2a3548;"); vl->addWidget(sep);
+        }
+
+        vl->addStretch();
+        scroll->setWidget(inner);
+        outerVL->addWidget(scroll);
+
+        m_assignmentScoreWidget = outer;
+        if (scoreTabIdx >= 0)
+            m_assignmentViewTabs->insertTab(scoreTabIdx, m_assignmentScoreWidget,
+                                            QString("Scoring (%1)").arg(details.size()));
+        else
+            m_assignmentViewTabs->addTab(m_assignmentScoreWidget,
+                                         QString("Scoring (%1)").arg(details.size()));
+    }
 }
 
 void MainWindow::onCopyToClipboard() {
@@ -1481,7 +1627,6 @@ void MainWindow::onPrintAssignment()
 
     int copies = m_printCopiesSpinBox ? m_printCopiesSpinBox->value() : 1;
 
-    // Connect to printer if not already connected
     if (!m_printer.isConnected()) {
         statusBar()->showMessage("Searching for printer...", 0);
         if (!m_printer.findAndConnect()) {
@@ -1494,78 +1639,10 @@ void MainWindow::onPrintAssignment()
         statusBar()->showMessage("Printer connected: " + m_printer.deviceDesc(), 2000);
     }
 
-    // Build the printable text from the assignment (same format as clipboard)
-    QString printText;
-    printText += m_currentAssignment.name() + "\n";
-    printText += m_currentAssignment.createdAt().toString("dd.MM.yyyy hh:mm") + "\n";
-    printText += QString("=").repeated(32) + "\n\n";
+    // Use EXACTLY the same text shown in the Text view — roles are loaded
+    // from the database, so printed output is always identical to screen output.
+    QString printText = formatAssignmentText(m_currentAssignment);
 
-    const auto& map = m_currentAssignment.boatRowerMap();
-    for (auto it = map.constBegin(); it != map.constEnd(); ++it) {
-        printText += QString("== %1 ==\n").arg(boatDescription(it.key()));
-        const QList<int>& rowerIds = it.value();
-
-        Boat foundBoat;
-        for (const Boat& b : m_boats) if (b.id() == it.key()) { foundBoat = b; break; }
-        bool isSteered = foundBoat.id() != -1 && foundBoat.steeringType() == SteeringType::Steered;
-        bool needsRoles = (foundBoat.id() == -1 || foundBoat.capacity() > 2);
-
-        // Pick Obmann
-        int chosenObmann = -1;
-        if (needsRoles) {
-            QList<int> ob;
-            for (int rid : rowerIds)
-                for (const Rower& r : m_rowers)
-                    if (r.id() == rid && r.isObmann()) { ob << rid; break; }
-            if (!ob.isEmpty()) {
-                chosenObmann = ob[QRandomGenerator::global()->bounded(
-                    static_cast<quint32>(ob.size()))];
-            }
-        }
-
-        // Pick Steerer
-        int chosenSteerer = -1;
-        if (needsRoles && isSteered) {
-            QList<int> st;
-            for (int rid : rowerIds)
-                for (const Rower& r : m_rowers)
-                    if (r.id() == rid && r.canSteer() && rid != chosenObmann) { st << rid; break; }
-            if (st.isEmpty())
-                for (int rid : rowerIds)
-                    for (const Rower& r : m_rowers)
-                        if (r.id() == rid && r.canSteer()) { st << rid; break; }
-            if (!st.isEmpty())
-                chosenSteerer = st[QRandomGenerator::global()->bounded(
-                    static_cast<quint32>(st.size()))];
-        }
-
-        if (needsRoles && chosenObmann == -1) {
-            printText += "  *** No Obmann available for this boat! ***\n";
-            printText += "  *** First rower is Obmann ***\n";
-        }
-
-        if (chosenObmann != -1) {
-            for (const Rower& r : m_rowers) {
-                if (r.id() != chosenObmann) continue;
-                QString tag = "[Obmann]";
-                if (chosenObmann == chosenSteerer) tag += " [Steering]";
-                printText += QString("  %1 %2\n").arg(r.name(), -18).arg(tag);
-                break;
-            }
-        }
-        for (int rid : rowerIds) {
-            if (rid == chosenObmann) continue;
-            for (const Rower& r : m_rowers) {
-                if (r.id() != rid) continue;
-                QString tag = (rid == chosenSteerer) ? " [Steering]" : "";
-                printText += QString("  %1%2\n").arg(r.name(), -18).arg(tag);
-                break;
-            }
-        }
-        printText += "\n";
-    }
-
-    // Print the requested number of copies
     bool success = true;
     for (int copy = 0; copy < copies && success; ++copy) {
         statusBar()->showMessage(QString("Printing copy %1 of %2...").arg(copy+1).arg(copies), 0);
@@ -1574,13 +1651,11 @@ void MainWindow::onPrintAssignment()
 
     if (!success) {
         QMessageBox::warning(this, "Print Error",
-            QString("Printing failed on copy:\n\n%1").arg(m_printer.statusMessage()));
+            QString("Printing failed:\n\n%1").arg(m_printer.statusMessage()));
         statusBar()->showMessage("Print failed.", 3000);
     } else {
         statusBar()->showMessage(
-            copies == 1 ? "Printed." : QString("Printed %1 copies.").arg(copies), 3000);
-        m_printBtn->setText("Printed!");
-        QTimer::singleShot(2000, this, [this]() { m_printBtn->setText("Print"); });
+            QString("Printed %1 copy(s).").arg(copies), 3000);
     }
 }
 
@@ -1729,33 +1804,6 @@ static void editBoatList(
     }
 }
 
-void MainWindow::onEditBoatWhitelist() {
-    int row = m_rowerTable->currentIndex().row();
-    if (row < 0) return;
-    Rower r = m_rowerModel->rowerAt(row);
-    QList<int> wl = r.boatWhitelist();
-    editBoatList(this, "Boat Whitelist for " + r.name(), m_boats, wl, [&]() {
-        r.setBoatWhitelist(wl);
-        m_rowerModel->updateRower(row, r);
-        m_db->saveRower(r);
-        m_rowers[row] = r;
-        statusBar()->showMessage("Boat whitelist saved for " + r.name(), 2000);
-    });
-}
-
-void MainWindow::onEditBoatBlacklist() {
-    int row = m_rowerTable->currentIndex().row();
-    if (row < 0) return;
-    Rower r = m_rowerModel->rowerAt(row);
-    QList<int> bl = r.boatBlacklist();
-    editBoatList(this, "Boat Blacklist for " + r.name(), m_boats, bl, [&]() {
-        r.setBoatBlacklist(bl);
-        m_rowerModel->updateRower(row, r);
-        m_db->saveRower(r);
-        m_rowers[row] = r;
-        statusBar()->showMessage("Boat blacklist saved for " + r.name(), 2000);
-    });
-}
 
 // ---------------------------------------------------------------
 // Lock / unlock assignment
@@ -2531,4 +2579,607 @@ bool MainWindow::checkPassword(const QString& action) {
     if (pwEdit->text() == m_password) return true;
     QMessageBox::warning(this, "Incorrect Password", "The password you entered is incorrect.");
     return false;
+}
+
+// =========================================================================
+// Analysis Tab — rich statistics, tables, and charts across all assignments
+// =========================================================================
+QWidget* MainWindow::buildAnalysisTab() {
+    auto* outer = new QWidget;
+    auto* outerVL = new QVBoxLayout(outer);
+    outerVL->setContentsMargins(0,0,0,0);
+
+    auto* toolbar = new QHBoxLayout;
+    auto* titleLbl = new QLabel("<b style='color:#8fb4d8; font-size:13px;'>Analysis Dashboard</b>"
+        "  <span style='color:#5a7a9a; font-size:11px;'>"
+        "— all scoring insights across rowers, boats, and assignments</span>");
+    auto* refreshBtn = new QPushButton("⟳  Refresh");
+    refreshBtn->setObjectName("primaryBtn");
+    toolbar->addWidget(titleLbl, 1);
+    toolbar->addWidget(refreshBtn);
+    outerVL->addLayout(toolbar);
+
+    // Two sub-tabs: Table View + Graphical View
+    auto* subTabs = new QTabWidget;
+    outerVL->addWidget(subTabs, 1);
+
+    // ── Build the inner scroll area for table view ──────────────
+    auto* tableScrollOuter = new QScrollArea;
+    tableScrollOuter->setWidgetResizable(true);
+    tableScrollOuter->setFrameShape(QFrame::NoFrame);
+    m_analysisInner = new QWidget;
+    tableScrollOuter->setWidget(m_analysisInner);
+    subTabs->addTab(tableScrollOuter, "Table View");
+
+    // ── Graphical sub-tab ────────────────────────────────────────
+    auto* gfxScrollOuter = new QScrollArea;
+    gfxScrollOuter->setWidgetResizable(true);
+    gfxScrollOuter->setFrameShape(QFrame::NoFrame);
+    auto* gfxInner = new QWidget;
+    auto* gfxVL = new QVBoxLayout(gfxInner);
+    gfxVL->setContentsMargins(8,8,8,16);
+    gfxVL->setSpacing(16);
+    gfxScrollOuter->setWidget(gfxInner);
+    subTabs->addTab(gfxScrollOuter, "Graphical View");
+
+    // Connect refresh
+    QObject::connect(refreshBtn, &QPushButton::clicked, this, [this, gfxInner, gfxVL]() {
+        refreshAnalysisTab();
+        // Rebuild graphical view
+        while (QLayoutItem* it = gfxVL->takeAt(0)) { delete it->widget(); delete it; }
+        buildAnalysisGraphics(gfxVL);
+        gfxVL->addStretch();
+    });
+
+    // Initial populate
+    refreshAnalysisTab();
+    buildAnalysisGraphics(gfxVL);
+    gfxVL->addStretch();
+
+    return outer;
+}
+
+// Called to rebuild the table-view portion of the Analysis tab
+void MainWindow::refreshAnalysisTab() {
+    if (!m_analysisInner) return;
+
+    // Clear existing layout
+    if (auto* old = m_analysisInner->layout()) {
+        while (QLayoutItem* it = old->takeAt(0)) { delete it->widget(); delete it; }
+        delete old;
+    }
+
+    auto* vl = new QVBoxLayout(m_analysisInner);
+    vl->setContentsMargins(8,8,8,16);
+    vl->setSpacing(16);
+
+    auto mkSec = [&](const QString& t, const QString& desc="") {
+        auto* l = new QLabel(t);
+        l->setStyleSheet("color:#8fb4d8; font-weight:700; font-size:12px; "
+                         "border-bottom:1px solid #2a3548; padding-bottom:3px; margin-top:4px;");
+        vl->addWidget(l);
+        if (!desc.isEmpty()) {
+            auto* d = new QLabel(desc);
+            d->setWordWrap(true);
+            d->setStyleSheet("color:#5a7a9a; font-size:11px; padding-left:4px;");
+            vl->addWidget(d);
+        }
+    };
+
+    auto mkTable = [&](const QStringList& headers) -> QTableWidget* {
+        auto* t = new QTableWidget(0, headers.size());
+        t->setHorizontalHeaderLabels(headers);
+        t->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        t->setSelectionMode(QAbstractItemView::NoSelection);
+        t->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+        t->verticalHeader()->setVisible(false);
+        t->setAlternatingRowColors(true);
+        t->setStyleSheet(
+            "QTableWidget{background:#0a1520;alternate-background-color:#0d1e2e;gridline-color:#1a2538;}"
+            "QHeaderView::section{background:#1a2535;color:#8fb4d8;font-weight:600;padding:4px;border:1px solid #2a3548;}"
+            "QTableWidget::item{padding:3px 6px;}");
+        return t;
+    };
+
+    auto addCell = [](QTableWidget* t, int row, int col, const QString& val,
+                      const QColor& fg=QColor(), bool bold=false) {
+        auto* item = new QTableWidgetItem(val);
+        if (fg.isValid()) item->setForeground(fg);
+        if (bold) { QFont f=item->font(); f.setBold(true); item->setFont(f); }
+        t->setItem(row, col, item);
+    };
+
+    // ────────────────────────────────────────────────────────────
+    // TABLE 1: Rower overview — all attributes side by side
+    // ────────────────────────────────────────────────────────────
+    mkSec("Rower Attribute Overview",
+          "All rower attributes in one place. Use this to spot missing data (—) "
+          "and to check that attribute ranges make sense before generating assignments.");
+    {
+        auto* t = mkTable({"Name","Skill","Compat","Prop","Strength","Stroke","Body",
+                           "GrpA1","GrpA2","ValA1","ValA2","Obmann","Steer",
+                           "RW","RB","BW","BB"});
+        const QString SL[]={"—","Short","Med","Long"}, BS[]={"—","Small","Med","Tall"};
+        for (const Rower& r : m_rowers) {
+            int row = t->rowCount(); t->insertRow(row);
+            addCell(t,row,0,r.name(),{},true);
+            addCell(t,row,1,Rower::skillToString(r.skill()));
+            addCell(t,row,2,Rower::compatToString(r.compatibility()));
+            addCell(t,row,3,Boat::propulsionTypeToString(r.propulsionAbility()));
+            addCell(t,row,4,r.strength()>0?QString::number(r.strength()):"—");
+            addCell(t,row,5,r.strokeLength()>=0&&r.strokeLength()<=3?SL[r.strokeLength()]:"—");
+            addCell(t,row,6,r.bodySize()>=0&&r.bodySize()<=3?BS[r.bodySize()]:"—");
+            addCell(t,row,7,r.attrGrp1()>0?QString::number(r.attrGrp1()):"—");
+            addCell(t,row,8,r.attrGrp2()>0?QString::number(r.attrGrp2()):"—");
+            addCell(t,row,9,r.attrVal1()>0?QString::number(r.attrVal1()):"—");
+            addCell(t,row,10,r.attrVal2()>0?QString::number(r.attrVal2()):"—");
+            addCell(t,row,11,r.isObmann()?"✓":"",r.isObmann()?QColor("#88ee88"):QColor());
+            addCell(t,row,12,r.canSteer()?"✓":"",r.canSteer()?QColor("#88ccff"):QColor());
+            addCell(t,row,13,QString::number(r.whitelist().size()));
+            addCell(t,row,14,QString::number(r.blacklist().size()),
+                    r.blacklist().isEmpty()?QColor():QColor("#ee8888"));
+            addCell(t,row,15,QString::number(r.boatWhitelist().size()));
+            addCell(t,row,16,QString::number(r.boatBlacklist().size()),
+                    r.boatBlacklist().isEmpty()?QColor():QColor("#ee8888"));
+        }
+        t->resizeRowsToContents();
+        vl->addWidget(t);
+    }
+
+    // ────────────────────────────────────────────────────────────
+    // TABLE 2: Attribute completeness / data quality
+    // ────────────────────────────────────────────────────────────
+    mkSec("Data Quality — Attribute Completeness",
+          "Shows what percentage of rowers have each attribute set. "
+          "Attributes with low fill rates will have little effect on generation since "
+          "values of 0 are excluded from all scoring calculations.");
+    {
+        auto* t = mkTable({"Attribute","Set","Not Set","Fill %","Recommendation"});
+        struct AttrCheck { QString name; std::function<bool(const Rower&)> fn; QString tip; };
+        QList<AttrCheck> checks = {
+            {"Strength",    [](const Rower& r){return r.strength()>0;},
+             "Used to balance physical load. Enter for all rowers."},
+            {"Stroke Length",[](const Rower& r){return r.strokeLength()>0;},
+             "Critical for 2-seat boats. Enter for all rowers."},
+            {"Body Size",   [](const Rower& r){return r.bodySize()>0;},
+             "Used for 2-seat boat balance. Recommended."},
+            {"Age Band",    [](const Rower& r){return r.ageBand()>0;},
+             "Used for Obmann/Steerer role selection."},
+            {"GrpAttr 1",   [](const Rower& r){return r.attrGrp1()>0;},
+             "Only useful if you have a club grouping to model."},
+            {"GrpAttr 2",   [](const Rower& r){return r.attrGrp2()>0;},
+             "Only useful if you have a second club grouping."},
+            {"ValAttr 1",   [](const Rower& r){return r.attrVal1()>0;},
+             "Technique/fitness score. Enter consistently or leave blank."},
+            {"ValAttr 2",   [](const Rower& r){return r.attrVal2()>0;},
+             "Second balance attribute. Enter consistently or leave blank."},
+        };
+        int total = m_rowers.size();
+        for (auto& ck : checks) {
+            int cnt=0; for (const Rower& r:m_rowers) if(ck.fn(r)) cnt++;
+            int row=t->rowCount(); t->insertRow(row);
+            double pct = total>0 ? 100.0*cnt/total : 0;
+            addCell(t,row,0,ck.name,{},true);
+            addCell(t,row,1,QString::number(cnt));
+            addCell(t,row,2,QString::number(total-cnt),
+                    (total-cnt)>0?QColor("#ee9966"):QColor("#88ee88"));
+            addCell(t,row,3,QString::number(pct,'f',0)+"%",
+                    pct<50?QColor("#ee6644"):pct<80?QColor("#eecc44"):QColor("#88ee88"));
+            addCell(t,row,4,ck.tip);
+        }
+        t->resizeRowsToContents();
+        vl->addWidget(t);
+    }
+
+    // ────────────────────────────────────────────────────────────
+    // TABLE 3: Scoring breakdown across all locked assignments
+    // ────────────────────────────────────────────────────────────
+    mkSec("Scoring History — All Locked Assignments",
+          "For each locked assignment, shows the average total score and the "
+          "average per-penalty values across all boats. "
+          "Use this to track improvement over time as you tune Expert Settings.");
+    {
+        auto* t = mkTable({"Assignment","Date","Boats","AvgScore","AvgSkill",
+                           "AvgCompat","AvgStroke","AvgBody","AvgCoOcc","AvgStrength"});
+        ScoringPriority defPriority;
+        AssignmentGenerator gen;
+        for (const Assignment& a : m_assignments) {
+            if (!a.isLocked()) continue;
+            Assignment full = m_db->loadAssignment(a.id());
+            QList<ScoreDetail> details = gen.computeScoreDetails(full, m_boats, m_rowers, defPriority);
+            if (details.isEmpty()) continue;
+            double avgScore=0,avgSkill=0,avgComp=0,avgStr=0,avgBody=0,avgCo=0,avgStrV=0;
+            for (auto& d:details) {
+                avgScore+=d.totalScore; avgSkill+=d.avgSkill;
+                avgComp+=d.compatPenalty; avgStr+=d.strokePenalty;
+                avgBody+=d.bodyPenalty; avgCo+=d.coOccurrencePenalty;
+                avgStrV+=d.strengthVariance;
+            }
+            double n=details.size();
+            int row=t->rowCount(); t->insertRow(row);
+            addCell(t,row,0,a.name(),{},true);
+            addCell(t,row,1,a.createdAt().toString("dd.MM.yyyy"));
+            addCell(t,row,2,QString::number((int)n));
+            addCell(t,row,3,QString::number(avgScore/n,'f',1),
+                    avgScore/n>=0?QColor("#88ee88"):QColor("#ee6644"));
+            addCell(t,row,4,QString::number(avgSkill/n,'f',2));
+            addCell(t,row,5,QString::number(avgComp/n,'f',2),
+                    avgComp/n>2?QColor("#ee9944"):QColor());
+            addCell(t,row,6,QString::number(avgStr/n,'f',2),
+                    avgStr/n>3?QColor("#ee9944"):QColor());
+            addCell(t,row,7,QString::number(avgBody/n,'f',2));
+            addCell(t,row,8,QString::number(avgCo/n,'f',2),
+                    avgCo/n>3?QColor("#ee9944"):QColor());
+            addCell(t,row,9,QString::number(avgStrV/n,'f',2));
+        }
+        if (t->rowCount()==0) {
+            t->insertRow(0);
+            addCell(t,0,0,"No locked assignments yet — lock an assignment to see history.",
+                    QColor("#5a7a9a"));
+        }
+        t->resizeRowsToContents();
+        vl->addWidget(t);
+    }
+
+    // ────────────────────────────────────────────────────────────
+    // TABLE 4: Per-rower scoring contribution across locked assignments
+    // ────────────────────────────────────────────────────────────
+    mkSec("Rower Scoring Contribution — Latest Locked Assignment",
+          "Shows each rower's individual attribute values alongside the scoring "
+          "contributions they made in the most recent locked assignment. "
+          "High coOccurrence penalty = rower is repeatedly paired with the same people.");
+    {
+        auto* t = mkTable({"Rower","Boat","Skill","Prop","Compat","Strength",
+                           "StrokeLen","BodySize","GrpA1","GrpA2","ValA1","ValA2",
+                           "WL Bonus","CoOcc Pen","Obmann","CanSteer"});
+
+        // Find most recent locked assignment
+        Assignment latest;
+        for (const Assignment& a : m_assignments)
+            if (a.isLocked()) { latest = m_db->loadAssignment(a.id()); break; }
+
+        if (!latest.boatRowerMap().isEmpty()) {
+            ScoringPriority defPriority;
+            AssignmentGenerator gen;
+            QList<ScoreDetail> details = gen.computeScoreDetails(latest, m_boats, m_rowers, defPriority);
+            const QString SL[]={"—","Short","Med","Long"}, BS[]={"—","Small","Med","Tall"};
+            for (const ScoreDetail& d : details) {
+                QString bname = QString("Boat#%1").arg(d.boatId);
+                for (const Boat& b:m_boats) if(b.id()==d.boatId){bname=b.name();break;}
+                for (const ScoreDetail::RowerDetail& r : d.rowers) {
+                    QString rname=QString("Rower#%1").arg(r.rowerId);
+                    for (const Rower& ro:m_rowers) if(ro.id()==r.rowerId){rname=ro.name();break;}
+                    int row=t->rowCount(); t->insertRow(row);
+                    addCell(t,row,0,rname,{},true);
+                    addCell(t,row,1,bname);
+                    addCell(t,row,2,QString::number(r.skillInt));
+                    addCell(t,row,3,r.propScore==1.0?"Exact":r.propScore==0.5?"Both":"None",
+                            r.propScore==0?"#ee6644":QColor());
+                    addCell(t,row,4,r.compatTier,
+                            (r.compatTier=="Special"||r.compatTier=="Selected")?QColor("#eecc44"):QColor());
+                    addCell(t,row,5,r.strength>0?QString::number(r.strength):"—");
+                    addCell(t,row,6,r.strokeLength>=0&&r.strokeLength<=3?SL[r.strokeLength]:"—");
+                    addCell(t,row,7,r.bodySize>=0&&r.bodySize<=3?BS[r.bodySize]:"—");
+                    addCell(t,row,8,r.attrGrp1>0?QString::number(r.attrGrp1):"—");
+                    addCell(t,row,9,r.attrGrp2>0?QString::number(r.attrGrp2):"—");
+                    addCell(t,row,10,r.attrVal1>0?QString::number(r.attrVal1):"—");
+                    addCell(t,row,11,r.attrVal2>0?QString::number(r.attrVal2):"—");
+                    addCell(t,row,12,r.whitelistContrib>0?
+                            QString("+%1").arg(r.whitelistContrib,0,'f',1):"0",
+                            r.whitelistContrib>0?QColor("#88ee88"):QColor());
+                    addCell(t,row,13,r.coOccContrib>0?
+                            QString("−%1").arg(r.coOccContrib,0,'f',1):"0",
+                            r.coOccContrib>3?QColor("#ee6644"):r.coOccContrib>0?QColor("#ee9944"):QColor());
+                    addCell(t,row,14,r.isObmann?"✓":"",r.isObmann?QColor("#88ee88"):QColor());
+                    addCell(t,row,15,r.canSteer?"✓":"",r.canSteer?QColor("#88ccff"):QColor());
+                }
+            }
+        } else {
+            t->insertRow(0);
+            addCell(t,0,0,"No locked assignments found.", QColor("#5a7a9a"));
+        }
+        t->resizeRowsToContents();
+        vl->addWidget(t);
+    }
+
+    // ────────────────────────────────────────────────────────────
+    // TABLE 5: Blacklist & Whitelist network
+    // ────────────────────────────────────────────────────────────
+    mkSec("List Network — Whitelist & Blacklist Connections",
+          "Each row is a rower with at least one list entry. "
+          "Shows who they want to row with (whitelist) and who they must be separated from (blacklist). "
+          "Large blacklist counts may indicate social friction and can cause generation failures.");
+    {
+        auto* t = mkTable({"Rower","Rower Whitelist (wants together)",
+                           "Rower Blacklist (must separate)","Boat Whitelist","Boat Blacklist"});
+        auto nameOf = [this](int id) {
+            for (const Rower& r:m_rowers) if(r.id()==id) return r.name();
+            return QString("Rower#%1").arg(id);
+        };
+        auto boatNameOf = [this](int id) {
+            for (const Boat& b:m_boats) if(b.id()==id) return b.name();
+            return QString("Boat#%1").arg(id);
+        };
+        for (const Rower& r : m_rowers) {
+            bool hasAny = !r.whitelist().isEmpty() || !r.blacklist().isEmpty()
+                       || !r.boatWhitelist().isEmpty() || !r.boatBlacklist().isEmpty();
+            if (!hasAny) continue;
+            int row=t->rowCount(); t->insertRow(row);
+            addCell(t,row,0,r.name(),{},true);
+            QStringList wln; for(int id:r.whitelist()) wln<<nameOf(id);
+            QStringList bln; for(int id:r.blacklist()) bln<<nameOf(id);
+            QStringList bwln; for(int id:r.boatWhitelist()) bwln<<boatNameOf(id);
+            QStringList bbln; for(int id:r.boatBlacklist()) bbln<<boatNameOf(id);
+            addCell(t,row,1,wln.isEmpty()?"(none)":wln.join(", "),
+                    wln.isEmpty()?QColor("#5a7a9a"):QColor("#88ee88"));
+            addCell(t,row,2,bln.isEmpty()?"(none)":bln.join(", "),
+                    bln.isEmpty()?QColor("#5a7a9a"):QColor("#ee8866"));
+            addCell(t,row,3,bwln.isEmpty()?"(none)":bwln.join(", "),
+                    bwln.isEmpty()?QColor("#5a7a9a"):QColor("#88ccff"));
+            addCell(t,row,4,bbln.isEmpty()?"(none)":bbln.join(", "),
+                    bbln.isEmpty()?QColor("#5a7a9a"):QColor("#ee8866"));
+        }
+        if (t->rowCount()==0) {
+            t->insertRow(0);
+            addCell(t,0,0,"No list entries found — all rowers have empty lists.",QColor("#5a7a9a"));
+        }
+        t->resizeRowsToContents();
+        vl->addWidget(t);
+    }
+
+    // ────────────────────────────────────────────────────────────
+    // TABLE 6: Co-occurrence frequency
+    // ────────────────────────────────────────────────────────────
+    mkSec("Co-occurrence Frequency — Most Repeated Pairings",
+          "Pairs of rowers who have shared a boat the most times. "
+          "High counts may cause score penalties if coOccurrenceFactor > 0. "
+          "Consider adding Blacklist entries for very high counts to force variety, "
+          "or increase coOccurrenceFactor in Expert Settings.");
+    {
+        auto* t = mkTable({"Rower A","Rower B","Times Together","Penalty (factor=1.5)","Action"});
+        auto co = m_db->loadCoOccurrence();
+        // Sort by count descending
+        QList<QPair<QPair<int,int>,int>> sorted;
+        for (auto it=co.constBegin(); it!=co.constEnd(); ++it)
+            sorted << qMakePair(it.key(), it.value());
+        std::sort(sorted.begin(), sorted.end(),
+                  [](const auto& a, const auto& b){ return a.second > b.second; });
+        // Show top 30
+        int shown=0;
+        for (auto& kv : sorted) {
+            if (++shown > 30) break;
+            QString nameA, nameB;
+            for (const Rower& r:m_rowers) {
+                if(r.id()==kv.first.first) nameA=r.name();
+                if(r.id()==kv.first.second) nameB=r.name();
+            }
+            if (nameA.isEmpty()) nameA=QString("Rower#%1").arg(kv.first.first);
+            if (nameB.isEmpty()) nameB=QString("Rower#%1").arg(kv.first.second);
+            int row=t->rowCount(); t->insertRow(row);
+            addCell(t,row,0,nameA,{},true);
+            addCell(t,row,1,nameB,{},true);
+            addCell(t,row,2,QString::number(kv.second),
+                    kv.second>=5?QColor("#ee6644"):kv.second>=3?QColor("#eecc44"):QColor());
+            addCell(t,row,3,QString::number(kv.second*1.5,'f',1),
+                    kv.second*1.5>=7?QColor("#ee6644"):QColor());
+            addCell(t,row,4,kv.second>=5?"Consider Blacklist or ↑coOccurrenceFactor":
+                    kv.second>=3?"Monitor":"OK");
+        }
+        if (t->rowCount()==0) {
+            t->insertRow(0);
+            addCell(t,0,0,"No assignment history yet.", QColor("#5a7a9a"));
+        }
+        t->resizeRowsToContents();
+        vl->addWidget(t);
+    }
+
+    // ────────────────────────────────────────────────────────────
+    // TABLE 7: Boat utilisation
+    // ────────────────────────────────────────────────────────────
+    mkSec("Boat Utilisation across All Locked Assignments",
+          "How often each boat has been used. Underused boats may signal they are "
+          "too specialised (e.g. only Experienced rowers) or have restrictive whitelist settings.");
+    {
+        auto* t = mkTable({"Boat","Type","Cap","Steering","Propulsion","Times Used","Avg Crew Size"});
+        QMap<int,int> usage, crewSize;
+        for (const Assignment& a : m_assignments) {
+            if (!a.isLocked()) continue;
+            Assignment full = m_db->loadAssignment(a.id());
+            for (auto it=full.boatRowerMap().constBegin();it!=full.boatRowerMap().constEnd();++it) {
+                usage[it.key()]++;
+                crewSize[it.key()] += it.value().size();
+            }
+        }
+        for (const Boat& b : m_boats) {
+            int row=t->rowCount(); t->insertRow(row);
+            int u = usage.value(b.id(),0);
+            addCell(t,row,0,b.name(),{},true);
+            addCell(t,row,1,Boat::boatTypeToString(b.boatType()));
+            addCell(t,row,2,QString::number(b.capacity()));
+            addCell(t,row,3,Boat::steeringTypeToString(b.steeringType()));
+            addCell(t,row,4,Boat::propulsionTypeToString(b.propulsionType()));
+            addCell(t,row,5,QString::number(u),
+                    u==0?QColor("#ee6644"):u<2?QColor("#eecc44"):QColor("#88ee88"));
+            addCell(t,row,6,u>0?QString::number((double)crewSize.value(b.id(),0)/u,'f',1):"—");
+        }
+        t->resizeRowsToContents();
+        vl->addWidget(t);
+    }
+
+    vl->addStretch();
+}
+
+// Called by buildAnalysisTab to build the graphical sub-tab content
+void MainWindow::buildAnalysisGraphics(QVBoxLayout* vl) {
+    auto mkSec = [&](const QString& t, const QString& desc="") {
+        auto* l = new QLabel(t);
+        l->setStyleSheet("color:#8fb4d8; font-weight:700; font-size:12px; "
+                         "border-bottom:1px solid #2a3548; padding-bottom:3px;");
+        vl->addWidget(l);
+        if (!desc.isEmpty()) {
+            auto* d = new QLabel(desc);
+            d->setWordWrap(true);
+            d->setStyleSheet("color:#5a7a9a; font-size:11px;");
+            vl->addWidget(d);
+        }
+    };
+
+    static const QColor kPal[] = {
+        {100,200,140},{80,160,220},{220,160,60},{200,80,120},
+        {160,100,220},{80,200,200},{220,140,80},{140,200,80}
+    };
+
+    // ── Chart 1: Rower skill distribution ────────────────────────
+    mkSec("Rower Skill Distribution",
+          "Count of rowers at each skill level. "
+          "A heavily bottom-weighted distribution means most boats will be mixed, "
+          "which is fine but reduces the impact of the Skill priority weight.");
+    {
+        QMap<QString,int> skillCount;
+        for (auto& s : {"Student","Beginner","Experienced","Professional"}) skillCount[s]=0;
+        for (const Rower& r:m_rowers) skillCount[Rower::skillToString(r.skill())]++;
+        auto* chart = new BarChartWidget;
+        chart->setTitle("Skill Distribution");
+        chart->setBoatNames({"Student","Beginner","Experienced","Professional"});
+        chart->setFixedHeight(200);
+        chart->setSeries({{ "Count",
+            {(double)skillCount["Student"],(double)skillCount["Beginner"],
+             (double)skillCount["Experienced"],(double)skillCount["Professional"]},
+            QColor(100,180,240) }});
+        vl->addWidget(chart);
+    }
+
+    // ── Chart 2: Strength histogram ───────────────────────────────
+    mkSec("Strength Distribution",
+          "Distribution of rower strength values (1–10). "
+          "Ideal: bell-curve centred around 5. A bimodal distribution "
+          "(many 1s and many 10s) will produce high strengthVariance penalties.");
+    {
+        QList<double> counts(11, 0);
+        QList<QString> labels;
+        for (int i=0;i<=10;++i) labels << (i==0?"—":QString::number(i));
+        for (const Rower& r:m_rowers) if(r.strength()>=0&&r.strength()<=10) counts[r.strength()]+=1;
+        auto* chart = new BarChartWidget;
+        chart->setTitle("Strength Histogram");
+        chart->setBoatNames(labels);
+        chart->setFixedHeight(200);
+        chart->setSeries({{"Count", counts, QColor(100,200,140)}});
+        vl->addWidget(chart);
+    }
+
+    // ── Chart 3: Rower attribute fill radar ───────────────────────
+    mkSec("Attribute Fill Rate Radar",
+          "How completely the attribute fields are filled in. "
+          "Each axis goes from 0% (no rowers have this attribute set) "
+          "to 100% (all rowers have it set). "
+          "Attributes with low fill rates have minimal effect on generation.");
+    {
+        int n = m_rowers.size();
+        if (n>0) {
+            auto pct = [&](std::function<bool(const Rower&)> fn) {
+                int c=0; for (const Rower& r:m_rowers) if(fn(r)) c++;
+                return c/(double)n;
+            };
+            QList<double> vals = {
+                pct([](const Rower& r){return r.strength()>0;}),
+                pct([](const Rower& r){return r.strokeLength()>0;}),
+                pct([](const Rower& r){return r.bodySize()>0;}),
+                pct([](const Rower& r){return r.ageBand()>0;}),
+                pct([](const Rower& r){return r.attrGrp1()>0;}),
+                pct([](const Rower& r){return r.attrVal1()>0;}),
+            };
+            auto* chart = new RadarChartWidget;
+            chart->setTitle("Attribute Fill Rate");
+            chart->setAxes({"Strength","Stroke Len","Body Size","Age Band","GrpAttr1","ValAttr1"});
+            chart->setFixedHeight(360);
+            chart->setSeries({{"All Rowers", vals, QColor(100,200,140)}});
+            vl->addWidget(chart);
+        }
+    }
+
+    // ── Chart 4: Co-occurrence heatmap ────────────────────────────
+    mkSec("Co-occurrence Heatmap — Top 12 Rowers by Assignment Count",
+          "Darker cells = two rowers have shared a boat more often. "
+          "The diagonal is always 0. High off-diagonal values mean those pairs "
+          "are frequently grouped together and will accumulate co-occurrence penalties.");
+    {
+        // Take up to 12 most-active rowers by appearance count
+        QMap<int,int> appear;
+        auto co = m_db->loadCoOccurrence();
+        for (auto it=co.constBegin();it!=co.constEnd();++it) {
+            appear[it.key().first] += it.value();
+            appear[it.key().second] += it.value();
+        }
+        QList<QPair<int,int>> sorted;
+        for (auto it=appear.constBegin();it!=appear.constEnd();++it)
+            sorted << qMakePair(it.value(), it.key());
+        std::sort(sorted.rbegin(),sorted.rend());
+        int take = qMin(12, sorted.size());
+        QList<int> topIds;
+        for (int i=0;i<take;++i) topIds << sorted[i].second;
+
+        QList<QString> names;
+        for (int id:topIds) {
+            QString n=QString("R#%1").arg(id);
+            for (const Rower& r:m_rowers) if(r.id()==id){n=r.name().left(10);break;}
+            names<<n;
+        }
+        QList<QList<double>> mat;
+        for (int i=0;i<take;++i) {
+            QList<double> row;
+            for (int j=0;j<take;++j) {
+                if (i==j) { row<<0; continue; }
+                int a=qMin(topIds[i],topIds[j]), b=qMax(topIds[i],topIds[j]);
+                row << co.value({a,b},0);
+            }
+            mat << row;
+        }
+        if (!names.isEmpty()) {
+            auto* hm = new HeatmapWidget;
+            hm->setTitle("Co-occurrence Matrix");
+            hm->setRowLabels(names);
+            hm->setColLabels(names);
+            hm->setValues(mat);
+            hm->setLowColour(QColor(10,21,32));
+            hm->setHighColour(QColor(220,80,60));
+            hm->setFixedHeight(qMax(200, take*28+60));
+            vl->addWidget(hm);
+        } else {
+            vl->addWidget(new QLabel("<i style='color:#5a7a9a;'>No assignment history yet.</i>"));
+        }
+    }
+
+    // ── Chart 5: Score trend across locked assignments ─────────────
+    mkSec("Average Score Trend across Locked Assignments",
+          "Average team score per assignment over time (oldest → newest). "
+          "An upward trend means your Expert Settings tuning is improving assignments. "
+          "A downward trend may indicate rower mix changes or tighter constraints.");
+    {
+        QList<double> scores;
+        QList<QString> labels;
+        ScoringPriority defP;
+        AssignmentGenerator gen;
+        // Process oldest first (m_assignments is newest-first)
+        QList<Assignment> sorted = m_assignments;
+        std::reverse(sorted.begin(), sorted.end());
+        for (const Assignment& a : sorted) {
+            if (!a.isLocked()) continue;
+            Assignment full = m_db->loadAssignment(a.id());
+            auto details = gen.computeScoreDetails(full, m_boats, m_rowers, defP);
+            if (details.isEmpty()) continue;
+            double avg=0; for (auto& d:details) avg+=d.totalScore;
+            scores << avg/details.size();
+            labels << a.name().left(8)+"…";
+        }
+        if (!scores.isEmpty()) {
+            auto* chart = new BarChartWidget;
+            chart->setTitle("Avg Score Trend");
+            chart->setBoatNames(labels);
+            chart->setFixedHeight(220);
+            chart->setSeries({{"Avg Score", scores, QColor(100,200,140)}});
+            vl->addWidget(chart);
+        } else {
+            vl->addWidget(new QLabel("<i style='color:#5a7a9a;'>Lock assignments to see score trends.</i>"));
+        }
+    }
 }

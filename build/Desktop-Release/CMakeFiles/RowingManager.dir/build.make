@@ -261,6 +261,34 @@ CMakeFiles/RowingManager.dir/src/assignmentviewdialog.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/RowingManager.dir/src/assignmentviewdialog.cpp.s"
 	/run/current-system/sw/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/assignmentviewdialog.cpp -o CMakeFiles/RowingManager.dir/src/assignmentviewdialog.cpp.s
 
+CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.o: CMakeFiles/RowingManager.dir/flags.make
+CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.o: /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rowerlistsdialog.cpp
+CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.o: CMakeFiles/RowingManager.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.o"
+	/run/current-system/sw/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.o -MF CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.o.d -o CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.o -c /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rowerlistsdialog.cpp
+
+CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.i"
+	/run/current-system/sw/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rowerlistsdialog.cpp > CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.i
+
+CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.s"
+	/run/current-system/sw/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rowerlistsdialog.cpp -o CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.s
+
+CMakeFiles/RowingManager.dir/src/chartwidgets.cpp.o: CMakeFiles/RowingManager.dir/flags.make
+CMakeFiles/RowingManager.dir/src/chartwidgets.cpp.o: /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/chartwidgets.cpp
+CMakeFiles/RowingManager.dir/src/chartwidgets.cpp.o: CMakeFiles/RowingManager.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object CMakeFiles/RowingManager.dir/src/chartwidgets.cpp.o"
+	/run/current-system/sw/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/RowingManager.dir/src/chartwidgets.cpp.o -MF CMakeFiles/RowingManager.dir/src/chartwidgets.cpp.o.d -o CMakeFiles/RowingManager.dir/src/chartwidgets.cpp.o -c /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/chartwidgets.cpp
+
+CMakeFiles/RowingManager.dir/src/chartwidgets.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/RowingManager.dir/src/chartwidgets.cpp.i"
+	/run/current-system/sw/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/chartwidgets.cpp > CMakeFiles/RowingManager.dir/src/chartwidgets.cpp.i
+
+CMakeFiles/RowingManager.dir/src/chartwidgets.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/RowingManager.dir/src/chartwidgets.cpp.s"
+	/run/current-system/sw/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/chartwidgets.cpp -o CMakeFiles/RowingManager.dir/src/chartwidgets.cpp.s
+
 # Object files for target RowingManager
 RowingManager_OBJECTS = \
 "CMakeFiles/RowingManager.dir/RowingManager_autogen/mocs_compilation.cpp.o" \
@@ -275,7 +303,9 @@ RowingManager_OBJECTS = \
 "CMakeFiles/RowingManager.dir/src/assignmentdialog.cpp.o" \
 "CMakeFiles/RowingManager.dir/src/assignmentgenerator.cpp.o" \
 "CMakeFiles/RowingManager.dir/src/printerdevice.cpp.o" \
-"CMakeFiles/RowingManager.dir/src/assignmentviewdialog.cpp.o"
+"CMakeFiles/RowingManager.dir/src/assignmentviewdialog.cpp.o" \
+"CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.o" \
+"CMakeFiles/RowingManager.dir/src/chartwidgets.cpp.o"
 
 # External object files for target RowingManager
 RowingManager_EXTERNAL_OBJECTS =
@@ -293,6 +323,8 @@ RowingManager: CMakeFiles/RowingManager.dir/src/assignmentdialog.cpp.o
 RowingManager: CMakeFiles/RowingManager.dir/src/assignmentgenerator.cpp.o
 RowingManager: CMakeFiles/RowingManager.dir/src/printerdevice.cpp.o
 RowingManager: CMakeFiles/RowingManager.dir/src/assignmentviewdialog.cpp.o
+RowingManager: CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.o
+RowingManager: CMakeFiles/RowingManager.dir/src/chartwidgets.cpp.o
 RowingManager: CMakeFiles/RowingManager.dir/build.make
 RowingManager: CMakeFiles/RowingManager.dir/compiler_depend.ts
 RowingManager: /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/libQt6Widgets.so.6.10.1
@@ -302,7 +334,7 @@ RowingManager: /nix/store/44iwa5fdrx4hgzf3l9j9q9y5zffwgigy-libglvnd-1.7.0/lib/li
 RowingManager: /nix/store/44iwa5fdrx4hgzf3l9j9q9y5zffwgigy-libglvnd-1.7.0/lib/libOpenGL.so
 RowingManager: /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/libQt6Core.so.6.10.1
 RowingManager: CMakeFiles/RowingManager.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Linking CXX executable RowingManager"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Linking CXX executable RowingManager"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/RowingManager.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

@@ -56,6 +56,50 @@ struct ScoringPriority {
     }
 };
 
+// All intermediate scoring values for one team, produced by scoreTeamDetailed().
+struct ScoreDetail {
+    // ── Boat-level values ───────────────────────────────────────────────
+    int    boatId          = -1;
+    double totalScore      = 0.0;
+    double avgSkill        = 0.0;   // mean of skillToInt() across team
+    double skillBalance    = 0.0;   // −variance/N; 0 = perfectly balanced
+    double compatPenalty   = 0.0;   // sum of pairwise compat penalties (before wCompat)
+    double avgProp         = 0.0;   // mean propulsion match score [0..1]
+    double strengthVariance= 0.0;   // variance of strength values (cap>2)
+    double racingBegPenalty= 0.0;   // soft penalty for beginners in Racing
+    double obmannBonus     = 0.0;   // flat bonus if ≥1 Obmann in team
+    double strokePenalty   = 0.0;   // pairwise stroke-length penalty
+    double bodyPenalty     = 0.0;   // pairwise body-size penalty
+    double grpBonus        = 0.0;   // group-attr matching bonus
+    double valPenalty      = 0.0;   // val-attr variance penalty
+    double coOccurrencePenalty = 0.0; // co-occurrence history penalty
+    double wSkill          = 0.0;   // applied weight for Skill
+    double wCompat         = 0.0;   // applied weight for Compatibility
+    double wProp           = 0.0;   // applied weight for Propulsion
+    bool   trainingMode    = false;
+    bool   crazyMode       = false;
+
+    // ── Per-rower values ─────────────────────────────────────────────────
+    struct RowerDetail {
+        int    rowerId     = -1;
+        int    skillInt    = 0;     // 1=Student .. 4=Professional
+        double propScore   = 0.0;   // 1.0/0.5/0.0 for this rower
+        int    strength    = 0;     // 0=not set
+        int    strokeLength= 0;     // 0=unknown
+        int    bodySize    = 0;     // 0=unknown
+        int    attrGrp1    = 0;
+        int    attrGrp2    = 0;
+        int    attrVal1    = 0;
+        int    attrVal2    = 0;
+        double whitelistContrib = 0.0; // bonus this rower contributes (his direction)
+        double coOccContrib     = 0.0; // penalty from co-occurrence pairs involving this rower
+        QString compatTier;         // "Infinite"/"Normal"/"Special"/"Selected"
+        bool   isObmann    = false;
+        bool   canSteer    = false;
+    };
+    QList<RowerDetail> rowers;
+};
+
 struct GeneratorResult {
     bool success = false;
     QString errorMessage;
@@ -73,6 +117,14 @@ public:
         const QString& assignmentName,
         const ScoringPriority& priority = {}
     );
+
+    // Compute full scoring detail for a committed team (called after generation).
+    QList<ScoreDetail> computeScoreDetails(
+        const Assignment& assignment,
+        const QList<Boat>& boats,
+        const QList<Rower>& allRowers,
+        const ScoringPriority& priority
+    ) const;
 
     // Context for the diagnostic — filled in by the caller (onGenerate)
     struct DiagContext {

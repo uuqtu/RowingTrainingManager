@@ -323,6 +323,30 @@ src/boattablemodel.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/RowingManager.dir/build.make CMakeFiles/RowingManager.dir/src/boattablemodel.cpp.s
 .PHONY : src/boattablemodel.cpp.s
 
+src/chartwidgets.o: src/chartwidgets.cpp.o
+.PHONY : src/chartwidgets.o
+
+# target to build an object file
+src/chartwidgets.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RowingManager.dir/build.make CMakeFiles/RowingManager.dir/src/chartwidgets.cpp.o
+.PHONY : src/chartwidgets.cpp.o
+
+src/chartwidgets.i: src/chartwidgets.cpp.i
+.PHONY : src/chartwidgets.i
+
+# target to preprocess a source file
+src/chartwidgets.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RowingManager.dir/build.make CMakeFiles/RowingManager.dir/src/chartwidgets.cpp.i
+.PHONY : src/chartwidgets.cpp.i
+
+src/chartwidgets.s: src/chartwidgets.cpp.s
+.PHONY : src/chartwidgets.s
+
+# target to generate assembly for a file
+src/chartwidgets.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RowingManager.dir/build.make CMakeFiles/RowingManager.dir/src/chartwidgets.cpp.s
+.PHONY : src/chartwidgets.cpp.s
+
 src/databasemanager.o: src/databasemanager.cpp.o
 .PHONY : src/databasemanager.o
 
@@ -443,6 +467,30 @@ src/rower.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/RowingManager.dir/build.make CMakeFiles/RowingManager.dir/src/rower.cpp.s
 .PHONY : src/rower.cpp.s
 
+src/rowerlistsdialog.o: src/rowerlistsdialog.cpp.o
+.PHONY : src/rowerlistsdialog.o
+
+# target to build an object file
+src/rowerlistsdialog.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RowingManager.dir/build.make CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.o
+.PHONY : src/rowerlistsdialog.cpp.o
+
+src/rowerlistsdialog.i: src/rowerlistsdialog.cpp.i
+.PHONY : src/rowerlistsdialog.i
+
+# target to preprocess a source file
+src/rowerlistsdialog.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RowingManager.dir/build.make CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.i
+.PHONY : src/rowerlistsdialog.cpp.i
+
+src/rowerlistsdialog.s: src/rowerlistsdialog.cpp.s
+.PHONY : src/rowerlistsdialog.s
+
+# target to generate assembly for a file
+src/rowerlistsdialog.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RowingManager.dir/build.make CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.s
+.PHONY : src/rowerlistsdialog.cpp.s
+
 src/rowertablemodel.o: src/rowertablemodel.cpp.o
 .PHONY : src/rowertablemodel.o
 
@@ -499,6 +547,9 @@ help:
 	@echo "... src/boattablemodel.o"
 	@echo "... src/boattablemodel.i"
 	@echo "... src/boattablemodel.s"
+	@echo "... src/chartwidgets.o"
+	@echo "... src/chartwidgets.i"
+	@echo "... src/chartwidgets.s"
 	@echo "... src/databasemanager.o"
 	@echo "... src/databasemanager.i"
 	@echo "... src/databasemanager.s"
@@ -514,6 +565,9 @@ help:
 	@echo "... src/rower.o"
 	@echo "... src/rower.i"
 	@echo "... src/rower.s"
+	@echo "... src/rowerlistsdialog.o"
+	@echo "... src/rowerlistsdialog.i"
+	@echo "... src/rowerlistsdialog.s"
 	@echo "... src/rowertablemodel.o"
 	@echo "... src/rowertablemodel.i"
 	@echo "... src/rowertablemodel.s"
