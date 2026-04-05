@@ -499,6 +499,13 @@ CMakeFiles/RowingManager.dir/src/mainwindow.cpp.o: \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qwidget.h \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/QColor \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qcolor.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtSql/QSqlQuery \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtSql/qsqlquery.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtSql/qtsqlglobal.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtSql/qtsql-config.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtSql/qtsqlexports.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtSql/qsqldatabase.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qmetaobject.h \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QTabWidget \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qtabwidget.h \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QTableView \

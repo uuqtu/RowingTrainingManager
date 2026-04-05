@@ -57,8 +57,9 @@ bool AssignmentGenerator::violatesConstraints(const Rower& rower,
         // 4. Skill / boat-type: Students and Beginners should not go in Racing boats.
         //    Treated as a hard constraint in the strict pass; relaxed in later passes.
         if (boat.boatType() == BoatType::Racing) {
-            if (rower.skill() == SkillLevel::Student ||
-                rower.skill() == SkillLevel::Beginner)
+            if (rower.skill() == SkillLevel::Novice ||
+                rower.skill() == SkillLevel::Beginner ||
+                rower.skill() == SkillLevel::Developing)
                 return true;
         }
     }
@@ -140,7 +141,7 @@ double AssignmentGenerator::scoreTeam(const QList<int>& team,
     double racingBeginnerPenalty = 0.0;
     if (boat.boatType() == BoatType::Racing) {
         for (const Rower* r : members) {
-            if (r->skill() == SkillLevel::Student || r->skill() == SkillLevel::Beginner)
+            if (r->skill() == SkillLevel::Novice || r->skill() == SkillLevel::Beginner || r->skill() == SkillLevel::Developing)
                 racingBeginnerPenalty += priority.racingBeginnerPenalty;   // large enough to strongly discourage
         }
     }
@@ -548,11 +549,11 @@ QString AssignmentGenerator::diagnose(
         if (boat.boatType() == BoatType::Racing && !priority.trainingMode && !priority.crazyMode) {
             QStringList beginners;
             for (const Rower& r : freeRowers)
-                if (r.skill() == SkillLevel::Student || r.skill() == SkillLevel::Beginner)
+                if (r.skill() == SkillLevel::Novice || r.skill() == SkillLevel::Beginner || r.skill() == SkillLevel::Developing)
                     beginners << QString("%1(%2)").arg(r.name()).arg(Rower::skillToString(r.skill()));
             if (!beginners.isEmpty())
                 out += QString("    Racing boat: %1 will be excluded in pass 0 "
-                               "(Student/Beginner). They may be placed in pass 2/3.\n")
+                               "(Novice/Beginner/Developing). May be placed in pass 2/3.\n")
                            .arg(beginners.join(", "));
         }
 
@@ -566,8 +567,8 @@ QString AssignmentGenerator::diagnose(
                               .arg(Boat::propulsionTypeToString(boat.propulsionType()));
             if (!priority.trainingMode && !priority.crazyMode &&
                 boat.boatType() == BoatType::Racing &&
-                (r.skill() == SkillLevel::Student || r.skill() == SkillLevel::Beginner))
-                issues << QString("skill=%1 (needs Experienced/Professional for Racing)")
+                (r.skill() == SkillLevel::Novice || r.skill() == SkillLevel::Beginner || r.skill() == SkillLevel::Developing))
+                issues << QString("skill=%1 (needs ≥Intermediate for Racing)")
                               .arg(Rower::skillToString(r.skill()));
             QStringList blNames;
             for (int bid : r.blacklist())
@@ -591,7 +592,7 @@ QString AssignmentGenerator::diagnose(
             bool propOk = !(boat.propulsionType() != PropulsionType::Both && !r.canRowPropulsion(boat.propulsionType()));
             bool skillOk = priority.trainingMode || priority.crazyMode ||
                            !(boat.boatType() == BoatType::Racing &&
-                             (r.skill() == SkillLevel::Student || r.skill() == SkillLevel::Beginner));
+                             (r.skill() == SkillLevel::Novice || r.skill() == SkillLevel::Beginner || r.skill() == SkillLevel::Developing));
             if (propOk && skillOk) eligible++;
 
             if (issues.isEmpty())
@@ -746,7 +747,7 @@ QList<ScoreDetail> AssignmentGenerator::computeScoreDetails(
         // ── Racing/Beginner ──────────────────────────────────────
         if (boat.boatType() == BoatType::Racing)
             for (const Rower* r : members)
-                if (r->skill() == SkillLevel::Student || r->skill() == SkillLevel::Beginner)
+                if (r->skill() == SkillLevel::Novice || r->skill() == SkillLevel::Beginner || r->skill() == SkillLevel::Developing)
                     d.racingBegPenalty += priority.racingBeginnerPenalty;
 
         // ── Obmann ───────────────────────────────────────────────

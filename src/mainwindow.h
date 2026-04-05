@@ -47,6 +47,11 @@ private slots:
     void onEditAssignment(QListWidgetItem* item);
     void onCopyToClipboard();
     void onPrintAssignment();
+    void onPrintStats();
+    void onToggleAssignmentEditMode();
+    void onSaveEditedAssignment();
+    void onPrintTempAssignment();
+    void onAssignmentTableCellClicked(int row, int col);
 
     // Distance tab
     void onAssignmentDistanceSelected(int index);
@@ -72,6 +77,8 @@ private:
     QWidget* buildAnalysisTab();
     void     refreshAnalysisTab();
     void     buildAnalysisGraphics(QVBoxLayout* vl);
+    void     applyLanguage(const QString& code);
+    void     buildAssignmentGraphics(const Assignment& a, QVBoxLayout* vl);
     void     buildRowerDevelopmentTab(QVBoxLayout* vl);
     void     buildTrainingSuggestionsTab(QVBoxLayout* vl);
     QWidget* buildExpertTab();
@@ -108,9 +115,17 @@ private:
     QListWidget* m_assignmentList = nullptr;
     QTextEdit*    m_assignmentView       = nullptr;
     QTableWidget* m_assignmentTable      = nullptr;
+    bool          m_assignmentEditMode   = false;  // edit mode for table rower swap
+    QPushButton*  m_editModeBtn          = nullptr;
+    QPushButton*  m_saveEditBtn          = nullptr;
+    QPushButton*  m_printTempBtn         = nullptr;
+    Assignment    m_editedAssignment;    // working copy in edit mode
     QTabWidget*   m_assignmentViewTabs   = nullptr;
-    QWidget*      m_assignmentScoreWidget = nullptr;
+    QWidget*      m_assignmentScoreWidget    = nullptr;
+    QWidget*      m_assignmentGraphicsWidget = nullptr;
     QWidget*      m_analysisInner = nullptr;
+    QComboBox*    m_languageCombo  = nullptr;
+    QString       m_currentLanguage = "en";  // ISO code
     QPushButton* m_copyBtn  = nullptr;
     QPushButton* m_printBtn = nullptr;
     PrinterDevice m_printer;
@@ -170,6 +185,8 @@ private:
         double obmannOverusePenalty  = 3.0;
         double steerYouthWeight      = 0.3;
         double steerOverusePenalty   = 3.0;
+        double steerHeavyUsePenalty  = 8.0;   // extra flat penalty when steered ≥ threshold times
+        int    steerHeavyUseThreshold= 5;     // session count that triggers heavy-use penalty
         int    overuseThreshold      = 3;
         // Generator search depth
         int    fillBoatAttempts      = 600;

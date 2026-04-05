@@ -5501,6 +5501,7 @@ CMakeFiles/RowingManager.dir/src/mainwindow.cpp.o: /home/jeandarq0ne/Documents/S
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qmargins.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qmath.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qmetacontainer.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qmetaobject.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qmetatype.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qminmax.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qnamespace.h \
@@ -5613,6 +5614,12 @@ CMakeFiles/RowingManager.dir/src/mainwindow.cpp.o: /home/jeandarq0ne/Documents/S
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qtransform.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qvalidator.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qwindowdefs.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtSql/QSqlQuery \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtSql/qsqldatabase.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtSql/qsqlquery.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtSql/qtsql-config.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtSql/qtsqlexports.h \
+  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtSql/qtsqlglobal.h \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QApplication \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QCheckBox \
   /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QComboBox \

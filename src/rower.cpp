@@ -18,24 +18,9 @@ bool Rower::canRowPropulsion(PropulsionType boatPropulsion) const {
 }
 
 // ── Skill ────────────────────────────────────────────────────────
-QString Rower::skillToString(SkillLevel s) {
-    switch (s) {
-    case SkillLevel::Student:      return "Student";
-    case SkillLevel::Beginner:     return "Beginner";
-    case SkillLevel::Experienced:  return "Experienced";
-    case SkillLevel::Professional: return "Professional";
-    }
-    return "Beginner";
-}
-SkillLevel Rower::skillFromString(const QString& s) {
-    if (s == "Student")      return SkillLevel::Student;
-    if (s == "Experienced")  return SkillLevel::Experienced;
-    if (s == "Professional") return SkillLevel::Professional;
-    return SkillLevel::Beginner;
-}
-int Rower::skillToInt(SkillLevel s) {
-    return static_cast<int>(s) + 1;  // Student=1 … Professional=4
-}
+
+
+
 
 // ── Compatibility ────────────────────────────────────────────────
 QString Rower::compatToString(CompatibilityTier c) {
@@ -94,5 +79,33 @@ QString Rower::ageBandToString(int b) {
 }
 QStringList Rower::ageBandOptions() {
     return {"(unknown)", "20-30", "30-40", "40-50", "50-60", "60-70", "70-80", "80-90"};
+}
+
+QString Rower::skillToString(SkillLevel s) {
+    switch (s) {
+    case SkillLevel::Novice:       return "Novice";
+    case SkillLevel::Beginner:     return "Beginner";
+    case SkillLevel::Developing:   return "Developing";
+    case SkillLevel::Intermediate: return "Intermediate";
+    case SkillLevel::Advanced:     return "Advanced";
+    case SkillLevel::Experienced:  return "Experienced";
+    case SkillLevel::Master:       return "Master";
+    }
+    return "Beginner";
+}
+SkillLevel Rower::skillFromString(const QString& s) {
+    if (s == "Novice")       return SkillLevel::Novice;
+    if (s == "Developing")   return SkillLevel::Developing;
+    if (s == "Intermediate") return SkillLevel::Intermediate;
+    if (s == "Advanced")     return SkillLevel::Advanced;
+    if (s == "Experienced")  return SkillLevel::Experienced;
+    if (s == "Master")       return SkillLevel::Master;
+    // Legacy mappings for old DB values
+    if (s == "Student")      return SkillLevel::Novice;
+    if (s == "Professional") return SkillLevel::Master;
+    return SkillLevel::Beginner;
+}
+int Rower::skillToInt(SkillLevel s) {
+    return static_cast<int>(s) + 1;  // Novice=1 … Master=7
 }
 

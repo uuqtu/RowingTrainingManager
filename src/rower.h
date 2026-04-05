@@ -3,7 +3,18 @@
 #include <QList>
 #include "boat.h"
 
-enum class SkillLevel { Student = 0, Beginner, Experienced, Professional };
+// Skill levels: Novice=0 … Master=6
+// Old DB values 0-3 map: 0→Novice, 1→Beginner, 2→Intermediate, 3→Advanced
+// (Developing=1 kept for display; new levels 4-6 require explicit entry)
+enum class SkillLevel {
+    Novice = 0,
+    Beginner,
+    Developing,
+    Intermediate,
+    Advanced,
+    Experienced,
+    Master
+};
 enum class CompatibilityTier { Infinite = 0, Normal, Special, Selected };
 
 // StrokeLength: 0=unknown, 1=Short, 2=Medium, 3=Long

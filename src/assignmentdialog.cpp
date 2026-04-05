@@ -1025,14 +1025,14 @@ QStringList AssignmentDialog::runChecks(const QList<Boat>& boats,
         if (b.boatType() != BoatType::Racing) continue;
         int beginnerCount = 0;
         for (const Rower& r : rowers)
-            if (r.skill() == SkillLevel::Student || r.skill() == SkillLevel::Beginner)
+            if (r.skill() == SkillLevel::Novice || r.skill() == SkillLevel::Beginner || r.skill() == SkillLevel::Developing)
                 beginnerCount++;
         int racingCapacity = 0;
         for (const Boat& rb : boats)
             if (rb.boatType() == BoatType::Racing) racingCapacity += rb.capacity();
         int nonBeginnerCount = rowers.size() - beginnerCount;
         if (nonBeginnerCount < racingCapacity)
-            issues << QString("Warning: %1 racing seat(s) but only %2 Experienced/Professional "
+            issues << QString("Warning: %1 racing seat(s) but only %2 Intermediate+ "
                               "rower(s) — %3 beginner(s) may end up in a racing boat.")
                           .arg(racingCapacity).arg(nonBeginnerCount)
                           .arg(racingCapacity - nonBeginnerCount);
@@ -1301,7 +1301,7 @@ QString AssignmentDialog::formatPreview(const Assignment& a) const
         }
 
         if (needsRoles && chosenObmann == -1) {
-            text += "  *** No Obmann available for this boat! ***\n";
+            text += "  *** No Obmann available !\n";
             text += "  *** First rower is Obmann ***\n";
         }
 
@@ -2343,7 +2343,7 @@ void AssignmentDialog::populateGraphicsTab(const Assignment& a, const ScoringPri
     mkSec("Skill Level & Balance");
     vl->addWidget(new QLabel(
         "<span style='color:#5a7a9a; font-size:11px;'>"
-        "avgSkill: mean skill level (Student=1 … Professional=4). "
+        "avgSkill: mean skill level (Novice=1 … Master=7). "
         "skillBalance: closeness to a uniform mix (higher = more balanced). "
         "Ideal: similar avgSkill across all boats, and high skillBalance.</span>"));
     {
@@ -2742,7 +2742,7 @@ QWidget* AssignmentDialog::buildPreflightTab()
     struct Tip { QString icon, title, body, fix; };
     static const Tip tips[] = {
         {"🎓","Mix skill levels for maximum learning",
-         "Placing a Professional or Experienced rower with a Beginner in the same boat "
+         "Placing an Advanced/Experienced/Master rower with a Novice/Beginner in the same boat "
          "creates a mentoring dynamic. The beginner observes better technique, receives "
          "live feedback, and has immediate motivation to improve. Research in motor learning "
          "shows that observational learning from a skilled peer accelerates skill acquisition "

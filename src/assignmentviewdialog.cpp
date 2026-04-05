@@ -149,7 +149,7 @@ void AssignmentViewDialog::buildTextView(
 
         // Obmann first
         if (needsRoles && obmannId == -1 && !rowerIds.isEmpty()) {
-            text += "  *** No Obmann available for this boat! ***\n";
+            text += "  *** No Obmann available !\n";
             text += "  *** First rower is Obmann ***\n";
         }
 
