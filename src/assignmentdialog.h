@@ -9,6 +9,7 @@
 #include "assignmentgenerator.h"
 
 class QListWidget;
+class QDoubleSpinBox;
 class QListWidgetItem;
 class QLineEdit;
 class QPushButton;
@@ -69,6 +70,7 @@ public:
         double valAttrVarianceWeight  = 0.4;
         int    fillBoatAttempts       = 600;
         int    passAttempts           = 15;
+        bool   maximizeLearning       = false;  // mix skill levels to maximise learning
     };
     void setExpertParams(const ExpertParams& ep) { m_expertParams = ep; }
 
@@ -109,6 +111,7 @@ private:
     QString formatPreview(const Assignment& a) const;
     void    populatePreviewTable(const Assignment& a);
     void    populateGraphicsTab(const Assignment& a, const ScoringPriority& priority);
+    QWidget* buildPreflightTab();
     void    populateScoreTab(const Assignment& a, const ScoringPriority& priority);
     QList<Rower> rowersWithGroupsApplied(const QList<Rower>& base) const;
 
@@ -147,6 +150,7 @@ private:
 
     // Tab 3 — Priority
     QListWidget* m_priorityList  = nullptr;
+    QList<QDoubleSpinBox*> m_weightSpins;
     QCheckBox*   m_trainingCheck = nullptr;
     QCheckBox*   m_crazyCheck    = nullptr;
 

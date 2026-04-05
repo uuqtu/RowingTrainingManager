@@ -19,6 +19,8 @@
  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boat.h
  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boattablemodel.cpp
  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boattablemodel.h
+ /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/chartwidgets.cpp
+ /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/chartwidgets.h
  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/databasemanager.cpp
  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/databasemanager.h
  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/main.cpp
@@ -174,6 +176,7 @@
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qversiontagging.h
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qxptype_traits.h
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qyieldcpu.h
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/QColor
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qaction.h
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qbitmap.h
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qbrush.h
@@ -201,7 +204,13 @@
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qwindowdefs.h
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QDialog
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QMainWindow
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QVBoxLayout
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QWidget
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qboxlayout.h
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qdialog.h
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qgridlayout.h
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qlayout.h
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qlayoutitem.h
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qmainwindow.h
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qsizepolicy.h
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qtabwidget.h

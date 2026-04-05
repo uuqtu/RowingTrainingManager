@@ -72,6 +72,8 @@ private:
     QWidget* buildAnalysisTab();
     void     refreshAnalysisTab();
     void     buildAnalysisGraphics(QVBoxLayout* vl);
+    void     buildRowerDevelopmentTab(QVBoxLayout* vl);
+    void     buildTrainingSuggestionsTab(QVBoxLayout* vl);
     QWidget* buildExpertTab();
 
     void loadAll();
@@ -172,6 +174,7 @@ private:
         // Generator search depth
         int    fillBoatAttempts      = 600;
         int    passAttempts          = 15;
+        bool   maximizeLearning      = false;
     } m_expert;
 };
 // (Expert settings appended below existing content — see buildExpertTab declaration)

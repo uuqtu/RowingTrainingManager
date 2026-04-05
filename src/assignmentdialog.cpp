@@ -67,6 +67,7 @@ void AssignmentDialog::setupUi()
     m_tabs->addTab(buildSelectionTab(), "2 — Boats & Rowers");
     m_tabs->addTab(buildPriorityTab(),  "3 — Priority");
     m_tabs->addTab(buildOptionsTab(),   "4 — Options");
+    m_tabs->addTab(buildPreflightTab(), "5 — Pre-flight");
     splitter->addWidget(m_tabs);
 
     // Right: preview with Text / Table tabs
@@ -327,8 +328,10 @@ QWidget* AssignmentDialog::buildPriorityTab()
     auto* w  = new QWidget;
     auto* vl = new QVBoxLayout(w);
     auto* info = new QLabel(
-        "Drag rows or use arrows to set scoring priority.<br>"
-        "<b>First = highest weight</b> (4×). Second = 2×. Third = 1×.");
+        "Drag rows or use arrows to set scoring priority. "
+        "<b>First = highest weight</b> (4×). Second = 2×. Third = 1×.<br>"
+        "The spinboxes below let you override the weight multipliers for this session only — "
+        "they reset when the dialog closes and do not change Expert Settings.");
     info->setWordWrap(true);
     info->setStyleSheet("color:#8fb4d8; margin-bottom:6px;");
     vl->addWidget(info);
@@ -351,6 +354,48 @@ QWidget* AssignmentDialog::buildPriorityTab()
     arrows->addWidget(downBtn);
     arrows->addStretch();
     vl->addLayout(arrows);
+
+    vl->addSpacing(12);
+
+    // Weight multiplier overrides
+    auto* wHdr = new QLabel("<b style='color:#8fb4d8;'>Weight multipliers (session override — resets on close)</b>");
+    vl->addWidget(wHdr);
+    auto* wDesc = new QLabel(
+        "These override the rank weights from Expert Settings for this generation only. "
+        "Rank 1 = top of the list above. Higher = that factor dominates more strongly.");
+    wDesc->setWordWrap(true);
+    wDesc->setStyleSheet("color:#5a7a9a; font-size:11px;");
+    vl->addWidget(wDesc);
+
+    m_weightSpins.clear();
+    const double defaults[] = {
+        m_expertParams.rankWeights[0], m_expertParams.rankWeights[1],
+        m_expertParams.rankWeights[2], m_expertParams.rankWeights[3],
+        m_expertParams.rankWeights[4]
+    };
+    auto* grid = new QGridLayout;
+    for (int i = 0; i < 5; ++i) {
+        auto* lbl = new QLabel(QString("Rank %1 weight:").arg(i+1));
+        lbl->setStyleSheet("color:#8090a0; font-size:11px;");
+        auto* spin = new QDoubleSpinBox;
+        spin->setRange(0.0, 20.0);
+        spin->setSingleStep(0.5);
+        spin->setDecimals(1);
+        spin->setValue(defaults[i]);
+        spin->setMaximumWidth(80);
+        spin->setToolTip(QString("Override weight for rank %1 (Expert default: %2). "
+                                  "Reset to default when dialog closes.").arg(i+1).arg(defaults[i]));
+        auto* resetBtn = new QPushButton("↺");
+        resetBtn->setMaximumWidth(28);
+        resetBtn->setToolTip("Reset to Expert Settings default");
+        double def = defaults[i];
+        connect(resetBtn, &QPushButton::clicked, spin, [spin, def](){ spin->setValue(def); });
+        grid->addWidget(lbl,  i, 0);
+        grid->addWidget(spin, i, 1);
+        grid->addWidget(resetBtn, i, 2);
+        m_weightSpins.append(spin);
+    }
+    vl->addLayout(grid);
 
     vl->addSpacing(16);
 
@@ -1136,9 +1181,19 @@ ScoringPriority AssignmentDialog::buildPriority() const
     p.crazyMode    = m_crazyCheck    && m_crazyCheck->isChecked();
     p.coOccurrence = m_coOccurrence;
     // Apply expert parameters
-    p.rankWeights = {m_expertParams.rankWeights[0], m_expertParams.rankWeights[1],
-                     m_expertParams.rankWeights[2], m_expertParams.rankWeights[3],
-                     m_expertParams.rankWeights[4]};
+    // Use session-override weights from Priority tab spinboxes if available,
+    // otherwise fall back to ExpertParams
+    if (m_weightSpins.size() == 5) {
+        p.rankWeights = std::vector<double>{
+            m_weightSpins[0]->value(), m_weightSpins[1]->value(),
+            m_weightSpins[2]->value(), m_weightSpins[3]->value(),
+            m_weightSpins[4]->value()};
+    } else {
+        p.rankWeights = std::vector<double>{
+            m_expertParams.rankWeights[0], m_expertParams.rankWeights[1],
+            m_expertParams.rankWeights[2], m_expertParams.rankWeights[3],
+            m_expertParams.rankWeights[4]};
+    }
     p.whitelistBonus         = m_expertParams.whitelistBonus;
     p.coOccurrenceFactor     = m_expertParams.coOccurrenceFactor;
     p.obmannBonus            = m_expertParams.obmannBonus;
@@ -1156,6 +1211,7 @@ ScoringPriority AssignmentDialog::buildPriority() const
     p.valAttrVarianceWeight  = m_expertParams.valAttrVarianceWeight;
     p.fillBoatAttempts       = m_expertParams.fillBoatAttempts;
     p.passAttempts           = m_expertParams.passAttempts;
+    p.maximizeLearning       = m_expertParams.maximizeLearning;
     return p;
 }
 
@@ -1245,7 +1301,7 @@ QString AssignmentDialog::formatPreview(const Assignment& a) const
         }
 
         if (needsRoles && chosenObmann == -1) {
-            text += "  *** No Obmann available! ***\n";
+            text += "  *** No Obmann available for this boat! ***\n";
             text += "  *** First rower is Obmann ***\n";
         }
 
@@ -2497,4 +2553,262 @@ void AssignmentDialog::populateGraphicsTab(const Assignment& a, const ScoringPri
         int idx = m_previewTabs->indexOf(m_graphicsTabWidget);
         if (idx >= 0) m_previewTabs->setTabText(idx, "Graphics");
     }
+}
+
+// ================================================================
+// Pre-flight Tab (Tab 5) — penalty analysis & hints before generation
+// ================================================================
+QWidget* AssignmentDialog::buildPreflightTab()
+{
+    auto* w = new QWidget;
+    auto* outerVL = new QVBoxLayout(w);
+    outerVL->setContentsMargins(0,0,0,0);
+
+    auto* scroll = new QScrollArea;
+    scroll->setWidgetResizable(true);
+    scroll->setFrameShape(QFrame::NoFrame);
+    auto* inner = new QWidget;
+    auto* vl = new QVBoxLayout(inner);
+    vl->setContentsMargins(10,10,10,16);
+    vl->setSpacing(12);
+
+    auto mkSec = [&](const QString& t) {
+        auto* l = new QLabel(t);
+        l->setStyleSheet("color:#8fb4d8; font-weight:700; font-size:12px; "
+                         "border-bottom:1px solid #2a3548; padding-bottom:3px;");
+        vl->addWidget(l);
+    };
+    auto mkTip = [&](const QString& icon, const QString& title,
+                     const QString& body, const QString& fix) {
+        auto* g = new QGroupBox;
+        g->setStyleSheet("QGroupBox{background:#0d1a2a;border:1px solid #2a3548;"
+                         "border-radius:5px;padding:6px;}");
+        auto* gl = new QVBoxLayout(g);
+        auto* hdr = new QLabel(icon + "  <b style='color:#f0c060;'>" + title + "</b>");
+        hdr->setWordWrap(true); gl->addWidget(hdr);
+        auto* bd = new QLabel(body);
+        bd->setWordWrap(true);
+        bd->setStyleSheet("color:#8090a0; font-size:11px;");
+        gl->addWidget(bd);
+        auto* fx = new QLabel("✅ <b>How to fix:</b> " + fix);
+        fx->setWordWrap(true);
+        fx->setStyleSheet("color:#60aa60; font-size:11px;");
+        gl->addWidget(fx);
+        vl->addWidget(g);
+    };
+
+    // Header
+    auto* header = new QLabel(
+        "<b style='color:#8fb4d8;'>Pre-flight Checklist</b><br>"
+        "<span style='color:#5a7a9a; font-size:11px;'>"
+        "Review these hints before pressing Generate. "
+        "They analyse your current rower data and Expert Settings and flag "
+        "situations that commonly cause poor results or failed generation.</span>");
+    header->setWordWrap(true);
+    vl->addWidget(header);
+
+    // ── Section 1: Data completeness warnings ────────────────────
+    mkSec("1 — Rower Data Completeness");
+
+    int nRowers = m_rowers.size();
+    if (nRowers == 0) {
+        vl->addWidget(new QLabel("<i style='color:#ee6644;'>No rowers loaded.</i>"));
+    } else {
+        // Stroke length fill
+        int noStroke=0, noBody=0, noStrength=0, noAge=0;
+        for (const Rower& r:m_rowers) {
+            if (r.strokeLength()==0) noStroke++;
+            if (r.bodySize()==0) noBody++;
+            if (r.strength()==0) noStrength++;
+            if (r.ageBand()==0) noAge++;
+        }
+        if (noStroke > nRowers/2)
+            mkTip("⚠️","Stroke Length data sparse",
+                  QString("%1 of %2 rowers have no Stroke Length set. "
+                          "The strokeSmallGap penalties will have little effect since "
+                          "rowers without a value (0) are excluded from the calculation.")
+                      .arg(noStroke).arg(nRowers),
+                  "Open Rowers tab and set Short/Medium/Long for each rower. "
+                  "This is especially important for 2-seat boats.");
+        if (noBody > nRowers/2)
+            mkTip("⚠️","Body Size data sparse",
+                  QString("%1 of %2 rowers have no Body Size set. "
+                          "Body size penalties are inactive for rowers with value 0.")
+                      .arg(noBody).arg(nRowers),
+                  "Set Small/Medium/Tall in the Rowers tab for each rower.");
+        if (noStrength > nRowers/2)
+            mkTip("ℹ️","Strength data sparse",
+                  QString("%1 of %2 rowers have no Strength set. "
+                          "The strengthVarianceWeight penalty is inactive for these rowers.")
+                      .arg(noStrength).arg(nRowers),
+                  "Enter strength values (1–10) in the Rowers tab. "
+                  "Or set strengthVarianceWeight to 0 in Expert Settings to suppress the warning.");
+        if (noAge > nRowers/3)
+            mkTip("ℹ️","Age Band data incomplete",
+                  QString("%1 of %2 rowers have no Age Band set. "
+                          "Obmann and Steerer role selection uses age band — rowers without it "
+                          "are treated as mid-range (50).")
+                      .arg(noAge).arg(nRowers),
+                  "Enter Age Band in the Rowers tab for reliable role rotation.");
+        if (noStroke==0 && noBody==0 && noStrength==0)
+            vl->addWidget(new QLabel(
+                "✅ <span style='color:#60aa60;'>All rower attributes are fully populated. "
+                "Excellent data quality for generation.</span>"));
+    }
+
+    // ── Section 2: Constraint tension analysis ───────────────────
+    mkSec("2 — Constraint Tension");
+
+    // Check for blacklist cliques
+    int hardConflicts = 0;
+    for (const Rower& a : m_rowers)
+        for (int bid : a.blacklist())
+            if (std::any_of(m_rowers.begin(), m_rowers.end(),
+                [bid](const Rower& b){ return b.id()==bid; }))
+                hardConflicts++;
+    if (hardConflicts > 0)
+        mkTip("🔒","Blacklist entries present",
+              QString("%1 rower blacklist entries are active. "
+                      "Each pair increases the chance of generation failing in strict pass "
+                      "when boats are small or rower count is tight.")
+                  .arg(hardConflicts/2),
+              "Use Tab 1 (Groups) to pre-pin blacklisted rowers to different boats. "
+              "This resolves the constraint before generation begins.");
+
+    // Special/Selected compat check
+    int specials=0, selecteds=0;
+    for (const Rower& r:m_rowers) {
+        if (r.compatibility()==CompatibilityTier::Special) specials++;
+        if (r.compatibility()==CompatibilityTier::Selected) selecteds++;
+    }
+    if (specials > 0 && selecteds > 0)
+        mkTip("⚠️","Special + Selected rowers both present",
+              QString("You have %1 Special and %2 Selected rowers. "
+                      "Every Special+Selected pair is a HARD block in pass 0. "
+                      "With %3 rowers and multiple small boats this may force relaxed passes.")
+                  .arg(specials).arg(selecteds).arg(nRowers),
+              "Pin Special and Selected rowers to separate boats in Tab 1 (Groups) "
+              "to guarantee the strict pass succeeds.");
+
+    // ── Section 3: Expert settings review ───────────────────────
+    mkSec("3 — Expert Settings Review");
+
+    // These values come from m_expertParams passed in via setExpertParams()
+    if (m_expertParams.coOccurrenceFactor > 4.0)
+        mkTip("⚠️","Co-occurrence factor is very high",
+              QString("coOccurrenceFactor = %1. Pairs who rowed together even 3 times "
+                      "pay a penalty of %2, which may override skill and compat preferences. "
+                      "In small clubs where everyone rows with everyone, generation may struggle.")
+                  .arg(m_expertParams.coOccurrenceFactor)
+                  .arg(m_expertParams.coOccurrenceFactor*3, 0, 'f', 1),
+              "Reduce coOccurrenceFactor in Expert Settings (try 1.5–2.0), "
+              "or add Blacklist entries for pairs that truly should not row together.");
+
+    if (m_expertParams.obmannBonus > 30.0)
+        mkTip("ℹ️","Obmann bonus is very large",
+              QString("obmannBonus = %1. This strongly dominates all other soft factors. "
+                      "Skill balance and compat may be sacrificed to ensure Obmann placement.")
+                  .arg(m_expertParams.obmannBonus),
+              "If Obmann placement is reliable (all boats get one), "
+              "reduce obmannBonus to 20 to give skill/compat more influence.");
+
+    if (m_expertParams.strokeSmallGap2 + m_expertParams.strokeSmallGap1 > 18.0) {
+        mkTip("ℹ️","Stroke length penalties are very strict for 2-seat boats",
+              QString("strokeSmallGap1=%1, strokeSmallGap2=%2. "
+                      "2-seat boats will almost never receive mismatched stroke lengths. "
+                      "If stroke length data is incomplete this may leave some 2-seat boats "
+                      "under-utilised when no perfect match exists.")
+                  .arg(m_expertParams.strokeSmallGap1).arg(m_expertParams.strokeSmallGap2),
+              "Reduce strokeSmallGap2 below 12 if you are willing to occasionally "
+              "accept Short+Long in a 2-seat boat.");
+    }
+
+    if (m_expertParams.maximizeLearning)
+        mkTip("🎓","Maximize Learning is ON",
+              "The generator will REWARD skill variance within boats — "
+              "it actively tries to mix beginners with experienced rowers. "
+              "This overrides the normal Skill priority which tries to balance levels.",
+              "This is intentional for training sessions. "
+              "For competitive assignments, turn off Maximize Learning in Expert Settings.");
+
+    // ── Section 4: Training session tips (5–7 fixed recommendations) ──
+    mkSec("4 — Training Session Recommendations");
+
+    vl->addWidget(new QLabel(
+        "<span style='color:#5a7a9a; font-size:11px;'>"
+        "These are general best-practice recommendations for rowing training sessions. "
+        "Apply them by adjusting the settings indicated before generating.</span>"));
+
+    struct Tip { QString icon, title, body, fix; };
+    static const Tip tips[] = {
+        {"🎓","Mix skill levels for maximum learning",
+         "Placing a Professional or Experienced rower with a Beginner in the same boat "
+         "creates a mentoring dynamic. The beginner observes better technique, receives "
+         "live feedback, and has immediate motivation to improve. Research in motor learning "
+         "shows that observational learning from a skilled peer accelerates skill acquisition "
+         "more effectively than rowing only with same-level peers.",
+         "Enable 'Maximize Learning' in Expert Settings, or move Skill to the bottom "
+         "of the priority list in Tab 3 and set its weight (Rank 5) to 0.5. "
+         "This lets the generator place mixed-level teams freely."},
+
+        {"💪","Balance physical strength across boats",
+         "Unequal physical load distribution leads to fatigue asymmetry — one boat's crew "
+         "exhausts faster while another underworks. For endurance training this ruins "
+         "training stimulus quality. Even strength distribution also improves boat speed "
+         "and makes stroke rate easier to maintain.",
+         "Enter Strength values (1–10) for all rowers in the Rowers tab. "
+         "Increase strengthVarianceWeight to 0.6–1.0 in Expert Settings "
+         "to force the generator to balance load more strictly."},
+
+        {"🚣","Match stroke length in 2-seat boats",
+         "In sculling pairs (2-seat boats), mismatched stroke lengths cause the blade "
+         "of the longer-stroking rower to catch water while the shorter-stroker's blade "
+         "is still in drive phase. This creates drag, disrupts balance, and risks injury. "
+         "Even a Short+Medium mismatch produces noticeable drag at race pace.",
+         "Set Stroke Length (Short/Medium/Long) for all rowers. "
+         "Ensure strokeSmallGap2 ≥ 12 and strokeSmallGap1 ≥ 3 in Expert Settings "
+         "so 2-seat boats strongly prefer matching lengths."},
+
+        {"🔄","Rotate Obmann and Steerer roles regularly",
+         "Rotating leadership roles develops communication skills, situational awareness, "
+         "and mutual understanding across the squad. Rowers who only ever follow never "
+         "develop the vocal presence needed to lead a boat under race conditions. "
+         "Regular rotation also reduces reliance on a single individual.",
+         "Ensure obmannOverusePenalty ≥ 3.0 and steerOverusePenalty ≥ 3.0 "
+         "in Expert Settings. Check the Statistics tab before generating "
+         "to identify overused Obmann/Steerer rowers."},
+
+        {"🤝","Vary pairings across sessions",
+         "Rowers who always row with the same partners develop communication shortcuts "
+         "that do not transfer to new combinations. Variety in pairings builds "
+         "adaptive teamwork and teaches rowers to synchronise with different styles. "
+         "This is especially valuable before regatta season when team compositions may change.",
+         "Ensure coOccurrenceFactor is set to 1.5–2.5 in Expert Settings. "
+         "Review the Co-occurrence table in the Analysis tab to identify "
+         "pairs with 5+ shared sessions and consider adding temporary Blacklist entries."},
+
+        {"⚡","Use Training mode for technical sessions",
+         "When the goal is technique development rather than competitive pairing, "
+         "skill and compatibility constraints become irrelevant. Training mode ignores "
+         "both, focusing only on propulsion ability match and attribute proximity. "
+         "This allows mixed-level boats designed purely for drill work.",
+         "Check 'Training mode' in Tab 3 (Priority) before generating. "
+         "Combined with Maximize Learning, this produces maximally diverse boats "
+         "optimised for cross-level mentoring."},
+
+        {"📏","Consider body size for single sculls and pairs",
+         "In 1x and 2x boats, significantly mismatched body sizes affect the boat's "
+         "balance point and optimal seat position. A very small rower paired with a "
+         "very tall one requires compromise rigging. For club training this is minor, "
+         "but for pairs training targeting technique it adds unnecessary difficulty.",
+         "Set Body Size (Small/Medium/Tall) for all rowers. "
+         "Increase bodySmallGap2 to 12+ in Expert Settings for strict 2-seat matching, "
+         "or keep at 8 (default) for a soft preference."},
+    };
+    for (auto& t : tips) mkTip(t.icon, t.title, t.body, t.fix);
+
+    vl->addStretch();
+    scroll->setWidget(inner);
+    outerVL->addWidget(scroll);
+    return w;
 }

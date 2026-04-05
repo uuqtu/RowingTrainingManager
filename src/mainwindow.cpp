@@ -691,6 +691,7 @@ void MainWindow::onNewAssignment() {
         ep.bodyLargePerGap=m_expert.bodyLargePerGap;
         ep.grpAttrBonus=m_expert.grpAttrBonus; ep.valAttrVarianceWeight=m_expert.valAttrVarianceWeight;
         ep.fillBoatAttempts=m_expert.fillBoatAttempts; ep.passAttempts=m_expert.passAttempts;
+        ep.maximizeLearning=m_expert.maximizeLearning;
         dlg.setExpertParams(ep);
     }
     if (dlg.exec() == QDialog::Accepted) {
@@ -773,6 +774,7 @@ void MainWindow::onEditAssignment(QListWidgetItem* item) {
         ep.bodyLargePerGap=m_expert.bodyLargePerGap;
         ep.grpAttrBonus=m_expert.grpAttrBonus; ep.valAttrVarianceWeight=m_expert.valAttrVarianceWeight;
         ep.fillBoatAttempts=m_expert.fillBoatAttempts; ep.passAttempts=m_expert.passAttempts;
+        ep.maximizeLearning=m_expert.maximizeLearning;
         dlg.setExpertParams(ep);
     }
     dlg.loadFromAssignment(existing);
@@ -2399,6 +2401,51 @@ QWidget* MainWindow::buildExpertTab() {
     }
 
 
+    // ══ 12 — MAXIMIZE LEARNING ═══════════════════════════════════
+    vl->addWidget(mkHeader("12 — Maximize Learning Mode"));
+    {
+        auto* g = new QGroupBox;
+        auto* gl = new QVBoxLayout(g);
+        gl->addWidget(new QLabel(
+            "<b>Context:</b> Normally the generator tries to balance skill levels "
+            "within each boat (similar skill = higher score). Maximize Learning inverts "
+            "this: it REWARDS skill variance so that beginners and professionals end up "
+            "in the same boat, creating mentoring opportunities. "
+            "Based on motor learning research showing that observational learning from "
+            "a skilled peer accelerates skill acquisition more than training with same-level partners. "
+            "Default: OFF. Enable for training sessions, disable for competitive assignments."
+        ));
+        gl->addSpacing(6);
+
+        auto* cb = new QCheckBox("Enable Maximize Learning (rewards mixed skill levels in each boat)");
+        cb->setChecked(m_expert.maximizeLearning);
+        cb->setStyleSheet("color:#88ee88; font-weight:600;");
+        cb->setEnabled(false);
+        spinboxes->append(cb);
+        cb->setToolTip("When ON: skill variance within a team earns a bonus of variance × 3.0. "
+                       "The generator will prefer to place beginners next to professionals. "
+                       "Has no effect when Crazy mode is active.");
+        gl->addWidget(cb);
+
+        gl->addWidget(new QLabel(
+            "<b style='color:#5a9a5a;'>When to enable:</b> "
+            "Technical training sessions, squad development, "
+            "sessions where you want experienced rowers to mentor beginners."));
+        auto* decL = new QLabel(
+            "<b style='color:#205070;'>When to disable (default):</b> "
+            "Competitive assignment sessions, time trials, regattas — "
+            "where you want evenly matched boats rather than mixed-level ones.");
+        decL->setWordWrap(true);
+        decL->setStyleSheet("color:#205070; font-size:11px; padding-left:4px;");
+        gl->addWidget(decL);
+
+        connect(cb, &QCheckBox::toggled, w, [this, cb](bool v){
+            m_expert.maximizeLearning = v;
+            m_db->saveExpertSetting("maximizeLearning", v ? 1.0 : 0.0);
+        });
+        vl->addWidget(g);
+    }
+
     // ── Change Password ───────────────────────────────────────────
     vl->addSpacing(10);
     vl->addWidget(mkHeader("12 — Change Password"));
@@ -2492,6 +2539,7 @@ QWidget* MainWindow::buildExpertTab() {
         s("obmannAgeWeight",0.5); s("obmannOverusePenalty",3.0);
         s("steerYouthWeight",0.3); s("steerOverusePenalty",3.0);
         s("overuseThreshold",3.0); s("fillBoatAttempts",600.0); s("passAttempts",15.0);
+        s("maximizeLearning",0.0);
         // Rebuild tab
         for (int i = 0; i < m_tabs->count(); ++i)
             if (m_tabs->tabText(i) == "Expert Settings") {
@@ -2549,6 +2597,7 @@ void MainWindow::loadExpertSettings() {
     m_expert.overuseThreshold       = static_cast<int>(get("overuseThreshold", 3.0));
     m_expert.fillBoatAttempts       = static_cast<int>(get("fillBoatAttempts", 600.0));
     m_expert.passAttempts           = static_cast<int>(get("passAttempts",     15.0));
+    m_expert.maximizeLearning       = static_cast<int>(get("maximizeLearning",  0.0)) != 0;
 }
 
 // ---------------------------------------------------------------
@@ -2599,11 +2648,11 @@ QWidget* MainWindow::buildAnalysisTab() {
     toolbar->addWidget(refreshBtn);
     outerVL->addLayout(toolbar);
 
-    // Two sub-tabs: Table View + Graphical View
+    // Two sub-tabs: Table View + Graphical View + Rower Development + Training Suggestions
     auto* subTabs = new QTabWidget;
     outerVL->addWidget(subTabs, 1);
 
-    // ── Build the inner scroll area for table view ──────────────
+    // ── Table View ───────────────────────────────────────────────
     auto* tableScrollOuter = new QScrollArea;
     tableScrollOuter->setWidgetResizable(true);
     tableScrollOuter->setFrameShape(QFrame::NoFrame);
@@ -2611,7 +2660,7 @@ QWidget* MainWindow::buildAnalysisTab() {
     tableScrollOuter->setWidget(m_analysisInner);
     subTabs->addTab(tableScrollOuter, "Table View");
 
-    // ── Graphical sub-tab ────────────────────────────────────────
+    // ── Graphical View ───────────────────────────────────────────
     auto* gfxScrollOuter = new QScrollArea;
     gfxScrollOuter->setWidgetResizable(true);
     gfxScrollOuter->setFrameShape(QFrame::NoFrame);
@@ -2622,19 +2671,51 @@ QWidget* MainWindow::buildAnalysisTab() {
     gfxScrollOuter->setWidget(gfxInner);
     subTabs->addTab(gfxScrollOuter, "Graphical View");
 
+    // ── Rower Development ────────────────────────────────────────
+    auto* devScrollOuter = new QScrollArea;
+    devScrollOuter->setWidgetResizable(true);
+    devScrollOuter->setFrameShape(QFrame::NoFrame);
+    auto* devInner = new QWidget;
+    auto* devVL = new QVBoxLayout(devInner);
+    devVL->setContentsMargins(8,8,8,16);
+    devVL->setSpacing(12);
+    devScrollOuter->setWidget(devInner);
+    subTabs->addTab(devScrollOuter, "Rower Development");
+
+    // ── Training Suggestions ─────────────────────────────────────
+    auto* trainScrollOuter = new QScrollArea;
+    trainScrollOuter->setWidgetResizable(true);
+    trainScrollOuter->setFrameShape(QFrame::NoFrame);
+    auto* trainInner = new QWidget;
+    auto* trainVL = new QVBoxLayout(trainInner);
+    trainVL->setContentsMargins(8,8,8,16);
+    trainVL->setSpacing(12);
+    trainScrollOuter->setWidget(trainInner);
+    subTabs->addTab(trainScrollOuter, "Training Suggestions");
+
     // Connect refresh
-    QObject::connect(refreshBtn, &QPushButton::clicked, this, [this, gfxInner, gfxVL]() {
-        refreshAnalysisTab();
-        // Rebuild graphical view
-        while (QLayoutItem* it = gfxVL->takeAt(0)) { delete it->widget(); delete it; }
-        buildAnalysisGraphics(gfxVL);
-        gfxVL->addStretch();
-    });
+    QObject::connect(refreshBtn, &QPushButton::clicked, this,
+        [this, gfxInner, gfxVL, devVL, trainVL]() {
+            refreshAnalysisTab();
+            while (QLayoutItem* it = gfxVL->takeAt(0)) { delete it->widget(); delete it; }
+            buildAnalysisGraphics(gfxVL);
+            gfxVL->addStretch();
+            while (QLayoutItem* it = devVL->takeAt(0)) { delete it->widget(); delete it; }
+            buildRowerDevelopmentTab(devVL);
+            devVL->addStretch();
+            while (QLayoutItem* it = trainVL->takeAt(0)) { delete it->widget(); delete it; }
+            buildTrainingSuggestionsTab(trainVL);
+            trainVL->addStretch();
+        });
 
     // Initial populate
     refreshAnalysisTab();
     buildAnalysisGraphics(gfxVL);
     gfxVL->addStretch();
+    buildRowerDevelopmentTab(devVL);
+    devVL->addStretch();
+    buildTrainingSuggestionsTab(trainVL);
+    trainVL->addStretch();
 
     return outer;
 }
@@ -2689,6 +2770,20 @@ void MainWindow::refreshAnalysisTab() {
         t->setItem(row, col, item);
     };
 
+    // Helper: add a hint button below a table
+    auto mkHintBtn = [&](const QString& label, const QString& title, const QString& text) {
+        auto* btn = new QPushButton("💡 " + label);
+        btn->setStyleSheet("text-align:left; background:#0d1a2a; color:#f0c060; "
+                           "border:1px solid #3a5020; padding:4px 10px; "
+                           "border-radius:3px; margin-bottom:4px;");
+        btn->setFlat(true);
+        QString t2 = text;
+        QString ti = title;
+        QObject::connect(btn, &QPushButton::clicked, vl->parentWidget(),
+            [t2, ti](){ QMessageBox::information(nullptr, ti, t2); });
+        vl->addWidget(btn);
+    };
+
     // ────────────────────────────────────────────────────────────
     // TABLE 1: Rower overview — all attributes side by side
     // ────────────────────────────────────────────────────────────
@@ -2724,6 +2819,15 @@ void MainWindow::refreshAnalysisTab() {
         }
         t->resizeRowsToContents();
         vl->addWidget(t);
+        mkHintBtn("Improve attribute data quality","Attribute Data Quality",
+            "Columns showing — indicate missing data. Missing values are excluded from \n"
+            "all scoring calculations, so penalties for those attributes will be 0 regardless \n"
+            "of Expert Settings values.\n\n"
+            "Priority fixes:\n"
+            "1. Stroke Length — critical for 2-seat boats. Enter Short/Medium/Long.\n"
+            "2. Strength — needed for load balancing in larger boats.\n"
+            "3. Age Band — required for reliable Obmann/Steerer rotation.\n"
+            "4. Body Size — lower priority but useful for pairs matching.");
     }
 
     // ────────────────────────────────────────────────────────────
@@ -2769,6 +2873,14 @@ void MainWindow::refreshAnalysisTab() {
         }
         t->resizeRowsToContents();
         vl->addWidget(t);
+        mkHintBtn("How fill rate affects scoring","Attribute Fill Rate & Scoring",
+            "Attributes with 0% fill have NO effect on generation. "
+            "The generator excludes rowers with value = 0 from all calculations.\n\n"
+            "At 50% fill, the attribute affects roughly half the rowers — "
+            "useful but creates asymmetric boats.\n\n"
+            "At 100% fill, the attribute fully participates in team scoring.\n\n"
+            "Recommendation: enter all attributes for all rowers, or set the "
+            "corresponding Expert Settings weight to 0 to avoid partial effects.");
     }
 
     // ────────────────────────────────────────────────────────────
@@ -2819,6 +2931,15 @@ void MainWindow::refreshAnalysisTab() {
         }
         t->resizeRowsToContents();
         vl->addWidget(t);
+        mkHintBtn("Interpret scoring history trend","Reading the Scoring History",
+            "AvgScore: the mean total score across all boats. Higher is better.\n\n"
+            "AvgCompat: mean compatibility penalty (raw). >3 = Special/Selected friction.\n"
+            "AvgStroke: mean stroke length penalty. >4 = frequent mismatch in 2-seat boats.\n"
+            "AvgCoOcc: mean co-occurrence penalty. >3 = rowers are being repeatedly paired.\n\n"
+            "Trend interpretation:\n"
+            "- Improving score: your Expert Settings tuning is working.\n"
+            "- Worsening AvgCoOcc: rowers need more variety — increase coOccurrenceFactor.\n"
+            "- High AvgStroke: enter stroke length data for all rowers.");
     }
 
     // ────────────────────────────────────────────────────────────
@@ -2880,6 +3001,15 @@ void MainWindow::refreshAnalysisTab() {
         }
         t->resizeRowsToContents();
         vl->addWidget(t);
+        mkHintBtn("Improve individual scoring contributions","Individual Contribution Hints",
+            "WL Bonus = 0: this rower has no whitelist entries pointing to teammates \n"
+            "in this boat. If whitelist pairings are desired, add them in the Lists dialog.\n\n"
+            "CoOcc Pen > 3: this rower-pair has shared a boat many times. \n"
+            "Increase coOccurrenceFactor or add a Blacklist entry for that pair.\n\n"
+            "Propulsion None: rower cannot row in this boat type. \n"
+            "This only appears when relaxed passes were needed — check propulsion settings.\n\n"
+            "Compat Special/Selected: compatibility friction in this boat. \n"
+            "Consider pinning Special and Selected rowers to separate boats via Groups.");
     }
 
     // ────────────────────────────────────────────────────────────
@@ -2925,6 +3055,15 @@ void MainWindow::refreshAnalysisTab() {
         }
         t->resizeRowsToContents();
         vl->addWidget(t);
+        mkHintBtn("Manage whitelist and blacklist entries","Managing Lists Effectively",
+            "Whitelist entries add a bonus (whitelistBonus per direction) — \n"
+            "they are soft preferences, not guarantees.\n\n"
+            "Blacklist entries are HARD constraints — the generator will never \n"
+            "place blacklisted pairs in the same boat regardless of any other setting.\n\n"
+            "Boat whitelist: if set, the rower ONLY goes in listed boats. \n"
+            "This can cause generation failures if no listed boat is available.\n\n"
+            "Best practice: use blacklists sparingly (genuine conflicts only). \n"
+            "Prefer co-occurrence penalties for separation by variety.");
     }
 
     // ────────────────────────────────────────────────────────────
@@ -2971,6 +3110,17 @@ void MainWindow::refreshAnalysisTab() {
         }
         t->resizeRowsToContents();
         vl->addWidget(t);
+        // Hint button
+        auto* coHintBtn = new QPushButton("💡 How to reduce co-occurrence penalties");
+        coHintBtn->setStyleSheet("text-align:left;background:#0d1a2a;color:#f0c060;"
+            "border:1px solid #3a5020;padding:4px 10px;border-radius:3px;");
+        connect(coHintBtn,&QPushButton::clicked,this,[](){
+            QMessageBox::information(nullptr,"Reducing Co-occurrence Penalties",
+                "1. Increase coOccurrenceFactor in Expert Settings (try 2.5–4.0).\n\n"
+                "2. Lock assignments after every session — the generator uses ALL locked assignments for history.\n\n"
+                "3. For pairs with 6+ sessions: add a temporary Blacklist entry in the Rowers tab Lists dialog.\n\n"
+                "4. Enable Maximize Learning to naturally vary pairings."); });
+        vl->addWidget(coHintBtn);
     }
 
     // ────────────────────────────────────────────────────────────
@@ -3004,6 +3154,15 @@ void MainWindow::refreshAnalysisTab() {
         }
         t->resizeRowsToContents();
         vl->addWidget(t);
+        mkHintBtn("Improve boat utilisation","Boat Utilisation Hints",
+            "Boats with 0 uses have never appeared in a locked assignment.\n\n"
+            "Possible reasons:\n"
+            "- Boat was added after existing assignments were created.\n"
+            "- Rower count never matched this boat's capacity in any session.\n"
+            "- Boat whitelist settings on rowers exclude it.\n\n"
+            "To fix: enable 'Select boats automatically' in Tab 2, \n"
+            "which picks boats to exactly match your rower count. \n"
+            "Or manually check this boat in Tab 2 for the next session.");
     }
 
     vl->addStretch();
@@ -3182,4 +3341,536 @@ void MainWindow::buildAnalysisGraphics(QVBoxLayout* vl) {
             vl->addWidget(new QLabel("<i style='color:#5a7a9a;'>Lock assignments to see score trends.</i>"));
         }
     }
+}
+
+// =========================================================================
+// Rower Development Tab — per-rower improvement analysis
+// =========================================================================
+void MainWindow::buildRowerDevelopmentTab(QVBoxLayout* vl) {
+    auto mkSec = [&](const QString& t, const QString& desc="") {
+        auto* l = new QLabel(t);
+        l->setStyleSheet("color:#8fb4d8; font-weight:700; font-size:12px; "
+                         "border-bottom:1px solid #2a3548; padding-bottom:3px;");
+        vl->addWidget(l);
+        if (!desc.isEmpty()) {
+            auto* d = new QLabel(desc);
+            d->setWordWrap(true);
+            d->setStyleSheet("color:#5a7a9a; font-size:11px;");
+            vl->addWidget(d);
+        }
+    };
+
+    auto mkTable = [&](const QStringList& headers) -> QTableWidget* {
+        auto* t = new QTableWidget(0, headers.size());
+        t->setHorizontalHeaderLabels(headers);
+        t->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        t->setSelectionMode(QAbstractItemView::NoSelection);
+        t->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+        t->verticalHeader()->setVisible(false);
+        t->setAlternatingRowColors(true);
+        t->setStyleSheet(
+            "QTableWidget{background:#0a1520;alternate-background-color:#0d1e2e;"
+            "gridline-color:#1a2538;}"
+            "QHeaderView::section{background:#1a2535;color:#8fb4d8;font-weight:600;"
+            "padding:4px;border:1px solid #2a3548;}"
+            "QTableWidget::item{padding:3px 6px;}");
+        return t;
+    };
+    auto addCell = [](QTableWidget* t, int row, int col, const QString& v,
+                      QColor fg=QColor(), bool bold=false) {
+        auto* it = new QTableWidgetItem(v);
+        if (fg.isValid()) it->setForeground(fg);
+        if (bold) { QFont f=it->font(); f.setBold(true); it->setFont(f); }
+        t->setItem(row,col,it);
+    };
+
+    auto* hdr = new QLabel(
+        "<b style='color:#8fb4d8;'>Rower Development Analysis</b><br>"
+        "<span style='color:#5a7a9a; font-size:11px;'>"
+        "This tab analyses how each rower can benefit from their boat assignment. "
+        "It looks at skill gaps between team members (learning potential), "
+        "how often they have rowed with more skilled partners, "
+        "and which attributes could improve their score contribution.</span>");
+    hdr->setWordWrap(true);
+    vl->addWidget(hdr);
+
+    // ── TABLE 1: Learning potential per rower in latest locked assignment ──
+    mkSec("Learning Potential — Latest Locked Assignment",
+          "For each rower, shows the skill gap to their best teammate in the same boat. "
+          "A positive gap means they are rowing with someone more skilled — "
+          "the larger the gap, the more learning potential. "
+          "Gap = 0 means they are the most skilled in their boat.");
+    {
+        auto* t = mkTable({"Rower","Skill","Boat","Best Teammate Skill","Learning Gap",
+                           "Propulsion Match","Stroke Match","Body Match","Learning Potential"});
+
+        Assignment latest;
+        for (const Assignment& a : m_assignments)
+            if (a.isLocked()) { latest = m_db->loadAssignment(a.id()); break; }
+
+        if (!latest.boatRowerMap().isEmpty()) {
+            const QString SL[]={"—","Short","Med","Long"}, BS[]={"—","Small","Med","Tall"};
+            for (auto it = latest.boatRowerMap().constBegin();
+                 it != latest.boatRowerMap().constEnd(); ++it) {
+                QString bname = QString("Boat#%1").arg(it.key());
+                for (const Boat& b:m_boats) if(b.id()==it.key()){bname=b.name();break;}
+
+                // Find max skill in this boat
+                int maxSkill = 0;
+                for (int rid : it.value())
+                    for (const Rower& r:m_rowers)
+                        if (r.id()==rid) { maxSkill=qMax(maxSkill,Rower::skillToInt(r.skill())); break; }
+
+                for (int rid : it.value()) {
+                    Rower rower;
+                    bool found=false;
+                    for (const Rower& r:m_rowers) if(r.id()==rid){rower=r;found=true;break;}
+                    if (!found) continue;
+
+                    int mySkill = Rower::skillToInt(rower.skill());
+                    int gap = maxSkill - mySkill;
+
+                    // Check propulsion match with boat
+                    Boat myBoat;
+                    for (const Boat& b:m_boats) if(b.id()==it.key()){myBoat=b;break;}
+                    bool propMatch = myBoat.id()==-1 ||
+                        rower.canRowPropulsion(myBoat.propulsionType());
+
+                    // Check stroke/body homogeneity in boat
+                    int myStroke = rower.strokeLength();
+                    int myBody   = rower.bodySize();
+                    int strokeMatches=0, bodyMatches=0, checked=0;
+                    for (int rid2:it.value()) {
+                        if (rid2==rid) continue; checked++;
+                        for (const Rower& r:m_rowers) if(r.id()==rid2) {
+                            if (myStroke>0&&r.strokeLength()>0&&myStroke==r.strokeLength()) strokeMatches++;
+                            if (myBody>0&&r.bodySize()>0&&myBody==r.bodySize()) bodyMatches++;
+                            break;
+                        }
+                    }
+
+                    // Learning potential score
+                    QString potential;
+                    int potScore = gap*2 + (propMatch?1:0);
+                    if (potScore >= 6)      potential = "🎓 High";
+                    else if (potScore >= 3) potential = "📈 Medium";
+                    else if (gap > 0)       potential = "✨ Low";
+                    else                    potential = "💪 Lead boat";
+
+                    int row=t->rowCount(); t->insertRow(row);
+                    addCell(t,row,0,rower.name(),{},true);
+                    addCell(t,row,1,Rower::skillToString(rower.skill()));
+                    addCell(t,row,2,bname);
+                    addCell(t,row,3,QString::number(maxSkill));
+                    addCell(t,row,4,gap>0?QString("+%1").arg(gap):QString::number(gap),
+                            gap>=2?QColor("#88ee88"):gap==1?QColor("#eecc44"):QColor("#5a7a9a"));
+                    addCell(t,row,5,propMatch?"✓ Match":"⚠ Mismatch",
+                            propMatch?QColor("#88ee88"):QColor("#ee8844"));
+                    addCell(t,row,6,myStroke>0?(checked>0?
+                            (strokeMatches==checked?"✓ All match":
+                             QString("%1/%2 match").arg(strokeMatches).arg(checked)):"—"):"Not set",
+                            myStroke==0?QColor("#5a7a9a"):strokeMatches==checked?QColor("#88ee88"):QColor("#eecc44"));
+                    addCell(t,row,7,myBody>0?(checked>0?
+                            (bodyMatches==checked?"✓ All match":
+                             QString("%1/%2 match").arg(bodyMatches).arg(checked)):"—"):"Not set",
+                            myBody==0?QColor("#5a7a9a"):bodyMatches==checked?QColor("#88ee88"):QColor("#eecc44"));
+                    addCell(t,row,8,potential,
+                            potScore>=6?QColor("#88ee88"):potScore>=3?QColor("#eecc44"):QColor("#5a7a9a"),
+                            potScore>=6);
+                }
+            }
+        } else {
+            t->insertRow(0);
+            addCell(t,0,0,"No locked assignments yet.",QColor("#5a7a9a"));
+        }
+        t->resizeRowsToContents();
+        vl->addWidget(t);
+    }
+
+    // ── TABLE 2: Rower experience diversity (how varied their partners have been) ──
+    mkSec("Partner Diversity — Rower History",
+          "Shows how many unique partners each rower has rowed with across all locked assignments. "
+          "Low diversity means a rower has been consistently paired with the same people. "
+          "High diversity indicates good rotation and broad experience.");
+    {
+        auto* t = mkTable({"Rower","Total Sessions","Unique Partners","Diversity %",
+                           "Max Co-Occ (any pair)","Recommendation"});
+        auto co = m_db->loadCoOccurrence();
+
+        // Count appearances per rower
+        QMap<int,int> sessions, uniquePartners;
+        QMap<int,int> maxCoOcc;
+        for (auto it=co.constBegin();it!=co.constEnd();++it) {
+            int a=it.key().first, b=it.key().second, cnt=it.value();
+            sessions[a]+=cnt; sessions[b]+=cnt;
+            if (!uniquePartners.contains(a)) uniquePartners[a]=0;
+            if (!uniquePartners.contains(b)) uniquePartners[b]=0;
+            uniquePartners[a]++;
+            uniquePartners[b]++;
+            maxCoOcc[a]=qMax(maxCoOcc.value(a,0),cnt);
+            maxCoOcc[b]=qMax(maxCoOcc.value(b,0),cnt);
+        }
+
+        for (const Rower& r : m_rowers) {
+            int sess = sessions.value(r.id(),0);
+            int uniq = uniquePartners.value(r.id(),0);
+            int maxCo = maxCoOcc.value(r.id(),0);
+            int total = qMax(1, m_rowers.size()-1);
+            double div = 100.0 * uniq / total;
+
+            int row=t->rowCount(); t->insertRow(row);
+            addCell(t,row,0,r.name(),{},true);
+            addCell(t,row,1,QString::number(sess));
+            addCell(t,row,2,QString::number(uniq));
+            addCell(t,row,3,QString::number(div,'f',0)+"%",
+                    div<30?QColor("#ee6644"):div<60?QColor("#eecc44"):QColor("#88ee88"));
+            addCell(t,row,4,QString::number(maxCo),
+                    maxCo>=5?QColor("#ee6644"):maxCo>=3?QColor("#eecc44"):QColor("#88ee88"));
+            QString rec;
+            if (sess==0) rec="Never assigned yet — include in next session";
+            else if (div<30) rec="Low diversity — increase coOccurrenceFactor or add Blacklists";
+            else if (maxCo>=5) rec="One pair very frequent — consider Blacklist for that pair";
+            else rec="Good rotation";
+            addCell(t,row,5,rec,
+                    sess==0?QColor("#ee6644"):div<30?QColor("#eecc44"):QColor("#88ee88"));
+        }
+        if (t->rowCount()==0)
+            { t->insertRow(0); addCell(t,0,0,"No history yet.",QColor("#5a7a9a")); }
+        t->resizeRowsToContents();
+        vl->addWidget(t);
+
+        // Hint button
+        auto* hintBtn = new QPushButton("💡 How to improve partner diversity");
+        hintBtn->setStyleSheet("text-align:left; background:#0d1a2a; color:#f0c060; "
+                               "border:1px solid #3a5020; padding:4px 10px; border-radius:3px;");
+        connect(hintBtn, &QPushButton::clicked, this, [](){
+            QMessageBox::information(nullptr, "Improving Partner Diversity",
+                "To increase partner diversity across sessions:\n\n"
+                "1. Increase coOccurrenceFactor (Expert Settings) to 2.0–3.0. "
+                "This makes the generator penalise frequent pairings more strongly.\n\n"
+                "2. Use the co-occurrence heatmap (Graphical View) to identify "
+                "the most repeated pairs, then add temporary Blacklist entries "
+                "for those specific pairs.\n\n"
+                "3. Lock assignments after each session so the co-occurrence history "
+                "grows — the generator uses all locked assignments for history.\n\n"
+                "4. Enable 'Maximize Learning' in Expert Settings to force "
+                "skill-diverse combinations, which naturally produces more variety.");
+        });
+        vl->addWidget(hintBtn);
+    }
+
+    // ── CHART: Learning potential distribution ───────────────────
+    mkSec("Skill Gap Distribution — Who Is Learning from Whom");
+    {
+        // For the latest locked assignment, show a bar chart of skill gaps
+        Assignment latest;
+        for (const Assignment& a:m_assignments)
+            if (a.isLocked()){latest=m_db->loadAssignment(a.id());break;}
+
+        if (!latest.boatRowerMap().isEmpty()) {
+            QList<double> gaps;
+            QList<QString> names;
+            for (auto it=latest.boatRowerMap().constBegin();
+                 it!=latest.boatRowerMap().constEnd();++it) {
+                int maxSkill=0;
+                for (int rid:it.value())
+                    for (const Rower& r:m_rowers) if(r.id()==rid){
+                        maxSkill=qMax(maxSkill,Rower::skillToInt(r.skill()));break;}
+                for (int rid:it.value())
+                    for (const Rower& r:m_rowers) if(r.id()==rid){
+                        int gap=maxSkill-Rower::skillToInt(r.skill());
+                        gaps<<(double)gap;
+                        names<<r.name().left(8);
+                        break;
+                    }
+            }
+            if (!gaps.isEmpty()) {
+                auto* chart = new BarChartWidget;
+                chart->setTitle("Skill Gap per Rower (latest locked assignment)");
+                chart->setBoatNames(names);
+                chart->setSeries({{"Skill gap to best teammate", gaps, QColor(100,200,140)}});
+                chart->setFixedHeight(200);
+                vl->addWidget(chart);
+                vl->addWidget(new QLabel(
+                    "<span style='color:#5a7a9a; font-size:11px;'>"
+                    "Rowers with gap ≥ 2 are rowing with someone two skill levels above them — "
+                    "maximum learning opportunity. Gap = 0 means they are leading the boat.</span>"));
+            }
+        } else {
+            vl->addWidget(new QLabel("<i style='color:#5a7a9a;'>Lock an assignment to see this chart.</i>"));
+        }
+    }
+}
+
+// =========================================================================
+// Training Suggestions Tab — boat-individual and person-individual
+// =========================================================================
+void MainWindow::buildTrainingSuggestionsTab(QVBoxLayout* vl) {
+    auto mkSec = [&](const QString& t) {
+        auto* l = new QLabel(t);
+        l->setStyleSheet("color:#8fb4d8; font-weight:700; font-size:12px; "
+                         "border-bottom:1px solid #2a3548; padding-bottom:3px;");
+        vl->addWidget(l);
+    };
+    auto mkCard = [&](const QString& icon, const QString& title,
+                      const QString& body, const QString& colour="#0d1a2a") {
+        auto* g = new QGroupBox;
+        g->setStyleSheet(QString("QGroupBox{background:%1;border:1px solid #2a3548;"
+                                 "border-radius:5px;padding:6px;}").arg(colour));
+        auto* gl = new QVBoxLayout(g);
+        auto* h = new QLabel(icon + "  <b style='color:#c8d8e8;'>" + title + "</b>");
+        h->setWordWrap(true); gl->addWidget(h);
+        auto* b = new QLabel(body);
+        b->setWordWrap(true);
+        b->setStyleSheet("color:#8090a0; font-size:11px;");
+        gl->addWidget(b);
+        vl->addWidget(g);
+    };
+
+    auto* hdr = new QLabel(
+        "<b style='color:#8fb4d8;'>Training Suggestions</b><br>"
+        "<span style='color:#5a7a9a; font-size:11px;'>"
+        "Evidence-based rowing training recommendations customised for this squad's current data. "
+        "Section A covers boat-level exercises; Section B covers individual rower development. "
+        "Based on established rowing coaching methodology, motor learning research, "
+        "and biomechanics literature.</span>");
+    hdr->setWordWrap(true);
+    vl->addWidget(hdr);
+
+    // ── SECTION A: Boat-individual suggestions ───────────────────
+    mkSec("A — Boat-Individual Training Suggestions");
+    vl->addWidget(new QLabel(
+        "<span style='color:#5a7a9a; font-size:11px;'>"
+        "Based on the latest locked assignment and each boat's composition. "
+        "Suggestions are generated from your rower data (skill mix, stroke length, body size, "
+        "strength balance) and established rowing training principles.</span>"));
+
+    // Load latest locked assignment and generate boat-specific tips
+    Assignment latest;
+    for (const Assignment& a:m_assignments)
+        if (a.isLocked()){latest=m_db->loadAssignment(a.id());break;}
+
+    if (!latest.boatRowerMap().isEmpty()) {
+        ScoringPriority defP;
+        AssignmentGenerator gen;
+        auto details = gen.computeScoreDetails(latest, m_boats, m_rowers, defP);
+
+        for (const ScoreDetail& d : details) {
+            QString bname = QString("Boat#%1").arg(d.boatId);
+            Boat myBoat;
+            for (const Boat& b:m_boats) if(b.id()==d.boatId){bname=b.name();myBoat=b;break;}
+
+            // Analyse team composition
+            double minSkill=4, maxSkill=0;
+            bool hasStrokeVar=false, hasMixedProp=false;
+            QSet<int> strokes, bodies;
+            for (const ScoreDetail::RowerDetail& r:d.rowers) {
+                minSkill=qMin(minSkill,(double)r.skillInt);
+                maxSkill=qMax(maxSkill,(double)r.skillInt);
+                if (r.strokeLength>0) strokes.insert(r.strokeLength);
+                if (r.bodySize>0) bodies.insert(r.bodySize);
+                if (r.propScore<1.0 && r.propScore>0) hasMixedProp=true;
+            }
+            hasStrokeVar = strokes.size() > 1;
+            double skillGap = maxSkill - minSkill;
+
+            QString tips;
+            auto addTip = [&](const QString& t){ if(!tips.isEmpty()) tips+="<br><br>"; tips+=t; };
+
+            // Tip based on skill mix
+            if (skillGap >= 2)
+                addTip("🎓 <b>Mixed-level boat — ideal for mentoring drills.</b> "
+                       "Suggest: 15 min of 'silent rowing' where the experienced rower "
+                       "sets the pace and beginners focus on timing. "
+                       "Follow with 'pause drills' (pause at finish) to allow beginners "
+                       "to observe blade extraction technique.");
+            else if (skillGap == 1)
+                addTip("📈 <b>Slight skill gap — good for structured feedback.</b> "
+                       "Suggest: 20 min technique focus with the coach calling each rower "
+                       "in turn. Use video (phone) for post-session review. "
+                       "'Arms-only, arms-and-body, full-slide' progression drill.");
+            else
+                addTip("💪 <b>Homogeneous skill level — ideal for race-pace work.</b> "
+                       "Suggest: 3×6 min at target race rate with 3 min rest. "
+                       "Focus on ratio (recovery speed vs drive speed) and run consistency.");
+
+            // Stroke length mismatch tip
+            if (hasStrokeVar && myBoat.capacity() <= 2)
+                addTip("⚠️ <b>Stroke length mismatch in 2-seat boat.</b> "
+                       "Recommend shorter session distances (max 6 km) to avoid "
+                       "developing compensatory technique. Use 'controlled ratio' drill: "
+                       "count 1-2-3 drive, 1-2-3 recovery to synchronise rhythm. "
+                       "Consider switching seats mid-session so both rowers experience "
+                       "the timing challenge from both positions.");
+
+            // Mixed propulsion tip
+            if (hasMixedProp)
+                addTip("🔄 <b>Mixed propulsion ability in boat.</b> "
+                       "If possible, keep the session to the boat's native style. "
+                       "If you must mix, use low-intensity paddling (rate ≤ 18) and "
+                       "focus on individual blade work rather than synchronisation.");
+
+            // Strength variance tip
+            if (d.strengthVariance > 4.0)
+                addTip("💪 <b>High physical strength variance.</b> "
+                       "Consider interval training with the stronger rower using "
+                       "slightly reduced drive intensity (75–80%) to equalise boat speed. "
+                       "Or use this as a teaching opportunity: stronger rower focuses on "
+                       "relaxed finish and clean extraction while the other drives fully.");
+
+            auto* g = new QGroupBox;
+            g->setStyleSheet("QGroupBox{background:#0a1520;border:1px solid #2a3548;"
+                             "border-radius:5px;padding:6px;margin-top:4px;}");
+            auto* gl = new QVBoxLayout(g);
+            gl->addWidget(new QLabel(
+                QString("<b style='color:#8fb4d8;'>%1</b>"
+                        "  <span style='color:#5a7a9a;font-size:11px;'>"
+                        "Cap:%2 | Skill range: %3–%4</span>")
+                    .arg(bname).arg(myBoat.capacity()==-1?d.rowers.size():myBoat.capacity())
+                    .arg((int)minSkill).arg((int)maxSkill)));
+            auto* tipL = new QLabel(tips);
+            tipL->setWordWrap(true);
+            tipL->setStyleSheet("color:#8090a0; font-size:11px;");
+            gl->addWidget(tipL);
+            vl->addWidget(g);
+        }
+    } else {
+        vl->addWidget(new QLabel("<i style='color:#5a7a9a;'>Lock an assignment first to see boat-specific suggestions.</i>"));
+    }
+
+    // ── SECTION B: Person-individual training suggestions ────────
+    mkSec("B — Person-Individual Training Suggestions");
+    vl->addWidget(new QLabel(
+        "<span style='color:#5a7a9a; font-size:11px;'>"
+        "Individual development notes based on each rower's current attributes, "
+        "skill level, recent role history, and co-occurrence diversity. "
+        "These are general coaching recommendations — adapt to individual circumstances.</span>"));
+
+    for (const Rower& r : m_rowers) {
+        QString tips;
+        auto addTip = [&](const QString& t){ if(!tips.isEmpty()) tips+="<br><br>"; tips+=t; };
+
+        // Skill-based tip
+        switch (r.skill()) {
+        case SkillLevel::Student:
+            addTip("🌱 <b>Student:</b> Focus on the catch-drive-finish-recovery sequence. "
+                   "Target: 100% consistent blade depth at catch. "
+                   "Drill: square-blade rowing (no feathering) to train clean extraction. "
+                   "Recommended session length: ≤10 km at rate ≤20.");
+            break;
+        case SkillLevel::Beginner:
+            addTip("📚 <b>Beginner:</b> Prioritise ratio and relaxation. "
+                   "Drive:recovery = 1:2 at this stage. "
+                   "Drill: 'pause at arms away' to feel the balance point. "
+                   "Begin learning rate ladders (16→20→24) to develop control.");
+            break;
+        case SkillLevel::Experienced:
+            addTip("🚣 <b>Experienced:</b> Refine power application through the drive. "
+                   "Focus on late-leg compression (hanging from the handle) rather than "
+                   "arm pull. Drill: eyes-closed straight-line paddling for proprioception. "
+                   "Begin race-pace intervals: 4×4 min at race rate, 4 min rest.");
+            break;
+        case SkillLevel::Professional:
+            addTip("🏆 <b>Professional:</b> Focus on marginal gains — "
+                   "blade entry angle, minimal tapping down, consistent hand heights. "
+                   "Video analysis recommended. Lead mentoring drills. "
+                   "High-intensity target: 5×3 min at 105% race pace.");
+            break;
+        }
+
+        // Stroke length tip
+        if (r.strokeLength() == 0)
+            addTip("📏 <b>Stroke length not set.</b> "
+                   "Ask the coach to assess stroke arc. Most adults fit Medium; "
+                   "set Short/Medium/Long in the Rowers tab for better boat matching.");
+        else if (r.strokeLength() == 3)
+            addTip("📏 <b>Long stroke:</b> Ensure the long arc doesn't cause 'layback' "
+                   "beyond 20° past vertical — this reduces power efficiency. "
+                   "Drill: partner watch for excessive layback at finish.");
+        else if (r.strokeLength() == 1)
+            addTip("📏 <b>Short stroke:</b> Work on hip flexor flexibility and hamstring "
+                   "length to allow fuller compression. 10 min pre-session stretching "
+                   "targeting hip flexors and calves.");
+
+        // Obmann tip
+        if (r.isObmann()) {
+            auto stats = m_db->loadStats();
+            int recentOb=0;
+            for (auto& s:stats) if(s.rowerId==r.id()){recentOb=s.recentObmann;break;}
+            if (recentOb >= 2)
+                addTip("📣 <b>Obmann (recently overused):</b> Consider stepping back and "
+                       "delegating to a junior Obmann-capable rower this session. "
+                       "Coaching leadership by example — have them watch you and then try.");
+            else
+                addTip("📣 <b>Obmann eligible:</b> Use the session to practice "
+                       "call-and-response commands ('Weiterfahren', 'Einlegen', 'Heraus'). "
+                       "Work on voice projection and decisive timing.");
+        }
+
+        // Steerer tip
+        if (r.canSteer() && r.ageBand() > 0 && r.ageBand() <= 30)
+            addTip("🎯 <b>Young steerer:</b> Practice buoy-turn sequences at slow speed "
+                   "before the session. Understand tide and wind effects on the rudder. "
+                   "Aim to steer the same course within ±5m over a 500m straight.");
+
+        // Co-occurrence diversity tip
+        auto co = m_db->loadCoOccurrence();
+        int maxPair = 0;
+        for (auto it=co.constBegin();it!=co.constEnd();++it) {
+            if (it.key().first==r.id()||it.key().second==r.id())
+                maxPair=qMax(maxPair,it.value());
+        }
+        if (maxPair >= 5)
+            addTip(QString("🔄 <b>Low partner variety:</b> This rower has shared a boat "
+                           "with the same person %1 times. Vary pairings — "
+                           "different partners expose different timing cues and "
+                           "strengthen adaptive synchronisation skills.").arg(maxPair));
+
+        if (tips.isEmpty())
+            tips="<span style='color:#5a7a9a;'>No specific development notes for this rower.</span>";
+
+        auto* g = new QGroupBox;
+        g->setStyleSheet("QGroupBox{background:#0a1520;border:1px solid #1a2538;"
+                         "border-radius:4px;padding:6px;margin-top:4px;}");
+        auto* gl = new QVBoxLayout(g);
+        gl->addWidget(new QLabel(
+            QString("<b style='color:#c8d8e8;'>%1</b>"
+                    "  <span style='color:#5a7a9a; font-size:11px;'>%2 | %3</span>")
+                .arg(r.name().toHtmlEscaped())
+                .arg(Rower::skillToString(r.skill()))
+                .arg(Boat::propulsionTypeToString(r.propulsionAbility()))));
+        auto* tl = new QLabel(tips); tl->setWordWrap(true);
+        tl->setStyleSheet("color:#8090a0; font-size:11px;");
+        gl->addWidget(tl);
+        vl->addWidget(g);
+    }
+
+    if (m_rowers.isEmpty())
+        vl->addWidget(new QLabel("<i style='color:#5a7a9a;'>No rowers loaded.</i>"));
+
+    // ── SECTION C: Squad-wide training goals ────────────────────
+    mkSec("C — Squad-Wide Training Goals");
+    mkCard("🏅","Build a teaching culture",
+           "Assign experienced rowers as 'boat mentors' for a full training block (4–6 weeks). "
+           "The mentor's job is to give one piece of technical feedback per session to each crewmate. "
+           "Research shows that teaching others is one of the most effective ways to consolidate "
+           "one's own technique (protégé effect).",
+           "#0d1a10");
+    mkCard("📊","Track session distance for every rower",
+           "Use the Distance tab after every session. Rowers who see their cumulative km growing "
+           "are more motivated to attend. Set a squad season target (e.g. 1000 km per rower) "
+           "and display it on the clubhouse noticeboard.",
+           "#0a1520");
+    mkCard("🎯","Periodise your skill priorities",
+           "Early season (Oct–Feb): prioritise technique and stroke length matching. "
+           "Mid-season (Mar–Apr): prioritise strength balance and endurance. "
+           "Race season (May–Jun): prioritise compat and co-occurrence to build "
+           "stable, well-bonded crews. Adjust the Priority tab weight spinboxes per phase.",
+           "#0d1a10");
+    mkCard("🔬","Use the Scoring tab for post-session review",
+           "After generating and saving an assignment, open the Scoring tab in the "
+           "assignment detail view. Look for boats with high penalty terms "
+           "(stroke, compat, coOccurrence) — these are your action items for next session. "
+           "Target: reduce the largest single penalty by 20% per month.",
+           "#0a1520");
 }

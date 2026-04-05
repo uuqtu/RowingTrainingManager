@@ -226,11 +226,19 @@ double AssignmentGenerator::scoreTeam(const QList<int>& team,
             }
     }
 
+    // ── Maximize learning: reward skill variance so mixed levels end up together
+    double learningBonus = 0.0;
+    if (priority.maximizeLearning && skillVals.size() >= 2) {
+        double var2 = 0;
+        for (int v : skillVals) var2 += (v - avgSkill)*(v - avgSkill);
+        learningBonus = (var2 / skillVals.size()) * 3.0;  // more spread = more bonus
+    }
+
     if (priority.trainingMode) {
         return -strengthVariance * 0.3 + whitelistBonus + avgProp * 3.0
                - racingBeginnerPenalty + obmannBonus
                - strokePenalty - bodyPenalty + grpBonus - valPenalty
-               - coOccurrencePenalty;
+               - coOccurrencePenalty + learningBonus;
     }
 
     double wSkill  = priority.weightFor(ScoringPriority::Skill);
@@ -248,7 +256,8 @@ double AssignmentGenerator::scoreTeam(const QList<int>& team,
          - bodyPenalty
          + grpBonus
          - valPenalty
-         - coOccurrencePenalty;
+         - coOccurrencePenalty
+         + learningBonus;
 }
 
 // ---------------------------------------------------------------

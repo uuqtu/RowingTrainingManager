@@ -35,6 +35,8 @@ struct ScoringPriority {
     // Generator search depth
     int    fillBoatAttempts       = 600;
     int    passAttempts           = 15;
+    // Maximise learning: reward mixed skill levels within each boat
+    bool   maximizeLearning       = false;
 
     double weightFor(Factor f) const {
         int idx = order.indexOf(f);
