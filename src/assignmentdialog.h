@@ -74,6 +74,7 @@ public:
         bool   ignoreBlacklist        = false;
         bool   ignoreBoatBlacklist    = false;
         bool   ignoreBoatWhitelist    = false;
+        QString logDir;               // path to Solver/ log folder (empty=disabled)
         int    racingMinSkill         = 3;  // min SkillLevel int for Racing boats (1=Novice..7=Master)
     };
     void setExpertParams(const ExpertParams& ep) { m_expertParams = ep; }

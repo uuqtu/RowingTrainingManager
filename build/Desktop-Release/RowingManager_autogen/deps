@@ -14,6 +14,8 @@ RowingManager_autogen/timestamp: \
 	/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/assignmentviewdialog.h \
 	/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boat.cpp \
 	/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boat.h \
+	/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boatlistsdialog.cpp \
+	/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boatlistsdialog.h \
 	/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boattablemodel.cpp \
 	/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boattablemodel.h \
 	/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/chartwidgets.cpp \

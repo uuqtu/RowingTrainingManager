@@ -120,12 +120,18 @@ void AssignmentDialog::setupUi()
     m_generateBtn = new QPushButton("Generate");
     m_generateBtn->setObjectName("primaryBtn");
     m_checkBtn = new QPushButton("Check");
-    m_acceptBtn = new QPushButton("Accept & Save");
+    m_acceptBtn = new QPushButton("✓  Accept & Save");
     m_acceptBtn->setEnabled(false);
+    auto* saveIncompleteBtn = new QPushButton("💾  Save incomplete…");
+    saveIncompleteBtn->setObjectName("primaryBtn");
+    saveIncompleteBtn->setToolTip(
+        "Save this assignment even without a complete generation.\n"
+        "It will be marked incomplete (red) in the list and cannot be printed until generated.");
     auto* cancelBtn = new QPushButton("Cancel");
     btnRow->addWidget(m_generateBtn);
     btnRow->addWidget(m_checkBtn);
     btnRow->addStretch();
+    btnRow->addWidget(saveIncompleteBtn);
     btnRow->addWidget(m_acceptBtn);
     btnRow->addWidget(cancelBtn);
     root->addLayout(btnRow);
@@ -134,6 +140,39 @@ void AssignmentDialog::setupUi()
     connect(m_checkBtn,    &QPushButton::clicked, this, &AssignmentDialog::onCheck);
     connect(m_acceptBtn,   &QPushButton::clicked, this, &QDialog::accept);
     connect(cancelBtn,     &QPushButton::clicked, this, &QDialog::reject);
+    connect(saveIncompleteBtn, &QPushButton::clicked, this, [this]() {
+        // Save the dialog state but mark with empty boatRowerMap so it's flagged as incomplete
+        // Still capture name and all settings
+        QString name = m_nameEdit->text().trimmed();
+        if (name.isEmpty())
+            name = QString("Assignment %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm"));
+        m_assignment.setName(name);
+        m_assignment.setCreatedAt(QDateTime::currentDateTime());
+        // Save full state even if boatRowerMap is empty
+        QList<SavedGroup> savedGroups;
+        for (const RowingGroup& g : m_groups) {
+            SavedGroup sg; sg.name=g.name; sg.rowerIds=g.rowerIds; sg.boatId=g.boatId;
+            savedGroups << sg;
+        }
+        m_assignment.setGroups(savedGroups);
+        QList<int> checkedBoats;
+        for (int i = 0; i < m_boatList->count(); ++i) {
+            auto* it = m_boatList->item(i);
+            if (it->checkState() == Qt::Checked) checkedBoats << it->data(Qt::UserRole).toInt();
+        }
+        m_assignment.setCheckedBoatIds(checkedBoats);
+        QList<int> checkedRowers;
+        for (int i = 0; i < m_rowerList->count(); ++i) {
+            auto* it = m_rowerList->item(i);
+            if (it->checkState() == Qt::Checked) checkedRowers << it->data(Qt::UserRole).toInt();
+        }
+        m_assignment.setCheckedRowerIds(checkedRowers);
+        QStringList prio;
+        for (int i = 0; i < m_priorityList->count(); ++i) prio << m_priorityList->item(i)->text();
+        if (m_trainingCheck && m_trainingCheck->isChecked()) prio << "__training__";
+        m_assignment.setPriorityOrder(prio);
+        accept();  // same as Accept & Save but boatRowerMap may be empty
+    });
 }
 
 // ================================================================
@@ -1406,6 +1445,7 @@ void AssignmentDialog::onGenerate()
     // ── Crazy mode: skip all normal checks ─────────────────────────
     if (priority.crazyMode) {
         AssignmentGenerator gen;
+        gen.setLogDir(m_expertParams.logDir);
         GeneratorResult result = gen.generate(selectedBoats, selectedRowers, name, priority);
         m_assignment = result.assignment;
         m_assignment.setGroups({});
@@ -1516,6 +1556,7 @@ void AssignmentDialog::onGenerate()
 
     if (!generatorBoats.isEmpty()) {
         AssignmentGenerator gen;
+        gen.setLogDir(m_expertParams.logDir);
         GeneratorResult result = gen.generate(generatorBoats, freeRowers, name, priority);
 
         // Build context for diagnostic (full picture, not just free portion)
@@ -2351,7 +2392,7 @@ void AssignmentDialog::populateGraphicsTab(const Assignment& a, const ScoringPri
     auto mkHint = [&](const QString& varName, const QString& boatName,
                       double value, double teamAvg) {
         auto* btn = new QPushButton(QString("💡 %1: %2 = %3")
-            .arg(boatName).arg(varName).arg(value,'f'==0?0:0,'f',2));
+            .arg(boatName).arg(varName).arg(value, 0, 'f', 2));
         btn->setStyleSheet("text-align:left; background:#0d1a2a; color:#f0c060; "
                            "border:1px solid #3a5020; padding:3px 8px; border-radius:3px;");
         btn->setFlat(true);
@@ -2359,62 +2400,62 @@ void AssignmentDialog::populateGraphicsTab(const Assignment& a, const ScoringPri
         // Build hint based on variable name
         if (varName.contains("Skill")) {
             if (value < teamAvg - 0.3)
-                hint = QString("Boat %1 has below-average skill (%.2f vs avg %.2f). "
+                hint = QString("Boat %1 has below-average skill (%2 vs avg %3). "
                     "To improve: reduce the Skill priority weight (w₁–w₅) so that "
                     "less skilled rowers are distributed more evenly. "
                     "Or increase obmannBonus so an experienced Obmann always leads weaker boats.")
-                    .arg(boatName).arg(value).arg(teamAvg);
+                    .arg(boatName).arg(value, 0, 'f', 2).arg(teamAvg, 0, 'f', 2);
             else
-                hint = QString("Boat %1 skill (%.2f) is at or above average. No action needed.")
-                    .arg(boatName).arg(value);
+                hint = QString("Boat %1 skill (%2) is at or above average. No action needed.")
+                    .arg(boatName).arg(value, 0, 'f', 2);
         } else if (varName.contains("Compat")) {
             if (value > 0.5)
-                hint = QString("Boat %1 has a compatibility penalty of %.2f. "
+                hint = QString("Boat %1 has a compatibility penalty of %2. "
                     "Check if Special/Selected rowers are being placed together. "
                     "Increase compatSpecialSpecial or compatSpecialSelected in Expert Settings. "
                     "Or move one of the Special rowers to a different boat in the Groups tab.")
-                    .arg(boatName).arg(value);
+                    .arg(boatName).arg(value, 0, 'f', 2);
             else
-                hint = QString("Compatibility in boat %1 is fine (penalty %.2f).").arg(boatName).arg(value);
+                hint = QString("Compatibility in boat %1 is fine (penalty %2).").arg(boatName).arg(value, 0, 'f', 2);
         } else if (varName.contains("Stroke")) {
             if (value > 0)
-                hint = QString("Boat %1 has a stroke length penalty of %.2f. "
+                hint = QString("Boat %1 has a stroke length penalty of %2. "
                     "Rowers with mismatched stroke lengths are grouped here. "
                     "Increase strokeSmallGap1/strokeSmallGap2 in Expert Settings to push "
                     "the generator harder toward matching stroke lengths. "
                     "Or manually pin matching rowers to this boat via Groups.")
-                    .arg(boatName).arg(value);
+                    .arg(boatName).arg(value, 0, 'f', 2);
             else
                 hint = QString("Stroke length matching in boat %1 is perfect.").arg(boatName);
         } else if (varName.contains("Body")) {
             if (value > 0)
-                hint = QString("Boat %1 has a body size penalty of %.2f. "
+                hint = QString("Boat %1 has a body size penalty of %2. "
                     "Increase bodySmallGap1/bodySmallGap2 in Expert Settings to "
                     "discourage extreme size mismatches. "
                     "For 2-seat boats these are especially critical.")
-                    .arg(boatName).arg(value);
+                    .arg(boatName).arg(value, 0, 'f', 2);
             else
                 hint = QString("Body size matching in boat %1 is perfect.").arg(boatName);
         } else if (varName.contains("CoOcc")) {
             if (value > 2)
-                hint = QString("Boat %1 has a co-occurrence penalty of %.2f — these rowers "
+                hint = QString("Boat %1 has a co-occurrence penalty of %2 — these rowers "
                     "have shared a boat many times before. "
                     "Increase coOccurrenceFactor in Expert Settings to push the generator "
                     "to split up frequent pairings. Or add Blacklist entries to hard-separate them.")
-                    .arg(boatName).arg(value);
+                    .arg(boatName).arg(value, 0, 'f', 2);
             else
-                hint = QString("Co-occurrence in boat %1 is acceptable (%.2f).").arg(boatName).arg(value);
+                hint = QString("Co-occurrence in boat %1 is acceptable (%2).").arg(boatName).arg(value, 0, 'f', 2);
         } else if (varName.contains("Strength")) {
             if (value > 3)
-                hint = QString("Boat %1 has a high strength variance (%.2f). "
+                hint = QString("Boat %1 has a high strength variance (%2). "
                     "Physical load is unbalanced. Increase strengthVarianceWeight in Expert Settings "
                     "to force the generator to distribute strength more evenly across boats.")
-                    .arg(boatName).arg(value);
+                    .arg(boatName).arg(value, 0, 'f', 2);
             else
-                hint = QString("Strength balance in boat %1 is good (variance %.2f).").arg(boatName).arg(value);
+                hint = QString("Strength balance in boat %1 is good (variance %2).").arg(boatName).arg(value, 0, 'f', 2);
         } else {
-            hint = QString("Variable %1 in boat %2: value %.2f, team average %.2f.")
-                .arg(varName).arg(boatName).arg(value).arg(teamAvg);
+            hint = QString("Variable %1 in boat %2: value %3, team average %4.")
+                .arg(varName).arg(boatName).arg(value, 0, 'f', 2).arg(teamAvg, 0, 'f', 2);
         }
         connect(btn, &QPushButton::clicked, btn, [hint, boatName, varName]() {
             QMessageBox mb;

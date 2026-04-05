@@ -5,6 +5,7 @@
 #include "rowerlistsdialog.h"
 #include "chartwidgets.h"
 #include "teamselectdialog.h"
+#include "boatlistsdialog.h"
 #include <QSqlQuery>
 #include <QMenuBar>
 #include <QAction>
@@ -262,6 +263,8 @@ QWidget* MainWindow::buildBoatsTab() {
     m_boatTable->verticalHeader()->setVisible(false);
     m_boatTable->setAlternatingRowColors(true);
     m_boatTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_boatTable->setSortingEnabled(true);
+    m_boatTable->horizontalHeader()->setSortIndicatorShown(true);
     m_boatTable->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked);
 
     // Delegates
@@ -278,14 +281,38 @@ QWidget* MainWindow::buildBoatsTab() {
     addBtn->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_N));
     auto* delBtn = new QPushButton("✕  Delete Selected");
     delBtn->setObjectName("dangerBtn");
+    auto* boatListsBtn = new QPushButton("📋  Lists…");
+    boatListsBtn->setToolTip(
+        "Set which rowers this boat allows or excludes.\n"
+        "Boat whitelist: ONLY these rowers may ride here (if non-empty).\n"
+        "Boat blacklist: these rowers are EXCLUDED from this boat.");
     btnLayout->addWidget(addBtn);
     btnLayout->addWidget(delBtn);
+    btnLayout->addSpacing(20);
+    btnLayout->addWidget(boatListsBtn);
     btnLayout->addStretch();
     layout->addLayout(btnLayout);
 
-    connect(addBtn, &QPushButton::clicked, this, &MainWindow::onAddBoat);
-    connect(delBtn, &QPushButton::clicked, this, &MainWindow::onDeleteBoat);
-    connect(m_boatModel, &BoatTableModel::boatChanged, this, &MainWindow::onBoatChanged);
+    connect(addBtn,       &QPushButton::clicked, this, &MainWindow::onAddBoat);
+    connect(delBtn,       &QPushButton::clicked, this, &MainWindow::onDeleteBoat);
+    connect(boatListsBtn, &QPushButton::clicked, this, &MainWindow::onEditBoatLists);
+    connect(m_boatModel,  &BoatTableModel::boatChanged, this, &MainWindow::onBoatChanged);
+
+    // Right-click context menu on boat table
+    m_boatTable->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_boatTable, &QTableView::customContextMenuRequested, this,
+        [this](const QPoint& pos) {
+            QModelIndex idx = m_boatTable->indexAt(pos);
+            if (!idx.isValid()) return;
+            m_boatTable->selectRow(idx.row());
+            QMenu menu(this);
+            auto* listsAct  = menu.addAction("📋  Lists…");
+            menu.addSeparator();
+            auto* deleteAct = menu.addAction("✕  Delete");
+            auto* chosen = menu.exec(m_boatTable->viewport()->mapToGlobal(pos));
+            if (chosen == listsAct)  onEditBoatLists();
+            if (chosen == deleteAct) onDeleteBoat();
+        });
 
     return w;
 }
@@ -311,6 +338,10 @@ QWidget* MainWindow::buildRowersTab() {
     m_rowerTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     m_rowerTable->verticalHeader()->setVisible(false);
     m_rowerTable->setAlternatingRowColors(true);
+    m_rowerTable->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_rowerTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_rowerTable->setSortingEnabled(true);
+    m_rowerTable->horizontalHeader()->setSortIndicatorShown(true);
     // Skill rank progression banner
     auto* rankBanner = new QLabel(
         "Skill progression:  "
@@ -368,6 +399,23 @@ QWidget* MainWindow::buildRowersTab() {
     connect(listsBtn, &QPushButton::clicked, this, &MainWindow::onEditRowerLists);
     connect(m_rowerModel, &RowerTableModel::rowerChanged, this, &MainWindow::onRowerChanged);
 
+    // Right-click context menu on rower table
+    m_rowerTable->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_rowerTable, &QTableView::customContextMenuRequested, this,
+        [this](const QPoint& pos) {
+            QModelIndex idx = m_rowerTable->indexAt(pos);
+            if (!idx.isValid()) return;
+            // Select the row under cursor
+            m_rowerTable->selectRow(idx.row());
+            QMenu menu(this);
+            auto* listsAct  = menu.addAction("📋  Lists…");
+            menu.addSeparator();
+            auto* deleteAct = menu.addAction("✕  Delete");
+            auto* chosen = menu.exec(m_rowerTable->viewport()->mapToGlobal(pos));
+            if (chosen == listsAct)  onEditRowerLists();
+            if (chosen == deleteAct) onDeleteRower();
+        });
+
     return w;
 }
 
@@ -396,20 +444,12 @@ QWidget* MainWindow::buildAssignmentsTab() {
     leftLayout->addWidget(m_assignmentList);
 
     auto* leftBtnLayout = new QHBoxLayout;
-    auto* newBtn = new QPushButton("🎲  New");
+    auto* newBtn  = new QPushButton("🎲  New Assignment");
     newBtn->setObjectName("primaryBtn");
-    auto* delBtn = new QPushButton("✕  Delete");
-    delBtn->setObjectName("dangerBtn");
-    auto* lockBtn = new QPushButton("🔒 Lock");
-    lockBtn->setObjectName("primaryBtn");
-    lockBtn->setToolTip("Lock/unlock this assignment so it cannot be edited");
-    auto* dupBtn = new QPushButton("⎘  Copy");
-    dupBtn->setObjectName("primaryBtn");
-    dupBtn->setToolTip("Duplicate this assignment under a new name");
     leftBtnLayout->addWidget(newBtn);
-    leftBtnLayout->addWidget(delBtn);
-    leftBtnLayout->addWidget(lockBtn);
-    leftBtnLayout->addWidget(dupBtn);
+    leftBtnLayout->addStretch();
+    auto* hintLbl = new QLabel("<span style='color:#445566; font-size:10px;'>Right-click for Copy / Rename / Lock / Delete</span>");
+    leftBtnLayout->addWidget(hintLbl);
     leftLayout->addLayout(leftBtnLayout);
 
     layout->addWidget(leftPanel);
@@ -453,57 +493,46 @@ QWidget* MainWindow::buildAssignmentsTab() {
 
     rightLayout->addWidget(viewTabs, 1);
 
-    // Action buttons — two rows so text is never clipped
-    auto* actionOuter = new QVBoxLayout;
-    actionOuter->setSpacing(4);
+    // Action buttons — single row
+    auto* actionRow = new QHBoxLayout;
+    actionRow->setSpacing(6);
 
-    // Row 1: clipboard + print + stats
-    auto* actionRow1 = new QHBoxLayout;
-    actionRow1->setSpacing(6);
-    m_copyBtn = new QPushButton("📋  Copy to Clipboard");
+    m_copyBtn = new QPushButton("📋 Clipboard");
     m_copyBtn->setObjectName("primaryBtn");
     m_copyBtn->setEnabled(false);
-    m_printBtn = new QPushButton("🖨  Print");
+    m_printBtn = new QPushButton("🖨 Print");
     m_printBtn->setObjectName("primaryBtn");
     m_printBtn->setEnabled(false);
     m_printCopiesSpinBox = new QSpinBox;
     m_printCopiesSpinBox->setRange(1, 20);
     m_printCopiesSpinBox->setValue(1);
     m_printCopiesSpinBox->setPrefix("×");
-    m_printCopiesSpinBox->setToolTip("Number of copies to print");
     m_printCopiesSpinBox->setEnabled(false);
-    m_printCopiesSpinBox->setMaximumWidth(70);
-    auto* printStatsBtn = new QPushButton("📊  Print Stats");
+    m_printCopiesSpinBox->setMaximumWidth(60);
+    auto* printStatsBtn = new QPushButton("📊 Stats");
     printStatsBtn->setObjectName("primaryBtn");
-    printStatsBtn->setToolTip("Print condensed scoring statistics for the selected assignment");
     printStatsBtn->setEnabled(false);
-    actionRow1->addWidget(m_copyBtn);
-    actionRow1->addWidget(m_printCopiesSpinBox);
-    actionRow1->addWidget(m_printBtn);
-    actionRow1->addWidget(printStatsBtn);
-    actionRow1->addStretch();
 
-    // Row 2: edit controls
-    auto* actionRow2 = new QHBoxLayout;
-    actionRow2->setSpacing(6);
-    m_editModeBtn = new QPushButton("✏  Edit Rowers");
+    m_editModeBtn = new QPushButton("✏ Edit");
     m_editModeBtn->setObjectName("primaryBtn");
-    m_editModeBtn->setToolTip("Enable rower-swap editing — click a rower cell in the Table tab to swap");
     m_editModeBtn->setEnabled(false);
-    m_saveEditBtn = new QPushButton("💾  Save Edit");
+    m_saveEditBtn = new QPushButton("💾 Save");
     m_saveEditBtn->setObjectName("primaryBtn");
     m_saveEditBtn->setVisible(false);
-    m_printTempBtn = new QPushButton("🖶  Print Temporary");
+    m_printTempBtn = new QPushButton("🖶 Temp.");
     m_printTempBtn->setObjectName("primaryBtn");
     m_printTempBtn->setVisible(false);
-    actionRow2->addWidget(m_editModeBtn);
-    actionRow2->addWidget(m_saveEditBtn);
-    actionRow2->addWidget(m_printTempBtn);
-    actionRow2->addStretch();
 
-    actionOuter->addLayout(actionRow1);
-    actionOuter->addLayout(actionRow2);
-    rightLayout->addLayout(actionOuter);
+    actionRow->addWidget(m_copyBtn);
+    actionRow->addWidget(m_printCopiesSpinBox);
+    actionRow->addWidget(m_printBtn);
+    actionRow->addWidget(printStatsBtn);
+    actionRow->addWidget(m_editModeBtn);
+    actionRow->addWidget(m_saveEditBtn);
+    actionRow->addWidget(m_printTempBtn);
+    actionRow->addStretch();
+
+    rightLayout->addLayout(actionRow);
 
     connect(printStatsBtn, &QPushButton::clicked, this, &MainWindow::onPrintStats);
     connect(m_editModeBtn,  &QPushButton::clicked, this, &MainWindow::onToggleAssignmentEditMode);
@@ -526,44 +555,40 @@ QWidget* MainWindow::buildAssignmentsTab() {
 
     layout->addWidget(rightPanel);
 
-    connect(newBtn,  &QPushButton::clicked, this, &MainWindow::onNewAssignment);
-    connect(delBtn,  &QPushButton::clicked, this, &MainWindow::onDeleteAssignment);
-    connect(lockBtn, &QPushButton::clicked, this, &MainWindow::onToggleLockAssignment);
-    connect(dupBtn,  &QPushButton::clicked, this, &MainWindow::onCopyAssignment);
+    connect(newBtn, &QPushButton::clicked, this, &MainWindow::onNewAssignment);
     connect(m_assignmentList, &QListWidget::itemClicked,       this, &MainWindow::onAssignmentSelected);
     connect(m_assignmentList, &QListWidget::itemDoubleClicked, this, &MainWindow::onEditAssignment);
 
-    // Right-click context menu
+    // Right-click context menu — all assignment operations
     m_assignmentList->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_assignmentList, &QListWidget::customContextMenuRequested, this,
         [this](const QPoint& pos) {
             auto* item = m_assignmentList->itemAt(pos);
             if (!item) return;
             int id = item->data(Qt::UserRole).toInt();
-            // Find assignment
             Assignment* found = nullptr;
             for (Assignment& a : m_assignments) if (a.id() == id) { found = &a; break; }
             if (!found) return;
+
+            bool locked = found->isLocked();
 
             QMenu menu(this);
             auto* renameAct = menu.addAction("✏  Rename…");
             auto* copyAct   = menu.addAction("⎘  Copy…");
             menu.addSeparator();
+            QString lockLabel = locked ? "🔓  Unlock…" : "🔒  Lock";
+            auto* lockAct   = menu.addAction(lockLabel);
+            menu.addSeparator();
             auto* deleteAct = menu.addAction("✕  Delete");
-            deleteAct->setProperty("danger", true);
 
             auto* chosen = menu.exec(m_assignmentList->mapToGlobal(pos));
             if (!chosen) return;
 
-            if (chosen == renameAct) {
-                onRenameAssignment(id);
-            } else if (chosen == copyAct) {
-                m_assignmentList->setCurrentItem(item);
-                onCopyAssignment();
-            } else if (chosen == deleteAct) {
-                m_assignmentList->setCurrentItem(item);
-                onDeleteAssignment();
-            }
+            m_assignmentList->setCurrentItem(item);
+            if (chosen == renameAct)  onRenameAssignment(id);
+            else if (chosen == copyAct)   onCopyAssignment();
+            else if (chosen == lockAct)   onToggleLockAssignment();
+            else if (chosen == deleteAct) onDeleteAssignment();
         });
     connect(m_copyBtn, &QPushButton::clicked, this, &MainWindow::onCopyToClipboard);
     connect(m_printBtn, &QPushButton::clicked, this, &MainWindow::onPrintAssignment);
@@ -600,10 +625,19 @@ void MainWindow::refreshAssignmentList() {
 
     for (const Assignment& a : m_assignments) {
         QString prefix = a.isLocked() ? "🔒 " : "";
+        // Check DB directly — in-memory list never has boatRowerMap loaded
+        bool incomplete = !m_db->assignmentHasEntries(a.id());
         auto* item = new QListWidgetItem(
             prefix + QString("%1\n%2").arg(a.name()).arg(a.createdAt().toString("dd.MM.yyyy hh:mm"))
         );
         item->setData(Qt::UserRole, a.id());
+        if (incomplete) {
+            // Red left-side indicator — use background colour on the item
+            item->setBackground(QBrush(QColor(60, 10, 10)));
+            item->setForeground(QColor("#cc6655"));
+            item->setText("⚠ " + item->text());
+            item->setToolTip("Incomplete — no boats/rowers assigned. Cannot print.");
+        }
         m_assignmentList->addItem(item);
 
         if (m_distAssignmentCombo && a.isLocked())
@@ -687,8 +721,8 @@ void MainWindow::onAddRower() {
 
 void MainWindow::onDeleteRower() {
     auto sel = m_rowerTable->selectionModel()->selectedRows();
-    if (sel.isEmpty()) return;
-    int row = sel.first().row();
+    int row = sel.isEmpty() ? m_rowerTable->currentIndex().row() : sel.first().row();
+    if (row < 0) { statusBar()->showMessage("Select a rower first.", 2000); return; }
     Rower rower = m_rowerModel->rowerAt(row);
     if (QMessageBox::question(this, "Delete Rower",
         QString("Delete rower \"%1\"?").arg(rower.name())) != QMessageBox::Yes)
@@ -802,8 +836,8 @@ static void editList(const QString& title, const QString& description,
 
 void MainWindow::onEditRowerLists() {
     auto sel = m_rowerTable->selectionModel()->selectedRows();
-    if (sel.isEmpty()) { statusBar()->showMessage("Select a rower first.", 2000); return; }
-    int row = sel.first().row();
+    int row = sel.isEmpty() ? m_rowerTable->currentIndex().row() : sel.first().row();
+    if (row < 0) { statusBar()->showMessage("Select a rower first.", 2000); return; }
     Rower rower = m_rowerModel->rowerAt(row);
 
     RowerListsDialog dlg(rower, m_rowers, m_boats, this);
@@ -813,6 +847,40 @@ void MainWindow::onEditRowerLists() {
         m_db->saveRower(updated);
         m_rowers = m_rowerModel->rowers();
         statusBar()->showMessage("Lists saved for " + updated.name(), 2000);
+    }
+}
+
+void MainWindow::onEditBoatLists() {
+    auto sel = m_boatTable->selectionModel()->selectedRows();
+    int row = sel.isEmpty() ? m_boatTable->currentIndex().row() : sel.first().row();
+    if (row < 0) { statusBar()->showMessage("Select a boat first.", 2000); return; }
+    Boat boat = m_boatModel->boatAt(row);
+
+    BoatListsDialog dlg(boat, m_rowers, this);
+    if (dlg.exec() == QDialog::Accepted) {
+        // Save all modified rowers
+        const QList<Rower> updated = dlg.updatedRowers();
+        for (const Rower& updR : updated) {
+            // Check if this rower's boat lists changed
+            for (const Rower& orig : m_rowers) {
+                if (orig.id() != updR.id()) continue;
+                if (orig.boatWhitelist() != updR.boatWhitelist() ||
+                    orig.boatBlacklist() != updR.boatBlacklist()) {
+                    Rower mutable_r = updR;  // saveRower takes non-const ref
+                    m_db->saveRower(mutable_r);
+                    for (int ri = 0; ri < m_rowerModel->rowCount(); ++ri) {
+                        if (m_rowerModel->rowerAt(ri).id() == updR.id()) {
+                            m_rowerModel->updateRower(ri, updR);
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+        m_rowers = m_rowerModel->rowers();
+        statusBar()->showMessage(
+            QString("Boat lists saved for %1.").arg(boat.name()), 2000);
     }
 }
 
@@ -854,16 +922,17 @@ void MainWindow::onNewAssignment() {
         ep.grpAttrBonus=m_expert.grpAttrBonus; ep.valAttrVarianceWeight=m_expert.valAttrVarianceWeight;
         ep.fillBoatAttempts=m_expert.fillBoatAttempts; ep.passAttempts=m_expert.passAttempts;
         ep.maximizeLearning=m_expert.maximizeLearning;
+        ep.logDir=m_backupDir.isEmpty()?QString():QFileInfo(m_currentDbPath).absolutePath()+"/Solver";
         dlg.setExpertParams(ep);
     }
     if (dlg.exec() == QDialog::Accepted) {
         Assignment a = dlg.generatedAssignment();
         if (m_db->saveAssignment(a)) {
+            // a now has a valid id — force role computation by displaying it
             m_assignments.prepend(a);
             refreshAssignmentList();
-            // Select and show the new assignment
             m_assignmentList->setCurrentRow(0);
-            displayAssignment(a);
+            displayAssignment(a);  // this triggers role save since id is now valid
             statusBar()->showMessage("Assignment saved: " + a.name(), 3000);
         } else {
             QMessageBox::warning(this, "Error", "Could not save assignment: " + m_db->lastError());
@@ -892,13 +961,16 @@ void MainWindow::onAssignmentSelected(QListWidgetItem* item) {
     Assignment a = m_db->loadAssignment(id);
     m_currentAssignment = a;
     displayAssignment(a);
-    m_copyBtn->setEnabled(true);
-    m_printBtn->setEnabled(true);
+    bool hasData = !a.boatRowerMap().isEmpty();
+    m_copyBtn->setEnabled(hasData);
+    m_printBtn->setEnabled(hasData);
     if (m_printCopiesSpinBox) {
         int boatCount = qMax(1, a.boatRowerMap().size());
         m_printCopiesSpinBox->setValue(boatCount);
-        m_printCopiesSpinBox->setEnabled(true);
+        m_printCopiesSpinBox->setEnabled(hasData);
     }
+    bool locked = a.isLocked();
+    if (m_editModeBtn) m_editModeBtn->setEnabled(hasData && !locked);
 }
 
 void MainWindow::onEditAssignment(QListWidgetItem* item) {
@@ -937,6 +1009,7 @@ void MainWindow::onEditAssignment(QListWidgetItem* item) {
         ep.grpAttrBonus=m_expert.grpAttrBonus; ep.valAttrVarianceWeight=m_expert.valAttrVarianceWeight;
         ep.fillBoatAttempts=m_expert.fillBoatAttempts; ep.passAttempts=m_expert.passAttempts;
         ep.maximizeLearning=m_expert.maximizeLearning;
+        ep.logDir=m_backupDir.isEmpty()?QString():QFileInfo(m_currentDbPath).absolutePath()+"/Solver";
         dlg.setExpertParams(ep);
     }
     dlg.loadFromAssignment(existing);
@@ -988,11 +1061,13 @@ QString MainWindow::formatAssignmentText(const Assignment& assignment) {
     text += QString("=").repeated(W) + "\n\n";
 
     // Load already-persisted roles — never re-pick on display
-    QMap<int,QString> savedRoles = m_db->loadRoles(assignment.id());
-    // savedRoles: rowerId -> "obmann" | "steering" | "obmann_steering"
+    QMap<int,QString> savedRoles;
+    if (assignment.id() > 0)
+        savedRoles = m_db->loadRoles(assignment.id());
 
     // If no roles have been saved yet (first display after generation), pick and persist once
-    if (savedRoles.isEmpty()) {
+    // Note: only do this for a saved assignment (id > 0) — for id=-1 we can't persist
+    if (savedRoles.isEmpty() && !assignment.boatRowerMap().isEmpty()) {
         QList<DatabaseManager::RowerStats> stats = m_db->loadStats();
         QMap<int,int> recentObmann, recentSteering;
         for (const DatabaseManager::RowerStats& s : stats) {
@@ -1053,7 +1128,8 @@ QString MainWindow::formatAssignmentText(const Assignment& assignment) {
                 }
             }
 
-            // Persist once
+            // Persist once (only when assignment has a valid DB id)
+            if (assignment.id() > 0) {
             if (chosenObmann != -1 && chosenObmann == chosenSteerer) {
                 m_db->saveRole(assignment.id(), boatId, chosenObmann, "obmann_steering");
                 savedRoles[chosenObmann] = "obmann_steering";
@@ -1065,6 +1141,15 @@ QString MainWindow::formatAssignmentText(const Assignment& assignment) {
                 if (chosenSteerer != -1) {
                     m_db->saveRole(assignment.id(), boatId, chosenSteerer, "steering");
                     savedRoles[chosenSteerer] = "steering";
+                }
+            }
+            } else {
+                // No DB persistence yet — still populate savedRoles for display
+                if (chosenObmann != -1 && chosenObmann == chosenSteerer)
+                    savedRoles[chosenObmann] = "obmann_steering";
+                else {
+                    if (chosenObmann  != -1) savedRoles[chosenObmann]  = "obmann";
+                    if (chosenSteerer != -1) savedRoles[chosenSteerer] = "steering";
                 }
             }
         }
@@ -4252,22 +4337,22 @@ void MainWindow::buildAssignmentGraphics(const Assignment& a, QVBoxLayout* vl) {
             if (shifted < avgS*0.75) {
                 QString bn=boatNames[i];
                 double sc=details[i].totalScore;
-                auto* btn=new QPushButton(QString("💡 %1: Score=%.1f (below avg)").arg(bn).arg(sc));
+                auto* btn=new QPushButton(QString("💡 %1: Score=%2 (below avg)").arg(bn).arg(sc, 0, 'f', 1));
                 btn->setStyleSheet("text-align:left;background:#0d1a2a;color:#f0c060;"
                     "border:1px solid #3a5020;padding:3px 8px;border-radius:3px;");
                 btn->setFlat(true);
                 connect(btn,&QPushButton::clicked,btn,[bn,sc,avgS](){
                     QMessageBox::information(nullptr,
                         QString("Low Score — %1").arg(bn),
-                        QString("Boat %1 has a below-average total score of %.1f "
-                            "(team average %.1f).\n\n"
+                        QString("Boat %1 has a below-average total score of %2 "
+                            "(team average %3).\n\n"
                             "Common causes:\n"
                             "• High penalty in one or more categories (see Penalty Breakdown)\n"
                             "• Low average skill level in this boat\n"
                             "• No Obmann in this boat\n"
                             "• Poor propulsion match\n\n"
                             "Check the Scoring tab for a full term-by-term breakdown.")
-                        .arg(bn).arg(sc).arg(avgS));
+                        .arg(bn).arg(sc, 0, 'f', 1).arg(avgS, 0, 'f', 1));
                 });
                 hintRow->addWidget(btn);
             }
@@ -4335,24 +4420,24 @@ void MainWindow::buildAssignmentGraphics(const Assignment& a, QVBoxLayout* vl) {
             QString bn=boatNames[i];
             QString hint;
             if (maxVar=="Compat")
-                hint=QString("Boat %1: Compat penalty %.1f.\nSpecial/Selected rowers are in the same boat.\n"
+                hint=QString("Boat %1: Compat penalty %2.\nSpecial/Selected rowers are in the same boat.\n"
                     "Fix: pin Special and Selected rowers to separate boats in Groups tab, "
-                    "or increase compatSpecialSpecial/compatSpecialSelected in Expert Settings.").arg(bn).arg(maxPen);
+                    "or increase compatSpecialSpecial/compatSpecialSelected in Expert Settings.").arg(bn).arg(maxPen, 0, 'f', 1);
             else if (maxVar=="Stroke length")
-                hint=QString("Boat %1: Stroke length penalty %.1f.\nRowers with different stroke lengths are grouped.\n"
+                hint=QString("Boat %1: Stroke length penalty %2.\nRowers with different stroke lengths are grouped.\n"
                     "Fix: check stroke length data in Rowers tab, "
-                    "or increase strokeSmallGap2 in Expert Settings for stricter 2-seat matching.").arg(bn).arg(maxPen);
+                    "or increase strokeSmallGap2 in Expert Settings for stricter 2-seat matching.").arg(bn).arg(maxPen, 0, 'f', 1);
             else if (maxVar=="Body size")
-                hint=QString("Boat %1: Body size penalty %.1f.\nMismatched body sizes in a small boat.\n"
-                    "Fix: enter Body Size for all rowers, or increase bodySmallGap2 in Expert Settings.").arg(bn).arg(maxPen);
+                hint=QString("Boat %1: Body size penalty %2.\nMismatched body sizes in a small boat.\n"
+                    "Fix: enter Body Size for all rowers, or increase bodySmallGap2 in Expert Settings.").arg(bn).arg(maxPen, 0, 'f', 1);
             else if (maxVar=="Co-occurrence")
-                hint=QString("Boat %1: Co-occurrence penalty %.1f.\nThese rowers have been grouped together many times.\n"
+                hint=QString("Boat %1: Co-occurrence penalty %2.\nThese rowers have been grouped together many times.\n"
                     "Fix: increase coOccurrenceFactor in Expert Settings, "
-                    "or add Blacklist entries for the most repeated pairs.").arg(bn).arg(maxPen);
+                    "or add Blacklist entries for the most repeated pairs.").arg(bn).arg(maxPen, 0, 'f', 1);
             else if (maxVar=="Strength variance")
-                hint=QString("Boat %1: Strength variance %.1f.\nUnequal physical load distribution.\n"
-                    "Fix: enter Strength values for all rowers and increase strengthVarianceWeight.").arg(bn).arg(maxPen);
-            auto* btn=new QPushButton(QString("💡 %1: %2=%.1f").arg(bn).arg(maxVar).arg(maxPen));
+                hint=QString("Boat %1: Strength variance %2.\nUnequal physical load distribution.\n"
+                    "Fix: enter Strength values for all rowers and increase strengthVarianceWeight.").arg(bn).arg(maxPen, 0, 'f', 1);
+            auto* btn=new QPushButton(QString("💡 %1: %2=%3").arg(bn).arg(maxVar).arg(maxPen, 0, 'f', 1));
             btn->setStyleSheet("text-align:left; background:#0d1a2a; color:#f0c060; "
                                "border:1px solid #3a5020; padding:3px 8px; border-radius:3px;");
             btn->setFlat(true);
@@ -4681,33 +4766,44 @@ void MainWindow::onAssignmentTableCellClicked(int row, int col) {
         statusBar()->showMessage(
             QString("%1 removed — press 💾 Save to commit.").arg(curName), 0);
     } else {
-        // True swap: if chosen is already in another boat, put currentRowerId there
+        // True swap
         int chosenOriginBoat = rowerToBoat.value(chosen, -1);
 
-        if (chosenOriginBoat != -1 && chosenOriginBoat != boatId) {
-            // chosen is in a different boat — do a real bidirectional swap:
-            // put currentRowerId into chosen's origin boat at chosen's position
+        if (chosenOriginBoat == boatId) {
+            // Same boat: swap positions of currentRowerId and chosen in-place
+            for (auto it = map.begin(); it != map.end(); ++it) {
+                if (it.key() == boatId) {
+                    int idxCur    = it.value().indexOf(currentRowerId);
+                    int idxChosen = it.value().indexOf(chosen);
+                    if (idxCur >= 0 && idxChosen >= 0) {
+                        it.value()[idxCur]    = chosen;
+                        it.value()[idxChosen] = currentRowerId;
+                    }
+                }
+            }
+        } else if (chosenOriginBoat != -1) {
+            // Different boat: bidirectional swap — put currentRowerId into chosen's boat
             for (auto it = map.begin(); it != map.end(); ++it) {
                 if (it.key() == chosenOriginBoat) {
                     int idx = it.value().indexOf(chosen);
-                    if (idx >= 0)
-                        it.value()[idx] = currentRowerId;  // replace chosen with current
+                    if (idx >= 0) it.value()[idx] = currentRowerId;
                 }
             }
-        } else if (chosenOriginBoat == -1) {
-            // chosen is not assigned anywhere — simply remove currentRowerId from this boat
+            // Put chosen into this boat at currentRowerId's position
+            for (auto it = map.begin(); it != map.end(); ++it) {
+                if (it.key() == boatId) {
+                    int idx = it.value().indexOf(currentRowerId);
+                    if (idx >= 0) it.value()[idx] = chosen;
+                }
+            }
+        } else {
+            // chosen not currently assigned — remove currentRowerId, add chosen
             for (auto it = map.begin(); it != map.end(); ++it)
                 if (it.key() == boatId)
                     it.value().removeAll(currentRowerId);
-        }
-
-        // Now put chosen into this boat at currentRowerId's position
-        for (auto it = map.begin(); it != map.end(); ++it) {
-            if (it.key() == boatId) {
-                int idx = it.value().indexOf(currentRowerId);
-                if (idx >= 0)
-                    it.value()[idx] = chosen;
-            }
+            for (auto it = map.begin(); it != map.end(); ++it)
+                if (it.key() == boatId)
+                    it.value().append(chosen);
         }
 
         QString newName;

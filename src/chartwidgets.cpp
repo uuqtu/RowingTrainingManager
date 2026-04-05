@@ -163,8 +163,7 @@ void RadarChartWidget::paintEvent(QPaintEvent*) {
             if (i == 0) path.moveTo(pt); else path.lineTo(pt);
         }
         path.closeSubpath();
-        QColor fill = ser.colour; fill.setAlpha(50);
-        p.fillPath(path, fill);
+        // Draw outline only — no fill so overlapping boats remain visible
         p.setPen(QPen(ser.colour, 2));
         p.drawPath(path);
         // Dots

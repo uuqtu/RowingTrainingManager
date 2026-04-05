@@ -34,6 +34,7 @@ public:
     Assignment loadAssignment(int assignmentId);
     bool saveAssignment(Assignment& assignment);
     bool deleteAssignment(int assignmentId);
+    bool assignmentHasEntries(int assignmentId);  // true if assignment_entries rows exist
 
     bool setAssignmentLocked(int assignmentId, bool locked);
     QMap<QPair<int,int>,int> loadCoOccurrence();

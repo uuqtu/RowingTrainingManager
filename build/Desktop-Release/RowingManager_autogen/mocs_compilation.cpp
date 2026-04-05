@@ -2,6 +2,7 @@
 #include "UVLADIE3JM/moc_assignmentdialog.cpp"
 #include "UVLADIE3JM/moc_assignmentgenerator.cpp"
 #include "UVLADIE3JM/moc_assignmentviewdialog.cpp"
+#include "UVLADIE3JM/moc_boatlistsdialog.cpp"
 #include "UVLADIE3JM/moc_boattablemodel.cpp"
 #include "UVLADIE3JM/moc_chartwidgets.cpp"
 #include "UVLADIE3JM/moc_databasemanager.cpp"

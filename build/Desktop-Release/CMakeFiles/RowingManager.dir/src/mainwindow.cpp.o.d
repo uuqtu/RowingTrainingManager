@@ -506,6 +506,7 @@ CMakeFiles/RowingManager.dir/src/mainwindow.cpp.o: \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/QColor \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qcolor.h \
  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/teamselectdialog.h \
+ /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boatlistsdialog.h \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtSql/QSqlQuery \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtSql/qsqlquery.h \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtSql/qtsqlglobal.h \

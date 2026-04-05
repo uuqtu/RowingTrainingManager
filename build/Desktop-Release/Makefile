@@ -299,6 +299,30 @@ src/boat.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/RowingManager.dir/build.make CMakeFiles/RowingManager.dir/src/boat.cpp.s
 .PHONY : src/boat.cpp.s
 
+src/boatlistsdialog.o: src/boatlistsdialog.cpp.o
+.PHONY : src/boatlistsdialog.o
+
+# target to build an object file
+src/boatlistsdialog.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RowingManager.dir/build.make CMakeFiles/RowingManager.dir/src/boatlistsdialog.cpp.o
+.PHONY : src/boatlistsdialog.cpp.o
+
+src/boatlistsdialog.i: src/boatlistsdialog.cpp.i
+.PHONY : src/boatlistsdialog.i
+
+# target to preprocess a source file
+src/boatlistsdialog.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RowingManager.dir/build.make CMakeFiles/RowingManager.dir/src/boatlistsdialog.cpp.i
+.PHONY : src/boatlistsdialog.cpp.i
+
+src/boatlistsdialog.s: src/boatlistsdialog.cpp.s
+.PHONY : src/boatlistsdialog.s
+
+# target to generate assembly for a file
+src/boatlistsdialog.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RowingManager.dir/build.make CMakeFiles/RowingManager.dir/src/boatlistsdialog.cpp.s
+.PHONY : src/boatlistsdialog.cpp.s
+
 src/boattablemodel.o: src/boattablemodel.cpp.o
 .PHONY : src/boattablemodel.o
 
@@ -568,6 +592,9 @@ help:
 	@echo "... src/boat.o"
 	@echo "... src/boat.i"
 	@echo "... src/boat.s"
+	@echo "... src/boatlistsdialog.o"
+	@echo "... src/boatlistsdialog.i"
+	@echo "... src/boatlistsdialog.s"
 	@echo "... src/boattablemodel.o"
 	@echo "... src/boattablemodel.i"
 	@echo "... src/boattablemodel.s"

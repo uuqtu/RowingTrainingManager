@@ -16,6 +16,8 @@ RowingManager_autogen/timestamp: /home/jeandarq0ne/Documents/Source/QT/RowingTea
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/assignmentviewdialog.h \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boat.cpp \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boat.h \
+  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boatlistsdialog.cpp \
+  /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boatlistsdialog.h \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boattablemodel.cpp \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boattablemodel.h \
   /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/chartwidgets.cpp \
@@ -1055,11 +1057,13 @@ RowingManager_autogen/timestamp: /home/jeandarq0ne/Documents/Source/QT/RowingTea
 
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/invoke.h:
 
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_relops.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/hashtable.h:
+
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicSbomHelpers.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QEglFSKmsGbmIntegrationPluginTargets-release.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicSbomLicenseHelpers.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicPluginHelpers_v2.cmake:
 
@@ -1163,14 +1167,6 @@ CMakeFiles/4.1.2/CMakeSystem.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QComposePlatformInputContextPluginConfig.cmake:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qatomic_cxx11.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_numeric.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QDialog:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QXcbEglIntegrationPluginTargets-release.cmake:
-
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/FindWrapAtomic.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qbytearray.h:
@@ -1206,12 +1202,6 @@ CMakeFiles/4.1.2/CMakeSystem.cmake:
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtconfiginclude.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicSbomGenerationHelpers.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6DBus/Qt6DBusConfig.cmake:
-
-/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linker/Linux-GNU.cmake:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/Qt6VersionlessAliasTargets.cmake:
 
 /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/types/wint_t.h:
 
@@ -1265,13 +1255,15 @@ CMakeFiles/4.1.2/CMakeSystem.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qstringconverter.h:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qstring.h:
-
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_iterator.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qpalette.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Widgets/Qt6WidgetsPlugins.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qstring.h:
+
+/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boatlistsdialog.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/Qt6Config.cmake:
 
@@ -1287,7 +1279,17 @@ CMakeFiles/4.1.2/CMakeSystem.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qrect.h:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qalloc.h:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qpixelformat.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bit:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qrefcount.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qtabwidget.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qversiontagging.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qpair.h:
 
 /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/errno.h:
 
@@ -1383,8 +1385,6 @@ CMakeFiles/4.1.2/CMakeSystem.cmake:
 
 /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linker/Linux-GNU-CXX.cmake:
 
-RowingManager_autogen/moc_predefs.h:
-
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qset.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qgridlayout.h:
@@ -1415,12 +1415,6 @@ RowingManager_autogen/moc_predefs.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6WidgetsTools/Qt6WidgetsToolsAdditionalTargetInfo.cmake:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qtabwidget.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qversiontagging.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qpair.h:
-
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/parse_numbers.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QString:
@@ -1437,6 +1431,18 @@ RowingManager_autogen/moc_predefs.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QPair:
 
+RowingManager_autogen/moc_predefs.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qatomic_cxx11.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_numeric.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QDialog:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QXcbEglIntegrationPluginTargets-release.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qabstractitemmodel.h:
+
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qalgorithms.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6WidgetsTools/Qt6WidgetsToolsConfig.cmake:
@@ -1445,15 +1451,19 @@ RowingManager_autogen/moc_predefs.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcalendar.h:
 
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q20type_traits.h:
+
+/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/iosfwd:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtmetamacros.h:
+
+/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boatlistsdialog.cpp:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qobjectdefs.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qiterable.h:
+
 /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/assignmentdialog.cpp:
-
-/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/struct_mutex.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qanystringview.h:
-
-/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/sched.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QGtk3ThemePluginConfig.cmake:
 
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/move.h:
 
@@ -1511,19 +1521,21 @@ RowingManager_autogen/moc_predefs.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6CoreTools/Qt6CoreToolsConfig.cmake:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qabstractitemmodel.h:
-
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q20iterator.h:
 
 /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rower.cpp:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qttypetraits.h:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q20type_traits.h:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qalloc.h:
 
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/iosfwd:
+/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/bits/struct_mutex.h:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtmetamacros.h:
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qanystringview.h:
+
+/nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/sched.h:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QGtk3ThemePluginConfig.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qprocessordetection.h:
 
@@ -1595,12 +1607,6 @@ RowingManager_autogen/moc_predefs.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qchar.h:
 
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qpixelformat.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bit:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qrefcount.h:
-
 /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/chartwidgets.h:
 
 /nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/tr1/beta_function.tcc:
@@ -1616,10 +1622,6 @@ RowingManager_autogen/moc_predefs.h:
 /nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Compiler/CMakeCommonCompilerMacros.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcompilerdetection.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qobjectdefs.h:
-
-/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qiterable.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qwindowdefs.h:
 
@@ -1740,6 +1742,14 @@ CMakeFiles/4.1.2/CMakeCXXCompiler.cmake:
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qmetatype.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6GuiConfigVersion.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicSbomLicenseHelpers.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6DBus/Qt6DBusConfig.cmake:
+
+/nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/Qt6VersionlessAliasTargets.cmake:
+
+/nix/store/dx1zhzy951phnqyixy0z77s0gcp6wc2z-cmake-4.1.2/share/cmake-4.1/Modules/Platform/Linker/Linux-GNU.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6/QtPublicSbomPurlHelpers.cmake:
 
@@ -1932,10 +1942,6 @@ CMakeFiles/4.1.2/CMakeCXXCompiler.cmake:
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QEglFSKmsGbmIntegrationPluginTargets.cmake:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QEglFSX11IntegrationPluginAdditionalTargetInfo.cmake:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/stl_relops.h:
-
-/nix/store/k3qc3y1f6i8g2dgz5z0cf00dj4xc5rrv-gcc-14.3.0/include/c++/14.3.0/bits/hashtable.h:
 
 /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/lib/cmake/Qt6Gui/Qt6QEglFSX11IntegrationPluginTargets-release.cmake:
 

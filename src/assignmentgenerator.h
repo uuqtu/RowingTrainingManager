@@ -118,6 +118,10 @@ class AssignmentGenerator : public QObject {
 public:
     explicit AssignmentGenerator(QObject* parent = nullptr);
 
+    // Set the directory where solver logs are written (created if absent).
+    // Call before generate(). If empty, no log is written.
+    void setLogDir(const QString& dir) { m_logDir = dir; }
+
     GeneratorResult generate(
         const QList<Boat>& selectedBoats,
         const QList<Rower>& selectedRowers,
@@ -126,6 +130,9 @@ public:
     );
 
     // Compute full scoring detail for a committed team (called after generation).
+private:
+    QString m_logDir;
+public:
     QList<ScoreDetail> computeScoreDetails(
         const Assignment& assignment,
         const QList<Boat>& boats,

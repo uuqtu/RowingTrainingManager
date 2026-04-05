@@ -40,7 +40,8 @@ private slots:
     void onAddRower();
     void onDeleteRower();
     void onRowerChanged(int row);
-    void onEditRowerLists();    // opens unified four-tab lists dialog
+    void onEditRowerLists();
+    void onEditBoatLists();    // opens unified four-tab lists dialog
 
     // Assignments tab
     void onNewAssignment();

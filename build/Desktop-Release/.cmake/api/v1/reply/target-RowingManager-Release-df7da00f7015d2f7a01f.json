@@ -43,19 +43,19 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 49,
+				"line" : 53,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 51,
+				"line" : 55,
 				"parent" : 0
 			},
 			{
 				"command" : 4,
 				"file" : 0,
-				"line" : 10,
+				"line" : 12,
 				"parent" : 0
 			},
 			{
@@ -177,7 +177,7 @@
 			{
 				"command" : 9,
 				"file" : 0,
-				"line" : 57,
+				"line" : 61,
 				"parent" : 0
 			}
 		]
@@ -281,7 +281,8 @@
 				12,
 				13,
 				14,
-				15
+				15,
+				16
 			]
 		}
 	],
@@ -370,14 +371,14 @@
 				12,
 				13,
 				14,
-				15
+				15,
+				16
 			]
 		},
 		{
 			"name" : "Header Files",
 			"sourceIndexes" : 
 			[
-				16,
 				17,
 				18,
 				19,
@@ -390,21 +391,23 @@
 				26,
 				27,
 				28,
-				29
+				29,
+				30,
+				31
 			]
 		},
 		{
 			"name" : "",
 			"sourceIndexes" : 
 			[
-				30
+				32
 			]
 		},
 		{
 			"name" : "CMake Rules",
 			"sourceIndexes" : 
 			[
-				31
+				33
 			]
 		}
 	],
@@ -509,6 +512,12 @@
 		},
 		{
 			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/boatlistsdialog.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
 			"path" : "src/mainwindow.h",
 			"sourceGroupIndex" : 1
 		},
@@ -575,6 +584,11 @@
 		{
 			"backtrace" : 1,
 			"path" : "src/teamselectdialog.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/boatlistsdialog.h",
 			"sourceGroupIndex" : 1
 		},
 		{

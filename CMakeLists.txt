@@ -7,6 +7,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+# If Qt is not found automatically, set CMAKE_PREFIX_PATH to your Qt installation,
+# e.g. in Qt Creator: Projects → Build → CMake → add CMAKE_PREFIX_PATH=/path/to/Qt/6.x.x/gcc_64
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets Sql)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBUSB REQUIRED libusb-1.0)
@@ -27,6 +29,7 @@ set(SOURCES
     src/rowerlistsdialog.cpp
     src/chartwidgets.cpp
     src/teamselectdialog.cpp
+    src/boatlistsdialog.cpp
 )
 
 set(HEADERS
@@ -44,6 +47,7 @@ set(HEADERS
     src/rowerlistsdialog.h
     src/chartwidgets.h
     src/teamselectdialog.h
+    src/boatlistsdialog.h
 )
 
 add_executable(RowingManager ${SOURCES} ${HEADERS})

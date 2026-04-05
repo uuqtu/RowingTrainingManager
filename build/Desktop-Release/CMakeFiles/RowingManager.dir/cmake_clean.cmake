@@ -15,6 +15,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/RowingManager.dir/src/assignmentviewdialog.cpp.o.d"
   "CMakeFiles/RowingManager.dir/src/boat.cpp.o"
   "CMakeFiles/RowingManager.dir/src/boat.cpp.o.d"
+  "CMakeFiles/RowingManager.dir/src/boatlistsdialog.cpp.o"
+  "CMakeFiles/RowingManager.dir/src/boatlistsdialog.cpp.o.d"
   "CMakeFiles/RowingManager.dir/src/boattablemodel.cpp.o"
   "CMakeFiles/RowingManager.dir/src/boattablemodel.cpp.o.d"
   "CMakeFiles/RowingManager.dir/src/chartwidgets.cpp.o"

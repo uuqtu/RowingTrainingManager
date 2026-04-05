@@ -1,8 +1,7 @@
-CMakeFiles/RowingManager.dir/RowingManager_autogen/mocs_compilation.cpp.o: \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/mocs_compilation.cpp \
+CMakeFiles/RowingManager.dir/src/boatlistsdialog.cpp.o: \
+ /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boatlistsdialog.cpp \
  /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/stdc-predef.h \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/moc_assignmentdialog.cpp \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/../../../../src/assignmentdialog.h \
+ /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boatlistsdialog.h \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QDialog \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qdialog.h \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qtwidgetsglobal.h \
@@ -457,67 +456,50 @@ CMakeFiles/RowingManager.dir/RowingManager_autogen/mocs_compilation.cpp.o: \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qsizepolicy.h \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qcursor.h \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qbitmap.h \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QList \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qlist.h \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QMap \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qmap.h \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QPair \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qpair.h \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/../../../../src/boat.h \
+ /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boat.h \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QString \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qstring.h \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/../../../../src/rower.h \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/../../../../src/assignment.h \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QDateTime \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qdatetime.h \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qcalendar.h \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qlocale.h \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/../../../../src/assignmentgenerator.h \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QObject \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qobject.h \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtmochelpers.h \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtmocconstants.h \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/q20algorithm.h \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/moc_assignmentgenerator.cpp \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/moc_assignmentviewdialog.cpp \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/../../../../src/assignmentviewdialog.h \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/moc_boatlistsdialog.cpp \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/../../../../src/boatlistsdialog.h \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/moc_boattablemodel.cpp \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/../../../../src/boattablemodel.h \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QAbstractTableModel \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qabstractitemmodel.h \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/moc_chartwidgets.cpp \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/../../../../src/chartwidgets.h \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QWidget \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qwidget.h \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/QColor \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qcolor.h \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/moc_databasemanager.cpp \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/../../../../src/databasemanager.h \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/moc_mainwindow.cpp \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/../../../../src/mainwindow.h \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/../../../../src/printerdevice.h \
- /nix/store/w37ax8k2r2w2yblmpxsqljfl42sd7jsv-libusb-1.0.29-dev/include/libusb-1.0/libusb.h \
- /nix/store/radp574lyk1l05lccg0i4hj4z1p3ig0m-glibc-2.40-218-dev/include/sys/time.h \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QMainWindow \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qmainwindow.h \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qtabwidget.h \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QTimer \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qtimer.h \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qbasictimer.h \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qabstracteventdispatcher.h \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qeventloop.h \
- /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qdeadlinetimer.h \
+ /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rower.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/QList \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qlist.h \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QVBoxLayout \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qboxlayout.h \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qlayout.h \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qlayoutitem.h \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qboxlayout.h \
  /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qgridlayout.h \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/../../../../src/rowertablemodel.h \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/moc_rowerlistsdialog.cpp \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/../../../../src/rowerlistsdialog.h \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/moc_rowertablemodel.cpp \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/moc_teamselectdialog.cpp \
- /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Release/RowingManager_autogen/UVLADIE3JM/../../../../src/teamselectdialog.h
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QHBoxLayout \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QTabWidget \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qtabwidget.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QListWidget \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qlistwidget.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qlistview.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qabstractitemview.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qabstractscrollarea.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qframe.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qabstractitemmodel.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qitemselectionmodel.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qabstractitemdelegate.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qstyleoption.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qlocale.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qabstractspinbox.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qvalidator.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qregularexpression.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qslider.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qabstractslider.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qstyle.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qtabbar.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qtabwidget.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qrubberband.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QListWidgetItem \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QLabel \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qlabel.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qpicture.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qiodevice.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtGui/qtextdocument.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtCore/qurl.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QPushButton \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qpushbutton.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qabstractbutton.h \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/QDialogButtonBox \
+ /nix/store/cqwvfg776qvsy5lf8r8i6agislip69a6-qtbase-6.10.1/include/QtWidgets/qdialogbuttonbox.h

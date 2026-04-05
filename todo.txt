@@ -14,3 +14,5 @@ The buttons under the assignment Detail are now in two rows this was not necessa
 
 
 The one under the saved assignments sleector there copy and delete can be removed because they are now in the right click menu. Add lock to thet richt click menu too
+
+Exchanging rowers in the edit mod does delete when executed witin one group. This needs to be fixed.

@@ -455,6 +455,13 @@ bool DatabaseManager::saveAssignment(Assignment& assignment) {
     return true;
 }
 
+bool DatabaseManager::assignmentHasEntries(int assignmentId) {
+    QSqlQuery q;
+    q.prepare("SELECT COUNT(*) FROM assignment_entries WHERE assignment_id=?");
+    q.addBindValue(assignmentId);
+    return q.exec() && q.next() && q.value(0).toInt() > 0;
+}
+
 bool DatabaseManager::deleteAssignment(int assignmentId) {
     QSqlQuery q;
     q.prepare("DELETE FROM assignments WHERE id=?");

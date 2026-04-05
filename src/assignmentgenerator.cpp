@@ -1,6 +1,10 @@
 #include "assignmentgenerator.h"
 #include <QRandomGenerator>
 #include <QMap>
+#include <QDir>
+#include <QFile>
+#include <QTextStream>
+#include <QDateTime>
 #include <cmath>
 
 AssignmentGenerator::AssignmentGenerator(QObject* parent) : QObject(parent) {}
@@ -342,20 +346,90 @@ GeneratorResult AssignmentGenerator::generate(
     const QString& assignmentName,
     const ScoringPriority& priority)
 {
-    GeneratorResult result;
+    // ── Open log file ────────────────────────────────────────────
+    QTextStream* logPtr = nullptr;
+    QFile* logFile = nullptr;
+    if (!m_logDir.isEmpty()) {
+        QDir().mkpath(m_logDir);
+        QString ts = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
+        QString logPath = m_logDir + "/" + ts + "_" +
+            QString(assignmentName).replace(' ','_').left(40) + ".log";
+        logFile = new QFile(logPath);
+        if (logFile->open(QIODevice::WriteOnly | QIODevice::Text)) {
+            logPtr = new QTextStream(logFile);
+            logPtr->setEncoding(QStringConverter::Utf8);
+        } else {
+            delete logFile; logFile = nullptr;
+        }
+    }
+    auto log = [&](const QString& s) {
+        if (logPtr) *logPtr << s << "\n";
+    };
+
+    auto logFlushDelete = [&]() {
+        if (logPtr) { logPtr->flush(); delete logPtr; logPtr = nullptr; }
+        if (logFile) { logFile->close(); delete logFile; logFile = nullptr; }
+    };
+
+    // ── Log header ───────────────────────────────────────────────
+    log("=== ROWING MANAGER SOLVER LOG ===");
+    log(QString("Assignment : %1").arg(assignmentName));
+    log(QString("Timestamp  : %1").arg(QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss")));
+    log(QString("Boats      : %1").arg(selectedBoats.size()));
+    log(QString("Rowers     : %1").arg(selectedRowers.size()));
     int totalCapacity = 0;
     for (const Boat& b : selectedBoats) totalCapacity += b.capacity();
+    log(QString("Total seats: %1").arg(totalCapacity));
+    log(QString("Mode       : %1").arg(
+        priority.crazyMode ? "CRAZY" : priority.trainingMode ? "TRAINING" : "NORMAL"));
+    log(QString("MaxLearn   : %1").arg(priority.maximizeLearning ? "yes" : "no"));
+    log(QString("IgnoreBL   : %1").arg(priority.ignoreBlacklist ? "yes" : "no"));
+    log(QString("RacingMin  : %1").arg(priority.racingMinSkill));
+    log("");
+    log("--- BOATS ---");
+    for (const Boat& b : selectedBoats)
+        log(QString("  [%1] %2  Cap:%3 | %4 | %5")
+            .arg(b.id()).arg(b.name()).arg(b.capacity())
+            .arg(Boat::steeringTypeToString(b.steeringType()))
+            .arg(Boat::propulsionTypeToString(b.propulsionType())));
+    log("");
+    log("--- ROWERS ---");
+    for (const Rower& r : selectedRowers)
+        log(QString("  [%1] %2  Sk:%3 Co:%4 Prop:%5 Ob:%6 Steer:%7 BL:%8 WL:%9")
+            .arg(r.id()).arg(r.name())
+            .arg(Rower::skillToString(r.skill()))
+            .arg(Rower::compatToString(r.compatibility()))
+            .arg(Boat::propulsionTypeToString(r.propulsionAbility()))
+            .arg(r.isObmann() ? "Y" : "N")
+            .arg(r.canSteer() ? "Y" : "N")
+            .arg(r.blacklist().size())
+            .arg(r.whitelist().size()));
+    log("");
+    log("--- PRIORITY ORDER ---");
+    for (int i = 0; i < priority.order.size(); ++i)
+        log(QString("  Rank %1: %2  (weight %.1f)")
+            .arg(i+1)
+            .arg(ScoringPriority::factorName(priority.order[i]))
+            .arg(i < (int)priority.rankWeights.size() ? priority.rankWeights[i] : 0.5));
+    log(QString("  whitelistBonus=%.1f  coOccFactor=%.1f  obmannBonus=%.1f")
+        .arg(priority.whitelistBonus).arg(priority.coOccurrenceFactor).arg(priority.obmannBonus));
+    log("");
+
+    // ── Capacity check ───────────────────────────────────────────
+    GeneratorResult result;
     if (selectedRowers.size() < totalCapacity) {
         result.errorMessage = QString("Not enough rowers: need %1, have %2.")
                                   .arg(totalCapacity).arg(selectedRowers.size());
+        log("FAILED: " + result.errorMessage);
+        logFlushDelete();
         return result;
     }
 
-    // ── Crazy mode: pure random shuffle, zero constraints ─────────
+    // ── Crazy mode ───────────────────────────────────────────────
     if (priority.crazyMode) {
+        log("=== CRAZY MODE: pure random shuffle ===");
         QList<int> pool;
         for (const Rower& r : selectedRowers) pool.append(r.id());
-        // Shuffle
         for (int i = pool.size() - 1; i > 0; --i) {
             int j = QRandomGenerator::global()->bounded(i + 1);
             pool.swapItemsAt(i, j);
@@ -364,24 +438,38 @@ GeneratorResult AssignmentGenerator::generate(
         a.setName(assignmentName);
         a.setCreatedAt(QDateTime::currentDateTime());
         int idx = 0;
-        for (const Boat& boat : selectedBoats)
-            for (int s = 0; s < boat.capacity() && idx < pool.size(); ++s, ++idx)
+        for (const Boat& boat : selectedBoats) {
+            log(QString("  Boat %1:").arg(boat.name()));
+            for (int s = 0; s < boat.capacity() && idx < pool.size(); ++s, ++idx) {
                 a.assignRowerToBoat(boat.id(), pool[idx]);
+                QString rn = QString("Rower#%1").arg(pool[idx]);
+                for (const Rower& r : selectedRowers) if (r.id()==pool[idx]){rn=r.name();break;}
+                log(QString("    slot %1 -> %2").arg(s+1).arg(rn));
+            }
+        }
         result.success    = true;
         result.assignment = a;
         result.errorMessage = "Note: crazy mode — completely random, no constraints applied.";
+        log("\nRESULT: success (crazy mode)");
+        logFlushDelete();
         return result;
     }
 
     QList<int> available;
     for (const Rower& r : selectedRowers) available.append(r.id());
 
-    // Three passes: strict compat → relaxed compat → fully relaxed
+    // ── Three-pass generation ────────────────────────────────────
+    log("=== GENERATION PASSES ===");
+
     for (int pass = 0; pass < 3; ++pass) {
         bool relaxCompat = (pass >= 1);
         bool relaxAll    = (pass == 2);
-        bool anySuccess  = false;
+        QString passDesc = pass==0?"STRICT":pass==1?"RELAXED COMPAT":"FULLY RELAXED";
+        log(QString("\n--- Pass %1: %2 ---").arg(pass).arg(passDesc));
+
+        bool anySuccess = false;
         Assignment bestAssignment;
+        double bestTotalScore = -1e18;
 
         for (int fa = 0; fa < priority.passAttempts; ++fa) {
             QList<int> avail = available;
@@ -392,25 +480,72 @@ GeneratorResult AssignmentGenerator::generate(
 
             for (const Boat& boat : selectedBoats) {
                 QList<int> team;
-                // On full-relax pass, also skip steerer requirement if no steerer found
                 bool useRelax = relaxCompat || relaxAll;
                 if (!fillBoat(boat, avail, selectedRowers, priority, useRelax, team)) {
-                    ok = false; break;
+                    ok = false;
+                    log(QString("  Attempt %1: FAIL to fill boat '%2'").arg(fa+1).arg(boat.name()));
+                    break;
                 }
                 for (int rid : team) attempt.assignRowerToBoat(boat.id(), rid);
             }
-            if (ok) { anySuccess = true; bestAssignment = attempt; break; }
+
+            if (ok) {
+                // Score this attempt
+                double totalScore = 0;
+                for (const Boat& boat : selectedBoats) {
+                    const QList<int>& team = attempt.boatRowerMap().value(boat.id());
+                    totalScore += scoreTeam(team, boat, selectedRowers, priority);
+                }
+                log(QString("  Attempt %1: OK  totalScore=%.2f").arg(fa+1).arg(totalScore));
+
+                // Log boat breakdown
+                for (const Boat& boat : selectedBoats) {
+                    const QList<int>& team = attempt.boatRowerMap().value(boat.id());
+                    QStringList names;
+                    for (int rid : team)
+                        for (const Rower& r : selectedRowers)
+                            if (r.id()==rid){names<<r.name().left(10);break;}
+                    double bs = scoreTeam(team, boat, selectedRowers, priority);
+                    log(QString("    %1: [%2]  score=%.2f")
+                        .arg(boat.name()).arg(names.join(", ")).arg(bs));
+                }
+
+                if (!anySuccess || totalScore > bestTotalScore) {
+                    bestTotalScore = totalScore;
+                    bestAssignment = attempt;
+                    anySuccess = true;
+                }
+                // Keep trying all passAttempts to find best score
+            }
         }
 
         if (anySuccess) {
+            log(QString("\nPass %1 succeeded. Best total score: %.2f")
+                .arg(pass).arg(bestTotalScore));
+            log("FINAL ASSIGNMENT:");
+            for (const Boat& boat : selectedBoats) {
+                const QList<int>& team = bestAssignment.boatRowerMap().value(boat.id());
+                QStringList names;
+                for (int rid : team)
+                    for (const Rower& r : selectedRowers)
+                        if (r.id()==rid){names<<r.name();break;}
+                double bs = scoreTeam(team, boat, selectedRowers, priority);
+                log(QString("  %1: %2  (score %.2f)")
+                    .arg(boat.name()).arg(names.join(" | ")).arg(bs));
+            }
             result.success    = true;
             result.assignment = bestAssignment;
             if (pass == 1)
                 result.errorMessage = "Note: some compatibility constraints were relaxed.";
             else if (pass == 2)
-                result.errorMessage = "Note: all compatibility constraints were ignored — no valid strict assignment found.";
+                result.errorMessage = "Note: all compatibility constraints were ignored.";
+            log(QString("\nRESULT: success (pass %1)").arg(pass));
+            logFlushDelete();
             return result;
         }
+
+        log(QString("Pass %1 FAILED — no valid assignment in %2 attempts")
+            .arg(pass).arg(priority.passAttempts));
     }
 
     result.errorMessage =
@@ -419,6 +554,8 @@ GeneratorResult AssignmentGenerator::generate(
         "• Not enough rowers with the required propulsion ability\n"
         "• No steerer available for a non-steered boat\n"
         "• Blacklist constraints make assignment impossible";
+    log("\nRESULT: FAILED — " + result.errorMessage);
+    logFlushDelete();
     return result;
 }
 

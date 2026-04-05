@@ -429,6 +429,12 @@
 			null
 		],
 		[
+			"/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boatlistsdialog.h",
+			"MU",
+			"UVLADIE3JM/moc_boatlistsdialog.cpp",
+			null
+		],
+		[
 			"/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boattablemodel.h",
 			"MU",
 			"UVLADIE3JM/moc_boattablemodel.cpp",
@@ -644,6 +650,11 @@
 		],
 		[
 			"/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boat.cpp",
+			"MU",
+			null
+		],
+		[
+			"/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/boatlistsdialog.cpp",
 			"MU",
 			null
 		],
