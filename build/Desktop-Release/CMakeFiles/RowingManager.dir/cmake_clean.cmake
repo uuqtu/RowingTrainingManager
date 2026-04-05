@@ -33,6 +33,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/RowingManager.dir/src/rowerlistsdialog.cpp.o.d"
   "CMakeFiles/RowingManager.dir/src/rowertablemodel.cpp.o"
   "CMakeFiles/RowingManager.dir/src/rowertablemodel.cpp.o.d"
+  "CMakeFiles/RowingManager.dir/src/teamselectdialog.cpp.o"
+  "CMakeFiles/RowingManager.dir/src/teamselectdialog.cpp.o.d"
   "RowingManager"
   "RowingManager.pdb"
   "RowingManager_autogen/mocs_compilation.cpp"

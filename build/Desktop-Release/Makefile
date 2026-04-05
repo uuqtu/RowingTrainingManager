@@ -515,6 +515,30 @@ src/rowertablemodel.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/RowingManager.dir/build.make CMakeFiles/RowingManager.dir/src/rowertablemodel.cpp.s
 .PHONY : src/rowertablemodel.cpp.s
 
+src/teamselectdialog.o: src/teamselectdialog.cpp.o
+.PHONY : src/teamselectdialog.o
+
+# target to build an object file
+src/teamselectdialog.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RowingManager.dir/build.make CMakeFiles/RowingManager.dir/src/teamselectdialog.cpp.o
+.PHONY : src/teamselectdialog.cpp.o
+
+src/teamselectdialog.i: src/teamselectdialog.cpp.i
+.PHONY : src/teamselectdialog.i
+
+# target to preprocess a source file
+src/teamselectdialog.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RowingManager.dir/build.make CMakeFiles/RowingManager.dir/src/teamselectdialog.cpp.i
+.PHONY : src/teamselectdialog.cpp.i
+
+src/teamselectdialog.s: src/teamselectdialog.cpp.s
+.PHONY : src/teamselectdialog.s
+
+# target to generate assembly for a file
+src/teamselectdialog.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RowingManager.dir/build.make CMakeFiles/RowingManager.dir/src/teamselectdialog.cpp.s
+.PHONY : src/teamselectdialog.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -571,6 +595,9 @@ help:
 	@echo "... src/rowertablemodel.o"
 	@echo "... src/rowertablemodel.i"
 	@echo "... src/rowertablemodel.s"
+	@echo "... src/teamselectdialog.o"
+	@echo "... src/teamselectdialog.i"
+	@echo "... src/teamselectdialog.s"
 .PHONY : help
 
 

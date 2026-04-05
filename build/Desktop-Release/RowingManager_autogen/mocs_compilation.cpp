@@ -8,3 +8,4 @@
 #include "UVLADIE3JM/moc_mainwindow.cpp"
 #include "UVLADIE3JM/moc_rowerlistsdialog.cpp"
 #include "UVLADIE3JM/moc_rowertablemodel.cpp"
+#include "UVLADIE3JM/moc_teamselectdialog.cpp"

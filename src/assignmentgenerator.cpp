@@ -18,21 +18,24 @@ bool AssignmentGenerator::violatesConstraints(const Rower& rower,
                                                const QList<int>& team,
                                                const Boat& boat,
                                                const QList<Rower>& allRowers,
-                                               bool relaxCompat) const {
-    // 0. Boat blacklist: rower refuses this boat
-    if (rower.boatBlacklist().contains(boat.id())) return true;
-
-    // Boat whitelist: if non-empty, rower only accepts listed boats
-    if (!rower.boatWhitelist().isEmpty() && !rower.boatWhitelist().contains(boat.id()))
-        return true;
+                                               bool relaxCompat,
+                                               const ScoringPriority* priority) const {
+    // 0. Boat blacklist / whitelist
+    if (!priority || !priority->ignoreBoatBlacklist)
+        if (rower.boatBlacklist().contains(boat.id())) return true;
+    if (!priority || !priority->ignoreBoatWhitelist)
+        if (!rower.boatWhitelist().isEmpty() && !rower.boatWhitelist().contains(boat.id()))
+            return true;
 
     // 1. Blacklist (bidirectional)
-    for (int blackId : rower.blacklist())
-        if (team.contains(blackId)) return true;
-    for (int memberId : team)
-        for (const Rower& r : allRowers)
-            if (r.id() == memberId && r.blacklist().contains(rower.id()))
-                return true;
+    if (!priority || !priority->ignoreBlacklist) {
+        for (int blackId : rower.blacklist())
+            if (team.contains(blackId)) return true;
+        for (int memberId : team)
+            for (const Rower& r : allRowers)
+                if (r.id() == memberId && r.blacklist().contains(rower.id()))
+                    return true;
+    }
 
     // 2. Propulsion
     if (boat.propulsionType() != PropulsionType::Both)
@@ -54,12 +57,11 @@ bool AssignmentGenerator::violatesConstraints(const Rower& rower,
             }
         }
 
-        // 4. Skill / boat-type: Students and Beginners should not go in Racing boats.
-        //    Treated as a hard constraint in the strict pass; relaxed in later passes.
+        // 4. Skill / boat-type: rowers below racingMinSkill cannot go in Racing boats
+        //    in the strict pass. Relaxed in later passes via priority.racingMinSkill.
         if (boat.boatType() == BoatType::Racing) {
-            if (rower.skill() == SkillLevel::Novice ||
-                rower.skill() == SkillLevel::Beginner ||
-                rower.skill() == SkillLevel::Developing)
+            int minSkill = priority ? priority->racingMinSkill : 4;
+            if (Rower::skillToInt(rower.skill()) < minSkill)
                 return true;
         }
     }
@@ -141,7 +143,7 @@ double AssignmentGenerator::scoreTeam(const QList<int>& team,
     double racingBeginnerPenalty = 0.0;
     if (boat.boatType() == BoatType::Racing) {
         for (const Rower* r : members) {
-            if (r->skill() == SkillLevel::Novice || r->skill() == SkillLevel::Beginner || r->skill() == SkillLevel::Developing)
+            if (Rower::skillToInt(r->skill()) < priority.racingMinSkill)
                 racingBeginnerPenalty += priority.racingBeginnerPenalty;   // large enough to strongly discourage
         }
     }
@@ -306,7 +308,7 @@ bool AssignmentGenerator::fillBoat(const Boat& boat,
                     steerers.append(id);
             if (!steerers.isEmpty()) {
                 int pick = steerers[QRandomGenerator::global()->bounded(steerers.size())];
-                if (!violatesConstraints(*rowerMap[pick], candidate, boat, allRowers, relaxCompat))
+                if (!violatesConstraints(*rowerMap[pick], candidate, boat, allRowers, relaxCompat, &priority))
                     candidate.append(pick);
             }
         }
@@ -314,7 +316,7 @@ bool AssignmentGenerator::fillBoat(const Boat& boat,
         for (int id : shuffled) {
             if (candidate.size() >= capacity) break;
             if (candidate.contains(id) || !rowerMap.contains(id)) continue;
-            if (!violatesConstraints(*rowerMap[id], candidate, boat, allRowers, relaxCompat))
+            if (!violatesConstraints(*rowerMap[id], candidate, boat, allRowers, relaxCompat, &priority))
                 candidate.append(id);
         }
 
@@ -747,7 +749,7 @@ QList<ScoreDetail> AssignmentGenerator::computeScoreDetails(
         // ── Racing/Beginner ──────────────────────────────────────
         if (boat.boatType() == BoatType::Racing)
             for (const Rower* r : members)
-                if (r->skill() == SkillLevel::Novice || r->skill() == SkillLevel::Beginner || r->skill() == SkillLevel::Developing)
+                if (Rower::skillToInt(r->skill()) < priority.racingMinSkill)
                     d.racingBegPenalty += priority.racingBeginnerPenalty;
 
         // ── Obmann ───────────────────────────────────────────────

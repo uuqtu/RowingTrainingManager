@@ -4,7 +4,13 @@
 #include "assignmentviewdialog.h"
 #include "rowerlistsdialog.h"
 #include "chartwidgets.h"
+#include "teamselectdialog.h"
 #include <QSqlQuery>
+#include <QMenuBar>
+#include <QAction>
+#include <QFileInfo>
+#include <QDir>
+#include <QFile>
 
 #include <QTabWidget>
 #include <QTableView>
@@ -101,17 +107,45 @@ private:
 // ---------------------------------------------------------------
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     m_db = new DatabaseManager(this);
-    if (!m_db->open()) {
-        QMessageBox::critical(this, "Database Error",
-            "Could not open database: " + m_db->lastError());
-    }
-
-    m_boatModel = new BoatTableModel(this);
+    m_boatModel  = new BoatTableModel(this);
     m_rowerModel = new RowerTableModel(this);
-
     setupUi();
+    // openDatabase() must be called before show()
+}
+
+bool MainWindow::openDatabase(const QString& path, const QString& teamName) {
+    m_currentDbPath   = path;
+    m_currentTeamName = teamName;
+    if (!m_db->open(path)) {
+        QMessageBox::critical(this, "Database Error",
+            "Could not open database:\n" + path + "\n\n" + m_db->lastError());
+        return false;
+    }
+    setWindowTitle(QString("Rowing Team Manager — %1").arg(teamName));
     loadAll();
-    statusBar()->showMessage("Ready — rowing.db loaded.", 3000);
+    statusBar()->showMessage(
+        QString("Team \"%1\" loaded from: %2").arg(teamName).arg(path), 4000);
+
+    // Set up backup folder: <dbdir>/<dbBaseName_without_ext>/
+    QFileInfo fi(path);
+    m_backupDir = fi.absolutePath() + "/" + fi.completeBaseName() + "_backups";
+    QDir().mkpath(m_backupDir);
+
+    // Reset last-backup mtime so first tick captures the current state
+    m_lastBackupMtime = QDateTime();
+    m_backupFirstRun  = true;
+
+    // Start (or restart) the 1-minute backup timer
+    if (!m_backupTimer) {
+        m_backupTimer = new QTimer(this);
+        m_backupTimer->setInterval(60 * 1000);  // 1 minute
+        connect(m_backupTimer, &QTimer::timeout, this, &MainWindow::onBackupTick);
+    }
+    m_backupTimer->start();
+    // Do an immediate backup on open so we always have one from startup
+    QTimer::singleShot(2000, this, &MainWindow::onBackupTick);
+
+    return true;
 }
 
 MainWindow::~MainWindow() {}
@@ -121,6 +155,14 @@ void MainWindow::setupUi() {
     setWindowTitle("🚣 Rowing Team Manager");
     setMinimumSize(900, 650);
     resize(1100, 750);
+
+    // Menu bar — File menu with Switch Team
+    auto* menuBar = new QMenuBar(this);
+    setMenuBar(menuBar);
+    auto* fileMenu = menuBar->addMenu("&File");
+    auto* switchAct = fileMenu->addAction("⇄  Switch Team / Database…");
+    switchAct->setShortcut(QKeySequence("Ctrl+T"));
+    connect(switchAct, &QAction::triggered, this, &MainWindow::onSwitchDatabase);
 
     // Style
     qApp->setStyle("Fusion");
@@ -188,6 +230,17 @@ void MainWindow::setupUi() {
     m_tabs->addTab(buildAnalysisTab(),       "Analysis");
     m_tabs->addTab(buildOptionsTab(),        "Options");
     m_tabs->addTab(buildExpertTab(),        "Expert Settings");
+
+    // Switch Team button — pinned to the top-right corner of the tab bar
+    auto* switchTeamBtn = new QPushButton("⇄  Switch Team");
+    switchTeamBtn->setStyleSheet(
+        "QPushButton { background:#1a2a1a; color:#88ee88; border:1px solid #3a5a3a; "
+        "padding:3px 10px; border-radius:3px; font-weight:600; }"
+        "QPushButton:hover { background:#253525; }");
+    switchTeamBtn->setToolTip("Switch to a different team database  (Ctrl+T)");
+    connect(switchTeamBtn, &QPushButton::clicked, this, &MainWindow::onSwitchDatabase);
+    m_tabs->setCornerWidget(switchTeamBtn, Qt::TopRightCorner);
+
     setCentralWidget(m_tabs);
 }
 
@@ -350,9 +403,13 @@ QWidget* MainWindow::buildAssignmentsTab() {
     auto* lockBtn = new QPushButton("🔒 Lock");
     lockBtn->setObjectName("primaryBtn");
     lockBtn->setToolTip("Lock/unlock this assignment so it cannot be edited");
+    auto* dupBtn = new QPushButton("⎘  Copy");
+    dupBtn->setObjectName("primaryBtn");
+    dupBtn->setToolTip("Duplicate this assignment under a new name");
     leftBtnLayout->addWidget(newBtn);
     leftBtnLayout->addWidget(delBtn);
     leftBtnLayout->addWidget(lockBtn);
+    leftBtnLayout->addWidget(dupBtn);
     leftLayout->addLayout(leftBtnLayout);
 
     layout->addWidget(leftPanel);
@@ -396,51 +453,57 @@ QWidget* MainWindow::buildAssignmentsTab() {
 
     rightLayout->addWidget(viewTabs, 1);
 
-    m_copyBtn = new QPushButton("Copy to Clipboard");
+    // Action buttons — two rows so text is never clipped
+    auto* actionOuter = new QVBoxLayout;
+    actionOuter->setSpacing(4);
+
+    // Row 1: clipboard + print + stats
+    auto* actionRow1 = new QHBoxLayout;
+    actionRow1->setSpacing(6);
+    m_copyBtn = new QPushButton("📋  Copy to Clipboard");
     m_copyBtn->setObjectName("primaryBtn");
     m_copyBtn->setEnabled(false);
-
-    m_printBtn = new QPushButton("Print");
+    m_printBtn = new QPushButton("🖨  Print");
     m_printBtn->setObjectName("primaryBtn");
     m_printBtn->setEnabled(false);
-
     m_printCopiesSpinBox = new QSpinBox;
     m_printCopiesSpinBox->setRange(1, 20);
     m_printCopiesSpinBox->setValue(1);
-    m_printCopiesSpinBox->setPrefix("x");
-    m_printCopiesSpinBox->setToolTip("Number of copies to print (defaults to number of boats in assignment)");
+    m_printCopiesSpinBox->setPrefix("×");
+    m_printCopiesSpinBox->setToolTip("Number of copies to print");
     m_printCopiesSpinBox->setEnabled(false);
     m_printCopiesSpinBox->setMaximumWidth(70);
-
-    auto* actionRow = new QHBoxLayout;
-    actionRow->addStretch();
-    actionRow->addWidget(m_copyBtn);
-    actionRow->addWidget(m_printCopiesSpinBox);
-    actionRow->addWidget(m_printBtn);
-
-    auto* printStatsBtn = new QPushButton("Print Stats");
+    auto* printStatsBtn = new QPushButton("📊  Print Stats");
     printStatsBtn->setObjectName("primaryBtn");
     printStatsBtn->setToolTip("Print condensed scoring statistics for the selected assignment");
     printStatsBtn->setEnabled(false);
-    actionRow->addWidget(printStatsBtn);
+    actionRow1->addWidget(m_copyBtn);
+    actionRow1->addWidget(m_printCopiesSpinBox);
+    actionRow1->addWidget(m_printBtn);
+    actionRow1->addWidget(printStatsBtn);
+    actionRow1->addStretch();
 
-    m_editModeBtn = new QPushButton("✏ Edit");
+    // Row 2: edit controls
+    auto* actionRow2 = new QHBoxLayout;
+    actionRow2->setSpacing(6);
+    m_editModeBtn = new QPushButton("✏  Edit Rowers");
     m_editModeBtn->setObjectName("primaryBtn");
-    m_editModeBtn->setToolTip("Enable rower-swap editing — click a rower cell to replace them");
+    m_editModeBtn->setToolTip("Enable rower-swap editing — click a rower cell in the Table tab to swap");
     m_editModeBtn->setEnabled(false);
-    actionRow->addWidget(m_editModeBtn);
-
-    m_saveEditBtn = new QPushButton("💾 Save");
+    m_saveEditBtn = new QPushButton("💾  Save Edit");
     m_saveEditBtn->setObjectName("primaryBtn");
     m_saveEditBtn->setVisible(false);
-    actionRow->addWidget(m_saveEditBtn);
-
-    m_printTempBtn = new QPushButton("🖶 Print temp.");
+    m_printTempBtn = new QPushButton("🖶  Print Temporary");
     m_printTempBtn->setObjectName("primaryBtn");
     m_printTempBtn->setVisible(false);
-    actionRow->addWidget(m_printTempBtn);
+    actionRow2->addWidget(m_editModeBtn);
+    actionRow2->addWidget(m_saveEditBtn);
+    actionRow2->addWidget(m_printTempBtn);
+    actionRow2->addStretch();
 
-    rightLayout->addLayout(actionRow);
+    actionOuter->addLayout(actionRow1);
+    actionOuter->addLayout(actionRow2);
+    rightLayout->addLayout(actionOuter);
 
     connect(printStatsBtn, &QPushButton::clicked, this, &MainWindow::onPrintStats);
     connect(m_editModeBtn,  &QPushButton::clicked, this, &MainWindow::onToggleAssignmentEditMode);
@@ -466,8 +529,42 @@ QWidget* MainWindow::buildAssignmentsTab() {
     connect(newBtn,  &QPushButton::clicked, this, &MainWindow::onNewAssignment);
     connect(delBtn,  &QPushButton::clicked, this, &MainWindow::onDeleteAssignment);
     connect(lockBtn, &QPushButton::clicked, this, &MainWindow::onToggleLockAssignment);
+    connect(dupBtn,  &QPushButton::clicked, this, &MainWindow::onCopyAssignment);
     connect(m_assignmentList, &QListWidget::itemClicked,       this, &MainWindow::onAssignmentSelected);
     connect(m_assignmentList, &QListWidget::itemDoubleClicked, this, &MainWindow::onEditAssignment);
+
+    // Right-click context menu
+    m_assignmentList->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_assignmentList, &QListWidget::customContextMenuRequested, this,
+        [this](const QPoint& pos) {
+            auto* item = m_assignmentList->itemAt(pos);
+            if (!item) return;
+            int id = item->data(Qt::UserRole).toInt();
+            // Find assignment
+            Assignment* found = nullptr;
+            for (Assignment& a : m_assignments) if (a.id() == id) { found = &a; break; }
+            if (!found) return;
+
+            QMenu menu(this);
+            auto* renameAct = menu.addAction("✏  Rename…");
+            auto* copyAct   = menu.addAction("⎘  Copy…");
+            menu.addSeparator();
+            auto* deleteAct = menu.addAction("✕  Delete");
+            deleteAct->setProperty("danger", true);
+
+            auto* chosen = menu.exec(m_assignmentList->mapToGlobal(pos));
+            if (!chosen) return;
+
+            if (chosen == renameAct) {
+                onRenameAssignment(id);
+            } else if (chosen == copyAct) {
+                m_assignmentList->setCurrentItem(item);
+                onCopyAssignment();
+            } else if (chosen == deleteAct) {
+                m_assignmentList->setCurrentItem(item);
+                onDeleteAssignment();
+            }
+        });
     connect(m_copyBtn, &QPushButton::clicked, this, &MainWindow::onCopyToClipboard);
     connect(m_printBtn, &QPushButton::clicked, this, &MainWindow::onPrintAssignment);
 
@@ -4399,7 +4496,7 @@ void MainWindow::onPrintStats() {
     const int W = 40;
     QString out;
     auto line = [&](const QString& s) { out += s.left(W) + "\n"; };
-    auto sep  = [&](char c='-') { out += QString(c).repeated(W) + "\n"; };
+    auto sep  = [&](char c='─') { out += QString(c).repeated(W) + "\n"; };
     auto kv   = [&](const QString& k, const QString& v) {
         QString s = QString("%1%2").arg(k, -(16)).arg(v);
         out += s.left(W) + "\n";
@@ -4526,30 +4623,41 @@ void MainWindow::onAssignmentTableCellClicked(int row, int col) {
     if (col >= boatIds.size()) return;
     int boatId = boatIds.at(col);
 
-    // Build list of available rowers (not already in this assignment)
-    QList<int> assignedIds;
+    // Build list of all assigned rowers and which boat each is in
+    QMap<int,int> rowerToBoat;  // rowerId -> boatId
     for (auto it = m_editedAssignment.boatRowerMap().constBegin();
          it != m_editedAssignment.boatRowerMap().constEnd(); ++it)
-        for (int rid : it.value()) assignedIds << rid;
-
-    // Show a dialog with a combo box to pick a replacement
-    QDialog dlg(this);
-    dlg.setWindowTitle("Swap Rower");
-    dlg.setModal(true);
-    auto* vl = new QVBoxLayout(&dlg);
+        for (int rid : it.value()) rowerToBoat[rid] = it.key();
 
     QString curName;
     for (const Rower& r : m_rowers) if (r.id() == currentRowerId) { curName = r.name(); break; }
-    vl->addWidget(new QLabel(QString("Replace <b>%1</b> with:").arg(curName)));
+
+    // Show dialog
+    QDialog dlg(this);
+    dlg.setWindowTitle("Edit Rower — " + curName);
+    dlg.setModal(true);
+    auto* vl = new QVBoxLayout(&dlg);
+    vl->addWidget(new QLabel(QString(
+        "Current rower: <b>%1</b><br>"
+        "<span style='color:#5a7a9a; font-size:11px;'>"
+        "Select a replacement (swap positions) or choose Remove to take this rower out.</span>")
+        .arg(curName)));
 
     auto* combo = new QComboBox;
+    // Special sentinel values: -1 = keep, -2 = remove
     combo->addItem("— keep current —", -1);
+    combo->addItem("✕  Remove this rower (no replacement)", -2);
+
     for (const Rower& r : m_rowers) {
         if (m_sickRowerIds.contains(r.id())) continue;
-        // Offer all rowers: already-assigned ones shown in italics (can swap positions)
+        if (r.id() == currentRowerId) continue;  // skip self
         QString label = r.name() + "  [" + Rower::skillToString(r.skill()) + "]";
-        if (assignedIds.contains(r.id()) && r.id() != currentRowerId)
-            label += "  (move from other boat)";
+        if (rowerToBoat.contains(r.id())) {
+            QString fromBoat;
+            for (const Boat& b : m_boats) if (b.id() == rowerToBoat[r.id()]) { fromBoat = b.name(); break; }
+            if (fromBoat.isEmpty()) fromBoat = QString("Boat#%1").arg(rowerToBoat[r.id()]);
+            label += "  ↔ swap from " + fromBoat;
+        }
         combo->addItem(label, r.id());
     }
     vl->addWidget(combo);
@@ -4560,32 +4668,63 @@ void MainWindow::onAssignmentTableCellClicked(int row, int col) {
     connect(btns, &QDialogButtonBox::rejected, &dlg, &QDialog::reject);
 
     if (dlg.exec() != QDialog::Accepted) return;
-    int newRower = combo->currentData().toInt();
-    if (newRower <= 0 || newRower == currentRowerId) return;
+    int chosen = combo->currentData().toInt();
+    if (chosen == -1) return;  // keep
 
-    // Apply the swap in m_editedAssignment
     auto map = m_editedAssignment.boatRowerMap();
 
-    // Remove newRower from wherever they currently are (if anywhere)
-    for (auto it = map.begin(); it != map.end(); ++it)
-        it.value().removeAll(newRower);
+    if (chosen == -2) {
+        // Remove: just remove currentRowerId from this boat
+        for (auto it = map.begin(); it != map.end(); ++it)
+            if (it.key() == boatId)
+                it.value().removeAll(currentRowerId);
+        statusBar()->showMessage(
+            QString("%1 removed — press 💾 Save to commit.").arg(curName), 0);
+    } else {
+        // True swap: if chosen is already in another boat, put currentRowerId there
+        int chosenOriginBoat = rowerToBoat.value(chosen, -1);
 
-    // Replace currentRowerId with newRower in this boat
-    for (auto it = map.begin(); it != map.end(); ++it) {
-        if (it.key() == boatId) {
-            int idx = it.value().indexOf(currentRowerId);
-            if (idx >= 0) it.value()[idx] = newRower;
+        if (chosenOriginBoat != -1 && chosenOriginBoat != boatId) {
+            // chosen is in a different boat — do a real bidirectional swap:
+            // put currentRowerId into chosen's origin boat at chosen's position
+            for (auto it = map.begin(); it != map.end(); ++it) {
+                if (it.key() == chosenOriginBoat) {
+                    int idx = it.value().indexOf(chosen);
+                    if (idx >= 0)
+                        it.value()[idx] = currentRowerId;  // replace chosen with current
+                }
+            }
+        } else if (chosenOriginBoat == -1) {
+            // chosen is not assigned anywhere — simply remove currentRowerId from this boat
+            for (auto it = map.begin(); it != map.end(); ++it)
+                if (it.key() == boatId)
+                    it.value().removeAll(currentRowerId);
         }
+
+        // Now put chosen into this boat at currentRowerId's position
+        for (auto it = map.begin(); it != map.end(); ++it) {
+            if (it.key() == boatId) {
+                int idx = it.value().indexOf(currentRowerId);
+                if (idx >= 0)
+                    it.value()[idx] = chosen;
+            }
+        }
+
+        QString newName;
+        for (const Rower& r : m_rowers) if (r.id() == chosen) { newName = r.name(); break; }
+        QString msg = chosenOriginBoat != -1 && chosenOriginBoat != boatId
+            ? QString("Swapped %1 ↔ %2 — press 💾 Save to commit.").arg(curName).arg(newName)
+            : QString("Replaced %1 with %2 — press 💾 Save to commit.").arg(curName).arg(newName);
+        statusBar()->showMessage(msg, 0);
     }
+
     m_editedAssignment.setBoatRowerMap(map);
 
-    // Refresh display with edited assignment
+    // Refresh display
     displayAssignment(m_editedAssignment);
-
     // Reconnect cell click (displayAssignment rebuilds the table)
     connect(m_assignmentTable, &QTableWidget::cellClicked,
             this, &MainWindow::onAssignmentTableCellClicked);
-    statusBar()->showMessage("Rower swapped — press 💾 Save to commit or ✕ Cancel to discard.", 0);
 }
 
 void MainWindow::onSaveEditedAssignment() {
@@ -4637,4 +4776,181 @@ void MainWindow::onPrintTempAssignment() {
     text += formatAssignmentText(a);
     m_printer.printText(text);
     statusBar()->showMessage("Temporary assignment printed.", 2000);
+}
+
+// -----------------------------------------------------------------------
+// Copy assignment with name prompt
+// -----------------------------------------------------------------------
+void MainWindow::onCopyAssignment() {
+    auto* item = m_assignmentList->currentItem();
+    if (!item) {
+        statusBar()->showMessage("Select an assignment to copy.", 2000);
+        return;
+    }
+    int srcId = item->data(Qt::UserRole).toInt();
+    if (srcId < 0) return;
+
+    bool ok = false;
+    // Find display name from in-memory list
+    QString srcName;
+    for (const Assignment& a : m_assignments) if (a.id() == srcId) { srcName = a.name(); break; }
+
+    QString newName = QInputDialog::getText(
+        this, "Copy Assignment",
+        "New name for the copied assignment:",
+        QLineEdit::Normal,
+        srcName + " (copy)",
+        &ok);
+    if (!ok || newName.trimmed().isEmpty()) return;
+
+    // Load FULL assignment (boatRowerMap + groups + all details) from DB
+    Assignment src = m_db->loadAssignment(srcId);
+    if (src.id() < 0) {
+        QMessageBox::warning(this, "Copy Failed", "Could not load source assignment data.");
+        return;
+    }
+
+    // Build copy — same map, unlocked, new timestamp, id=-1 so saveAssignment inserts
+    Assignment copy;
+    copy.setId(-1);
+    copy.setName(newName.trimmed());
+    copy.setCreatedAt(QDateTime::currentDateTime());
+    copy.setLocked(false);
+    copy.setBoatRowerMap(src.boatRowerMap());
+    copy.setGroups(src.groups());
+    copy.setCheckedBoatIds(src.checkedBoatIds());
+    copy.setCheckedRowerIds(src.checkedRowerIds());
+    copy.setPriorityOrder(src.priorityOrder());
+
+    if (!m_db->saveAssignment(copy)) {
+        QMessageBox::warning(this, "Copy Failed",
+            "Could not save the copied assignment:\n" + m_db->lastError());
+        return;
+    }
+    m_assignments.prepend(copy);
+    refreshAssignmentList();
+    statusBar()->showMessage("Assignment copied as: " + copy.name(), 3000);
+}
+
+// -----------------------------------------------------------------------
+// Switch Team / Database at runtime
+// -----------------------------------------------------------------------
+void MainWindow::onSwitchDatabase() {
+    TeamSelectDialog sel(this);
+    if (sel.exec() != QDialog::Accepted) return;
+
+    // Stop backup timer before switching
+    if (m_backupTimer) m_backupTimer->stop();
+
+    // Exit edit mode if active
+    if (m_assignmentEditMode) {
+        m_assignmentEditMode = false;
+        if (m_editModeBtn)  m_editModeBtn->setText("✏ Edit");
+        if (m_saveEditBtn)  m_saveEditBtn->setVisible(false);
+        if (m_printTempBtn) m_printTempBtn->setVisible(false);
+    }
+
+    // Close current DB and reset all in-memory state
+    m_boats.clear();
+    m_rowers.clear();
+    m_assignments.clear();
+    m_sickRowerIds.clear();
+    m_currentAssignment = Assignment();
+    m_editedAssignment  = Assignment();
+    if (m_boatModel)  m_boatModel->setBoats({});
+    if (m_rowerModel) m_rowerModel->setRowers({});
+    if (m_assignmentList) m_assignmentList->clear();
+    if (m_assignmentView) m_assignmentView->clear();
+
+    openDatabase(sel.selectedDbPath(), sel.selectedTeamName());
+}
+
+// -----------------------------------------------------------------------
+// Rename assignment (right-click context menu)
+// -----------------------------------------------------------------------
+void MainWindow::onRenameAssignment(int assignmentId) {
+    // Find assignment in memory
+    Assignment* found = nullptr;
+    for (Assignment& a : m_assignments) if (a.id() == assignmentId) { found = &a; break; }
+    if (!found) return;
+
+    bool ok = false;
+    QString newName = QInputDialog::getText(
+        this, "Rename Assignment",
+        "New name:",
+        QLineEdit::Normal,
+        found->name(),
+        &ok);
+    if (!ok || newName.trimmed().isEmpty()) return;
+    if (newName.trimmed() == found->name()) return;
+
+    // Update in memory
+    found->setName(newName.trimmed());
+
+    // Persist — save full assignment (keeps entries intact via UPDATE path)
+    m_db->saveAssignment(*found);
+
+    // If this is the currently displayed assignment, update title too
+    if (m_currentAssignment.id() == assignmentId)
+        m_currentAssignment.setName(newName.trimmed());
+
+    // Refresh list display
+    refreshAssignmentList();
+
+    // Re-select same item
+    for (int i = 0; i < m_assignmentList->count(); ++i) {
+        if (m_assignmentList->item(i)->data(Qt::UserRole).toInt() == assignmentId) {
+            m_assignmentList->setCurrentRow(i);
+            break;
+        }
+    }
+    statusBar()->showMessage("Assignment renamed to: " + newName.trimmed(), 2000);
+}
+
+// -----------------------------------------------------------------------
+// Auto-backup: runs every 60 s, copies DB only if file has changed
+// -----------------------------------------------------------------------
+void MainWindow::onBackupTick() {
+    if (m_currentDbPath.isEmpty() || m_backupDir.isEmpty()) return;
+
+    QFileInfo fi(m_currentDbPath);
+    if (!fi.exists()) return;
+
+    QDateTime currentMtime = fi.lastModified();
+
+    // Only back up if the file has changed since our last backup
+    if (m_lastBackupMtime.isValid() && currentMtime <= m_lastBackupMtime)
+        return;
+
+    // Flush any pending SQLite writes by checkpointing the WAL if present
+    // (harmless if WAL mode is not active)
+    QSqlQuery q("PRAGMA wal_checkpoint(PASSIVE)");
+    q.exec();
+
+    // Build backup filename: <backupDir>/<baseName>_YYYYMMDD_HHmmss.bak
+    QString ts = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
+    QString bakName = fi.completeBaseName() + "_" + ts + ".bak";
+    QString bakPath = m_backupDir + "/" + bakName;
+
+    if (QFile::copy(m_currentDbPath, bakPath)) {
+        m_lastBackupMtime = currentMtime;
+        // Trim old backups: keep the 60 most recent (= ~1 hour at 1/min)
+        QDir dir(m_backupDir);
+        QStringList baks = dir.entryList({"*.bak"}, QDir::Files, QDir::Name);
+        const int kKeep = 60;
+        while (baks.size() > kKeep) {
+            dir.remove(baks.takeFirst());  // removes oldest (sorted by name = timestamp)
+        }
+        // Silent success — don't flood status bar every minute
+        // Only show on the first backup after opening
+        if (m_backupFirstRun) {
+            statusBar()->showMessage(
+                QString("Auto-backup active → %1").arg(m_backupDir), 4000);
+            m_backupFirstRun = false;
+        }
+    } else {
+        // Only warn once per failure run
+        statusBar()->showMessage(
+            QString("⚠ Auto-backup failed: could not write to %1").arg(bakPath), 6000);
+    }
 }

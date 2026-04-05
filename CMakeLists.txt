@@ -26,6 +26,7 @@ set(SOURCES
     src/assignmentviewdialog.cpp
     src/rowerlistsdialog.cpp
     src/chartwidgets.cpp
+    src/teamselectdialog.cpp
 )
 
 set(HEADERS
@@ -42,6 +43,7 @@ set(HEADERS
     src/assignmentviewdialog.h
     src/rowerlistsdialog.h
     src/chartwidgets.h
+    src/teamselectdialog.h
 )
 
 add_executable(RowingManager ${SOURCES} ${HEADERS})

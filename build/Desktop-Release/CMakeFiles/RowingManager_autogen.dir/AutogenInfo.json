@@ -475,6 +475,12 @@
 			"MU",
 			"UVLADIE3JM/moc_rowertablemodel.cpp",
 			null
+		],
+		[
+			"/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/teamselectdialog.h",
+			"MU",
+			"UVLADIE3JM/moc_teamselectdialog.cpp",
+			null
 		]
 	],
 	"HEADER_EXTENSIONS" : [ "h", "hh", "h++", "hm", "hpp", "hxx", "in", "txx" ],
@@ -683,6 +689,11 @@
 		],
 		[
 			"/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/rowertablemodel.cpp",
+			"MU",
+			null
+		],
+		[
+			"/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/src/teamselectdialog.cpp",
 			"MU",
 			null
 		]

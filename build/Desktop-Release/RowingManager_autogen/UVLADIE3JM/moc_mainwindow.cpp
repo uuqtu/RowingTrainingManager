@@ -51,11 +51,16 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         "onNewAssignment",
         "onDeleteAssignment",
         "onToggleLockAssignment",
+        "onCopyAssignment",
+        "onRenameAssignment",
+        "assignmentId",
         "onAssignmentSelected",
         "QListWidgetItem*",
         "item",
         "onEditAssignment",
         "onCopyToClipboard",
+        "onSwitchDatabase",
+        "onBackupTick",
         "onPrintAssignment",
         "onPrintStats",
         "onToggleAssignmentEditMode",
@@ -101,51 +106,61 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         QtMocHelpers::SlotData<void()>(11, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onToggleLockAssignment'
         QtMocHelpers::SlotData<void()>(12, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onCopyAssignment'
+        QtMocHelpers::SlotData<void()>(13, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onRenameAssignment'
+        QtMocHelpers::SlotData<void(int)>(14, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 15 },
+        }}),
         // Slot 'onAssignmentSelected'
-        QtMocHelpers::SlotData<void(QListWidgetItem *)>(13, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { 0x80000000 | 14, 15 },
+        QtMocHelpers::SlotData<void(QListWidgetItem *)>(16, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 17, 18 },
         }}),
         // Slot 'onEditAssignment'
-        QtMocHelpers::SlotData<void(QListWidgetItem *)>(16, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { 0x80000000 | 14, 15 },
+        QtMocHelpers::SlotData<void(QListWidgetItem *)>(19, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 17, 18 },
         }}),
         // Slot 'onCopyToClipboard'
-        QtMocHelpers::SlotData<void()>(17, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'onPrintAssignment'
-        QtMocHelpers::SlotData<void()>(18, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'onPrintStats'
-        QtMocHelpers::SlotData<void()>(19, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'onToggleAssignmentEditMode'
         QtMocHelpers::SlotData<void()>(20, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'onSaveEditedAssignment'
+        // Slot 'onSwitchDatabase'
         QtMocHelpers::SlotData<void()>(21, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'onPrintTempAssignment'
+        // Slot 'onBackupTick'
         QtMocHelpers::SlotData<void()>(22, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onPrintAssignment'
+        QtMocHelpers::SlotData<void()>(23, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onPrintStats'
+        QtMocHelpers::SlotData<void()>(24, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onToggleAssignmentEditMode'
+        QtMocHelpers::SlotData<void()>(25, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onSaveEditedAssignment'
+        QtMocHelpers::SlotData<void()>(26, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onPrintTempAssignment'
+        QtMocHelpers::SlotData<void()>(27, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onAssignmentTableCellClicked'
-        QtMocHelpers::SlotData<void(int, int)>(23, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::Int, 5 }, { QMetaType::Int, 24 },
+        QtMocHelpers::SlotData<void(int, int)>(28, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 5 }, { QMetaType::Int, 29 },
         }}),
         // Slot 'onAssignmentDistanceSelected'
-        QtMocHelpers::SlotData<void(int)>(25, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::Int, 26 },
+        QtMocHelpers::SlotData<void(int)>(30, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 31 },
         }}),
         // Slot 'onDistanceChanged'
-        QtMocHelpers::SlotData<void(int, int)>(27, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::Int, 5 }, { QMetaType::Int, 24 },
+        QtMocHelpers::SlotData<void(int, int)>(32, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 5 }, { QMetaType::Int, 29 },
         }}),
         // Slot 'refreshStats'
-        QtMocHelpers::SlotData<void()>(28, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(33, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onSickModeChanged'
-        QtMocHelpers::SlotData<void(int, bool)>(29, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::Int, 30 }, { QMetaType::Bool, 31 },
+        QtMocHelpers::SlotData<void(int, bool)>(34, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 35 }, { QMetaType::Bool, 36 },
         }}),
         // Slot 'refreshSickList'
-        QtMocHelpers::SlotData<void()>(32, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(37, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'loadExpertSettings'
-        QtMocHelpers::SlotData<void()>(33, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(38, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'checkPassword'
-        QtMocHelpers::SlotData<bool(const QString &)>(34, 2, QMC::AccessPrivate, QMetaType::Bool, {{
-            { QMetaType::QString, 35 },
+        QtMocHelpers::SlotData<bool(const QString &)>(39, 2, QMC::AccessPrivate, QMetaType::Bool, {{
+            { QMetaType::QString, 40 },
         }}),
     };
     QtMocHelpers::UintData qt_properties {
@@ -180,22 +195,26 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 7: _t->onNewAssignment(); break;
         case 8: _t->onDeleteAssignment(); break;
         case 9: _t->onToggleLockAssignment(); break;
-        case 10: _t->onAssignmentSelected((*reinterpret_cast<std::add_pointer_t<QListWidgetItem*>>(_a[1]))); break;
-        case 11: _t->onEditAssignment((*reinterpret_cast<std::add_pointer_t<QListWidgetItem*>>(_a[1]))); break;
-        case 12: _t->onCopyToClipboard(); break;
-        case 13: _t->onPrintAssignment(); break;
-        case 14: _t->onPrintStats(); break;
-        case 15: _t->onToggleAssignmentEditMode(); break;
-        case 16: _t->onSaveEditedAssignment(); break;
-        case 17: _t->onPrintTempAssignment(); break;
-        case 18: _t->onAssignmentTableCellClicked((*reinterpret_cast<std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast<std::add_pointer_t<int>>(_a[2]))); break;
-        case 19: _t->onAssignmentDistanceSelected((*reinterpret_cast<std::add_pointer_t<int>>(_a[1]))); break;
-        case 20: _t->onDistanceChanged((*reinterpret_cast<std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast<std::add_pointer_t<int>>(_a[2]))); break;
-        case 21: _t->refreshStats(); break;
-        case 22: _t->onSickModeChanged((*reinterpret_cast<std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast<std::add_pointer_t<bool>>(_a[2]))); break;
-        case 23: _t->refreshSickList(); break;
-        case 24: _t->loadExpertSettings(); break;
-        case 25: { bool _r = _t->checkPassword((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1])));
+        case 10: _t->onCopyAssignment(); break;
+        case 11: _t->onRenameAssignment((*reinterpret_cast<std::add_pointer_t<int>>(_a[1]))); break;
+        case 12: _t->onAssignmentSelected((*reinterpret_cast<std::add_pointer_t<QListWidgetItem*>>(_a[1]))); break;
+        case 13: _t->onEditAssignment((*reinterpret_cast<std::add_pointer_t<QListWidgetItem*>>(_a[1]))); break;
+        case 14: _t->onCopyToClipboard(); break;
+        case 15: _t->onSwitchDatabase(); break;
+        case 16: _t->onBackupTick(); break;
+        case 17: _t->onPrintAssignment(); break;
+        case 18: _t->onPrintStats(); break;
+        case 19: _t->onToggleAssignmentEditMode(); break;
+        case 20: _t->onSaveEditedAssignment(); break;
+        case 21: _t->onPrintTempAssignment(); break;
+        case 22: _t->onAssignmentTableCellClicked((*reinterpret_cast<std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast<std::add_pointer_t<int>>(_a[2]))); break;
+        case 23: _t->onAssignmentDistanceSelected((*reinterpret_cast<std::add_pointer_t<int>>(_a[1]))); break;
+        case 24: _t->onDistanceChanged((*reinterpret_cast<std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast<std::add_pointer_t<int>>(_a[2]))); break;
+        case 25: _t->refreshStats(); break;
+        case 26: _t->onSickModeChanged((*reinterpret_cast<std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast<std::add_pointer_t<bool>>(_a[2]))); break;
+        case 27: _t->refreshSickList(); break;
+        case 28: _t->loadExpertSettings(); break;
+        case 29: { bool _r = _t->checkPassword((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1])));
             if (_a[0]) *reinterpret_cast<bool*>(_a[0]) = std::move(_r); }  break;
         default: ;
         }
@@ -221,14 +240,14 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 26)
+        if (_id < 30)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 26;
+        _id -= 30;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 26)
+        if (_id < 30)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 26;
+        _id -= 30;
     }
     return _id;
 }

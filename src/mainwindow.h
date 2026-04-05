@@ -1,6 +1,8 @@
 #pragma once
 #include "printerdevice.h"
 #include <QMainWindow>
+#include <QTimer>
+#include <QDateTime>
 #include <QVBoxLayout>
 #include <QList>
 #include "boat.h"
@@ -25,6 +27,7 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
     explicit MainWindow(QWidget* parent = nullptr);
+    bool openDatabase(const QString& path, const QString& teamName);
     ~MainWindow();
 
 private slots:
@@ -43,9 +46,13 @@ private slots:
     void onNewAssignment();
     void onDeleteAssignment();
     void onToggleLockAssignment();
+    void onCopyAssignment();
+    void onRenameAssignment(int assignmentId);
     void onAssignmentSelected(QListWidgetItem* item);
     void onEditAssignment(QListWidgetItem* item);
     void onCopyToClipboard();
+    void onSwitchDatabase();
+    void onBackupTick();
     void onPrintAssignment();
     void onPrintStats();
     void onToggleAssignmentEditMode();
@@ -94,6 +101,12 @@ private:
     QString boatDescription(int id) const;
 
     DatabaseManager* m_db = nullptr;
+    QString m_currentDbPath;
+    QString m_currentTeamName;
+    QTimer*       m_backupTimer     = nullptr;
+    QDateTime     m_lastBackupMtime;           // mtime of the DB at last backup
+    QString       m_backupDir;                 // backup folder path
+    bool          m_backupFirstRun = true;      // show status bar msg on first backup
     BoatTableModel* m_boatModel = nullptr;
     RowerTableModel* m_rowerModel = nullptr;
 

@@ -37,6 +37,11 @@ struct ScoringPriority {
     int    passAttempts           = 15;
     // Maximise learning: reward mixed skill levels within each boat
     bool   maximizeLearning       = false;
+    // Ignore list constraints (show warnings instead of hard-blocking)
+    bool   ignoreBlacklist        = false;
+    bool   ignoreBoatBlacklist    = false;
+    bool   ignoreBoatWhitelist    = false;
+    int    racingMinSkill         = 4;  // minimum skillToInt() for Racing boats (Intermediate=4)
 
     double weightFor(Factor f) const {
         int idx = order.indexOf(f);
@@ -154,7 +159,8 @@ public:
 private:
     bool violatesConstraints(const Rower& rower, const QList<int>& team,
                              const Boat& boat, const QList<Rower>& allRowers,
-                             bool relaxCompat) const;
+                             bool relaxCompat,
+                             const ScoringPriority* priority = nullptr) const;
     bool teamHasSteerer(const QList<int>& team, const QList<Rower>& allRowers) const;
     double scoreTeam(const QList<int>& team, const Boat& boat,
                      const QList<Rower>& allRowers,

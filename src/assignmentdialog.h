@@ -70,7 +70,11 @@ public:
         double valAttrVarianceWeight  = 0.4;
         int    fillBoatAttempts       = 600;
         int    passAttempts           = 15;
-        bool   maximizeLearning       = false;  // mix skill levels to maximise learning
+        bool   maximizeLearning       = false;
+        bool   ignoreBlacklist        = false;
+        bool   ignoreBoatBlacklist    = false;
+        bool   ignoreBoatWhitelist    = false;
+        int    racingMinSkill         = 3;  // min SkillLevel int for Racing boats (1=Novice..7=Master)
     };
     void setExpertParams(const ExpertParams& ep) { m_expertParams = ep; }
 
@@ -151,6 +155,9 @@ private:
     // Tab 3 — Priority
     QListWidget* m_priorityList  = nullptr;
     QList<QDoubleSpinBox*> m_weightSpins;
+    QCheckBox* m_ignoreBlacklistCheck   = nullptr;
+    QCheckBox* m_ignoreBoatListsCheck   = nullptr;
+    QComboBox* m_racingMinSkillCombo    = nullptr;
     QCheckBox*   m_trainingCheck = nullptr;
     QCheckBox*   m_crazyCheck    = nullptr;
 

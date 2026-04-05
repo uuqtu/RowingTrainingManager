@@ -1,29 +1,16 @@
-Try to always find a OBmann in the generation. solutions where every boat >2 seats has a obmann is to be preferred over alternative solutions.
-
-In the Assignment Preview add a sub-tab view (In the Assignment Generator and also in the Assignment)
-One in the current way (default selected ) and another one in a table view where it looks like tables in Excel
-
-Do not change anything else in the existing code because it works pretty good.
-What you shall change above that is this:
-
-I want on the save assignments also the option to lock the assignment, so that it can be opened but no change to it is allowed any more
-
-Save assignment shal also save the assignment name I input in the top, this is not saved and not loaded when i double click it.
-
-Also check in the generation if people have been very often in one boat togehter, if that is the case give it a slight penalty.
-
-Add a whitelist for boats for the rowers in the same way as it exists for other rowers.
-Ione or many a whitelist entry for boats exists, the person wants only to drive these boats. (any of those)
-
-Add a blacklist for boats for the rowers in the same way as it exists for other rowers.
-If a black list entry exists the persond does not want to drive in one of these boats.
-
-change attr2 to Body size with the values small, medium, tall and try in the generation to mapp people together. This shall also appera nin the priority selector.
-Itself it should give a low penalty if mismatch. Especially when the boat size is cap = 2 make sure that only neighbouring values are used.
-
-change attr1 to stroke length with the values short, medium, long and try in the generation to mapp people together with same values. This shall also appera nin the priority selector.
-Itself it should give a middle to high penalty if mismatch.  Especially when the boat size is cap = 2 make sure that only neighbouring values are used.
+The Lists... button does not work if I have a rower selected. Neither does the delete button when I have selected a rower. Next to fixing this also add a right click menu where you add the commands delete and Lists... .
 
 
-Add four more attributes attr grp 1, attr grp 2, attr val 1 and attr val 2.
-the grp attributes shall try to group people as good as possible and the val attributes shall try to create balance by being same on average in the different boats (cap > 2)
+
+The groups I build are not always being preserved in the assignments on save. Make by this sure that you save all the settings for each and every assignment including options groups etc. Check this and make sure that is always the case. Including the selected rowers and boats. Maybe also allw to save incomplete generations but make this clear by a red bar vertically at the beginning of the menu item also do not allow print if the generation was not sucessfully conduted.
+
+
+In the copy function it does not do a one two one copy it uses the generator. I want it so be an exact copy.
+
+
+
+The buttons under the assignment Detail are now in two rows this was not necessary. If it is an easy change please undo it an put all in one line.
+
+
+
+The one under the saved assignments sleector there copy and delete can be removed because they are now in the right click menu. Add lock to thet richt click menu too

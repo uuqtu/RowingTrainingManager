@@ -65,8 +65,8 @@ void AssignmentDialog::setupUi()
     m_tabs = new QTabWidget;
     m_tabs->addTab(buildGroupsTab(),    "1 — Groups");
     m_tabs->addTab(buildSelectionTab(), "2 — Boats & Rowers");
-    m_tabs->addTab(buildPriorityTab(),  "3 — Priority");
-    m_tabs->addTab(buildOptionsTab(),   "4 — Options");
+    m_tabs->addTab(buildPriorityTab(),  "3 — Options 1");
+    m_tabs->addTab(buildOptionsTab(),   "4 — Options 2");
     m_tabs->addTab(buildPreflightTab(), "5 — Pre-flight");
     splitter->addWidget(m_tabs);
 
@@ -326,19 +326,30 @@ QWidget* AssignmentDialog::buildSelectionTab()
 QWidget* AssignmentDialog::buildPriorityTab()
 {
     auto* w  = new QWidget;
-    auto* vl = new QVBoxLayout(w);
+    auto* scroll = new QScrollArea;
+    scroll->setWidgetResizable(true);
+    scroll->setFrameShape(QFrame::NoFrame);
+    auto* inner = new QWidget;
+    auto* vl = new QVBoxLayout(inner);
+    vl->setSpacing(12);
+    vl->setContentsMargins(8,8,8,12);
+
+    // ── Priority order ───────────────────────────────────────────
+    auto* sec1 = new QLabel("<b style='color:#8fb4d8;'>Scoring Priority Order</b>");
+    vl->addWidget(sec1);
     auto* info = new QLabel(
         "Drag rows or use arrows to set scoring priority. "
         "<b>First = highest weight</b> (4×). Second = 2×. Third = 1×.<br>"
         "The spinboxes below let you override the weight multipliers for this session only — "
         "they reset when the dialog closes and do not change Expert Settings.");
     info->setWordWrap(true);
-    info->setStyleSheet("color:#8fb4d8; margin-bottom:6px;");
+    info->setStyleSheet("color:#8fb4d8;");
     vl->addWidget(info);
 
     m_priorityList = new QListWidget;
     m_priorityList->setDragDropMode(QAbstractItemView::InternalMove);
     m_priorityList->setDefaultDropAction(Qt::MoveAction);
+    m_priorityList->setMaximumHeight(140);
     for (const QString& label : {"Skill", "Compatibility", "Propulsion match",
                                   "Stroke Length", "Body Size"}) {
         auto* item = new QListWidgetItem(label);
@@ -355,14 +366,14 @@ QWidget* AssignmentDialog::buildPriorityTab()
     arrows->addStretch();
     vl->addLayout(arrows);
 
-    vl->addSpacing(12);
+    // ── Weight multiplier overrides ──────────────────────────────
+    auto* sep1 = new QFrame; sep1->setFrameShape(QFrame::HLine);
+    sep1->setStyleSheet("color:#2a3548;"); vl->addWidget(sep1);
 
-    // Weight multiplier overrides
-    auto* wHdr = new QLabel("<b style='color:#8fb4d8;'>Weight multipliers (session override — resets on close)</b>");
+    auto* wHdr = new QLabel("<b style='color:#8fb4d8;'>Weight Multipliers  (session override — resets on close)</b>");
     vl->addWidget(wHdr);
     auto* wDesc = new QLabel(
-        "These override the rank weights from Expert Settings for this generation only. "
-        "Rank 1 = top of the list above. Higher = that factor dominates more strongly.");
+        "Rank 1 = top of the list. Higher value = that factor dominates more.");
     wDesc->setWordWrap(true);
     wDesc->setStyleSheet("color:#5a7a9a; font-size:11px;");
     vl->addWidget(wDesc);
@@ -384,47 +395,67 @@ QWidget* AssignmentDialog::buildPriorityTab()
         spin->setValue(defaults[i]);
         spin->setMaximumWidth(80);
         spin->setToolTip(QString("Override weight for rank %1 (Expert default: %2). "
-                                  "Reset to default when dialog closes.").arg(i+1).arg(defaults[i]));
+                                  "Resets on close.").arg(i+1).arg(defaults[i]));
         auto* resetBtn = new QPushButton("↺");
         resetBtn->setMaximumWidth(28);
-        resetBtn->setToolTip("Reset to Expert Settings default");
+        resetBtn->setToolTip("Reset to Expert default");
         double def = defaults[i];
         connect(resetBtn, &QPushButton::clicked, spin, [spin, def](){ spin->setValue(def); });
-        grid->addWidget(lbl,  i, 0);
-        grid->addWidget(spin, i, 1);
-        grid->addWidget(resetBtn, i, 2);
+        grid->addWidget(lbl,     i, 0);
+        grid->addWidget(spin,    i, 1);
+        grid->addWidget(resetBtn,i, 2);
         m_weightSpins.append(spin);
     }
     vl->addLayout(grid);
 
-    vl->addSpacing(16);
+    // ── Racing boat minimum skill ────────────────────────────────
+    auto* sep2 = new QFrame; sep2->setFrameShape(QFrame::HLine);
+    sep2->setStyleSheet("color:#2a3548;"); vl->addWidget(sep2);
 
-    // Training mode
-    m_trainingCheck = new QCheckBox("Training mode");
-    m_trainingCheck->setStyleSheet("font-weight: 600; color: #8fb4d8;");
-    vl->addWidget(m_trainingCheck);
-    auto* trainingInfo = new QLabel(
-        "In training mode, skill level and compatibility are completely ignored.\n"
-        "Only propulsion ability, whitelist/blacklist, and attribute proximity are used.");
-    trainingInfo->setWordWrap(true);
-    trainingInfo->setStyleSheet("color: #556677; font-style: italic;");
-    vl->addWidget(trainingInfo);
+    auto* racingHdr = new QLabel("<b style='color:#8fb4d8;'>Minimum Skill Level for Racing Boats</b>");
+    vl->addWidget(racingHdr);
+    auto* racingDesc = new QLabel(
+        "Rowers below this skill level are blocked from Racing-type boats in the strict pass (pass 0). "
+        "In relaxed passes (2 and 3), the hard block is lifted but a soft penalty still applies. "
+        "Lowering this allows less-experienced rowers in Racing boats during relaxed passes — "
+        "useful when you cannot form complete teams with the default threshold. "
+        "Default: Intermediate (3) — Novice, Beginner, Developing are blocked.");
+    racingDesc->setWordWrap(true);
+    racingDesc->setStyleSheet("color:#5a7a9a; font-size:11px;");
+    vl->addWidget(racingDesc);
 
-    vl->addSpacing(12);
-
-    // Crazy mode
-    m_crazyCheck = new QCheckBox("Crazy mode");
-    m_crazyCheck->setStyleSheet("font-weight: 600; color: #cc6644;");
-    vl->addWidget(m_crazyCheck);
-    auto* crazyInfo = new QLabel(
-        "Crazy mode ignores EVERYTHING — blacklists, whitelists, propulsion, skill, "
-        "compatibility, groups. Rowers are distributed to boats completely at random. "
-        "Fun at parties.");
-    crazyInfo->setWordWrap(true);
-    crazyInfo->setStyleSheet("color: #774433; font-style: italic;");
-    vl->addWidget(crazyInfo);
+    auto* racingRow = new QHBoxLayout;
+    racingRow->addWidget(new QLabel("Minimum skill for Racing:"));
+    m_racingMinSkillCombo = new QComboBox;
+    // Values correspond to SkillLevel integer (1=Novice … 7=Master)
+    const struct { const char* label; int val; } skillOpts[] = {
+        {"Novice (1) — everyone allowed",            1},
+        {"Beginner (2)",                              2},
+        {"Developing (3) — block Novice only",       3},
+        {"Intermediate (4) — block N/B/Dev [default]",4},
+        {"Advanced (5) — block N/B/Dev/Int",          5},
+        {"Experienced (6)",                           6},
+        {"Master (7) — only Masters allowed",         7},
+    };
+    for (auto& o : skillOpts)
+        m_racingMinSkillCombo->addItem(o.label, o.val);
+    // Set current: default racingMinSkill=4 (Intermediate), map to combo index
+    {
+        int cur = m_expertParams.racingMinSkill > 0 ? m_expertParams.racingMinSkill : 4;
+        for (int i = 0; i < m_racingMinSkillCombo->count(); ++i)
+            if (m_racingMinSkillCombo->itemData(i).toInt() == cur) {
+                m_racingMinSkillCombo->setCurrentIndex(i); break;
+            }
+    }
+    racingRow->addWidget(m_racingMinSkillCombo, 1);
+    vl->addLayout(racingRow);
 
     vl->addStretch();
+
+    auto* outerVL = new QVBoxLayout(w);
+    outerVL->setContentsMargins(0,0,0,0);
+    scroll->setWidget(inner);
+    outerVL->addWidget(scroll);
 
     connect(upBtn,   &QPushButton::clicked, this, &AssignmentDialog::onMovePriorityUp);
     connect(downBtn, &QPushButton::clicked, this, &AssignmentDialog::onMovePriorityDown);
@@ -1212,6 +1243,14 @@ ScoringPriority AssignmentDialog::buildPriority() const
     p.fillBoatAttempts       = m_expertParams.fillBoatAttempts;
     p.passAttempts           = m_expertParams.passAttempts;
     p.maximizeLearning       = m_expertParams.maximizeLearning;
+    p.ignoreBlacklist        = m_ignoreBlacklistCheck  && m_ignoreBlacklistCheck->isChecked();
+    p.ignoreBoatBlacklist    = m_ignoreBoatListsCheck  && m_ignoreBoatListsCheck->isChecked();
+    p.ignoreBoatWhitelist    = m_ignoreBoatListsCheck  && m_ignoreBoatListsCheck->isChecked();
+    // Racing minimum skill from Options 1 dropdown
+    if (m_racingMinSkillCombo)
+        p.racingMinSkill = m_racingMinSkillCombo->currentData().toInt();
+    else
+        p.racingMinSkill = m_expertParams.racingMinSkill;
     return p;
 }
 
@@ -1592,7 +1631,29 @@ stateCapture:
     m_assignment.setPriorityOrder(prio);
 
     QString statusMsg = "<font color='#66ff99'>Generated — review preview, then Accept & Save.</font>";
-    if (!issues.isEmpty())
+    // Warn if list constraints were bypassed
+    QStringList listWarnings;
+    if (priority.ignoreBlacklist) {
+        // Scan for blacklist violations in the result
+        for (auto it = m_assignment.boatRowerMap().constBegin();
+             it != m_assignment.boatRowerMap().constEnd(); ++it) {
+            const QList<int>& team = it.value();
+            for (int i = 0; i < team.size(); ++i) {
+                Rower ra; for (const Rower& r:m_rowers) if(r.id()==team[i]){ra=r;break;}
+                for (int j = i+1; j < team.size(); ++j) {
+                    if (ra.blacklist().contains(team[j]))
+                        listWarnings << QString("⚠ Blacklist violated: %1 + %2 in same boat")
+                            .arg(ra.name())
+                            .arg([&]{QString n;for(const Rower& r:m_rowers)if(r.id()==team[j])n=r.name();return n;}());
+                }
+            }
+        }
+    }
+    if (!listWarnings.isEmpty())
+        statusMsg = QString("<font color='#ffaa44'>Generated — %1 blacklist violation(s): %2</font>")
+            .arg(listWarnings.size())
+            .arg(listWarnings.join("; ").left(120));
+    if (!issues.isEmpty() && listWarnings.isEmpty())
         statusMsg = QString("<font color='#ffaa44'>Generated with %1 warning(s) — see Check for details. Accept to save.</font>")
                         .arg(issues.size());
     m_statusLabel->setText(statusMsg);
@@ -1604,19 +1665,76 @@ stateCapture:
 // ================================================================
 QWidget* AssignmentDialog::buildOptionsTab()
 {
-    auto* w  = new QWidget;
-    auto* vl = new QVBoxLayout(w);
+    auto* w = new QWidget;
+    auto* scroll = new QScrollArea;
+    scroll->setWidgetResizable(true);
+    scroll->setFrameShape(QFrame::NoFrame);
+    auto* inner = new QWidget;
+    auto* vl = new QVBoxLayout(inner);
     vl->setSpacing(12);
+    vl->setContentsMargins(8,8,8,12);
 
-    // Equipment limits info (now configured in main application Options tab)
-    auto* equipInfo = new QLabel(
-        "Equipment limits (scull oars / sweep oars) are configured in the main "
-        "application Options tab and apply automatically here.");
-    equipInfo->setWordWrap(true);
-    equipInfo->setStyleSheet("color:#5a7a9a; font-style:italic; padding:4px;");
-    vl->addWidget(equipInfo);
+    // ── Generation modes ─────────────────────────────────────────
+    auto* modesHdr = new QLabel("<b style='color:#8fb4d8;'>Generation Modes</b>");
+    vl->addWidget(modesHdr);
 
-    // ---- Steering-only people ----
+    // Training mode
+    m_trainingCheck = new QCheckBox("Training mode");
+    m_trainingCheck->setStyleSheet("font-weight:600; color:#8fb4d8;");
+    vl->addWidget(m_trainingCheck);
+    auto* trainingInfo = new QLabel(
+        "Ignores skill level and compatibility. Only propulsion ability, "
+        "whitelist/blacklist, and attribute proximity are used. "
+        "Use for technique sessions where team balance doesn't matter.");
+    trainingInfo->setWordWrap(true);
+    trainingInfo->setStyleSheet("color:#556677; font-style:italic; font-size:11px;");
+    vl->addWidget(trainingInfo);
+
+    // Crazy mode
+    m_crazyCheck = new QCheckBox("Crazy mode  (random distribution)");
+    m_crazyCheck->setStyleSheet("font-weight:600; color:#cc6644;");
+    vl->addWidget(m_crazyCheck);
+    auto* crazyInfo = new QLabel(
+        "Ignores ALL constraints — blacklists, whitelists, propulsion, skill, "
+        "compatibility, groups. Rowers are distributed completely at random.");
+    crazyInfo->setWordWrap(true);
+    crazyInfo->setStyleSheet("color:#774433; font-style:italic; font-size:11px;");
+    vl->addWidget(crazyInfo);
+
+    // ── List overrides ────────────────────────────────────────────
+    auto* sep1 = new QFrame; sep1->setFrameShape(QFrame::HLine);
+    sep1->setStyleSheet("color:#2a3548;"); vl->addWidget(sep1);
+
+    auto* listHdr = new QLabel("<b style='color:#cc8844;'>List Override  (use with caution)</b>");
+    vl->addWidget(listHdr);
+
+    m_ignoreBlacklistCheck = new QCheckBox("Ignore rower blacklists");
+    m_ignoreBlacklistCheck->setStyleSheet("color:#cc9944;");
+    m_ignoreBlacklistCheck->setChecked(m_expertParams.ignoreBlacklist);
+    vl->addWidget(m_ignoreBlacklistCheck);
+    auto* blInfo = new QLabel(
+        "Normally blacklisted pairs are a hard constraint. "
+        "Enabling this removes the hard block so the generator can find a solution "
+        "even when blacklist conflicts exist. Violations appear as status bar warnings. Default: OFF.");
+    blInfo->setWordWrap(true);
+    blInfo->setStyleSheet("color:#774422; font-style:italic; font-size:11px;");
+    vl->addWidget(blInfo);
+
+    m_ignoreBoatListsCheck = new QCheckBox("Ignore boat whitelist / boat blacklist");
+    m_ignoreBoatListsCheck->setStyleSheet("color:#cc9944;");
+    m_ignoreBoatListsCheck->setChecked(m_expertParams.ignoreBoatBlacklist);
+    vl->addWidget(m_ignoreBoatListsCheck);
+    auto* bwlInfo = new QLabel(
+        "Ignores boat whitelist / blacklist constraints so every boat is "
+        "available to every rower. Use only when no other solution exists. Default: OFF.");
+    bwlInfo->setWordWrap(true);
+    bwlInfo->setStyleSheet("color:#774422; font-style:italic; font-size:11px;");
+    vl->addWidget(bwlInfo);
+
+    // ── Steering-only people ──────────────────────────────────────
+    auto* sep2 = new QFrame; sep2->setFrameShape(QFrame::HLine);
+    sep2->setStyleSheet("color:#2a3548;"); vl->addWidget(sep2);
+
     auto* soGroup = new QGroupBox("Steering-only people");
     auto* soVL    = new QVBoxLayout(soGroup);
     auto* soInfo  = new QLabel(
@@ -1656,13 +1774,17 @@ QWidget* AssignmentDialog::buildOptionsTab()
     delSoBtn->setObjectName("dangerBtn");
     addRow->addWidget(delSoBtn);
     soVL->addLayout(addRow);
-    vl->addWidget(soGroup);
+    vl->addWidget(soGroup, 1);
 
     vl->addStretch();
 
+    auto* outerVL = new QVBoxLayout(w);
+    outerVL->setContentsMargins(0,0,0,0);
+    scroll->setWidget(inner);
+    outerVL->addWidget(scroll);
+
     connect(addSoBtn, &QPushButton::clicked, this, &AssignmentDialog::onAddSteeringOnly);
     connect(delSoBtn, &QPushButton::clicked, this, &AssignmentDialog::onRemoveSteeringOnly);
-
     return w;
 }
 
