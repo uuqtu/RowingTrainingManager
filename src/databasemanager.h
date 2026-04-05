@@ -41,6 +41,8 @@ public:
     // Expert settings persistence
     bool saveExpertSetting(const QString& key, double value);
     QMap<QString, double> loadExpertSettings();
+    QString loadPassword();
+    bool    savePassword(const QString& pw);
 
     // Sick rowers (excluded from all assignment generation)
     QList<int> loadSickRowerIds();

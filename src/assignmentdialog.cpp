@@ -1232,8 +1232,10 @@ QString AssignmentDialog::formatPreview(const Assignment& a) const
             chosenSteerer = st;
         }
 
-        if (needsRoles && chosenObmann == -1)
+        if (needsRoles && chosenObmann == -1) {
             text += "  *** No Obmann available for this boat! ***\n";
+            text += "  *** First rower is Obmann ***\n";
+        }
 
         // Helper: collect group tags for a rower id
         auto groupTags = [&](int rid) -> QStringList {

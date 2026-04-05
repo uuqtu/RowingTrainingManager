@@ -105,7 +105,7 @@ bool DatabaseManager::createTables() {
     ok = q.exec(R"(
         CREATE TABLE IF NOT EXISTS expert_settings (
             key TEXT PRIMARY KEY,
-            value REAL NOT NULL
+            value TEXT NOT NULL DEFAULT '0'
         )
     )");
     if (!ok) { m_lastError = q.lastError().text(); return false; }
@@ -630,7 +630,7 @@ bool DatabaseManager::saveExpertSetting(const QString& key, double value) {
     QSqlQuery q;
     q.prepare("INSERT OR REPLACE INTO expert_settings (key, value) VALUES (?, ?)");
     q.addBindValue(key);
-    q.addBindValue(value);
+    q.addBindValue(QString::number(value));
     if (!q.exec()) { m_lastError = q.lastError().text(); return false; }
     return true;
 }
@@ -638,7 +638,23 @@ bool DatabaseManager::saveExpertSetting(const QString& key, double value) {
 QMap<QString, double> DatabaseManager::loadExpertSettings() {
     QMap<QString, double> result;
     QSqlQuery q("SELECT key, value FROM expert_settings");
-    while (q.next())
-        result[q.value(0).toString()] = q.value(1).toDouble();
+    while (q.next()) {
+        QString k = q.value(0).toString();
+        if (k != "_password") result[k] = q.value(1).toDouble();
+    }
     return result;
+}
+
+// ---- Password ----
+QString DatabaseManager::loadPassword() {
+    QSqlQuery q("SELECT value FROM expert_settings WHERE key='_password'");
+    if (q.next()) return q.value(0).toString();
+    return "0815";  // factory default
+}
+bool DatabaseManager::savePassword(const QString& pw) {
+    QSqlQuery q;
+    q.prepare("INSERT OR REPLACE INTO expert_settings (key, value) VALUES ('_password', ?)");
+    q.addBindValue(pw);
+    if (!q.exec()) { m_lastError = q.lastError().text(); return false; }
+    return true;
 }

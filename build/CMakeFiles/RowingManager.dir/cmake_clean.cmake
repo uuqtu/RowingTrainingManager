@@ -1,0 +1,40 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/RowingManager_autogen.dir/AutogenUsed.txt"
+  "CMakeFiles/RowingManager_autogen.dir/ParseCache.txt"
+  "RowingManager_autogen"
+  "CMakeFiles/RowingManager.dir/RowingManager_autogen/mocs_compilation.cpp.o"
+  "CMakeFiles/RowingManager.dir/RowingManager_autogen/mocs_compilation.cpp.o.d"
+  "CMakeFiles/RowingManager.dir/src/assignment.cpp.o"
+  "CMakeFiles/RowingManager.dir/src/assignment.cpp.o.d"
+  "CMakeFiles/RowingManager.dir/src/assignmentdialog.cpp.o"
+  "CMakeFiles/RowingManager.dir/src/assignmentdialog.cpp.o.d"
+  "CMakeFiles/RowingManager.dir/src/assignmentgenerator.cpp.o"
+  "CMakeFiles/RowingManager.dir/src/assignmentgenerator.cpp.o.d"
+  "CMakeFiles/RowingManager.dir/src/assignmentviewdialog.cpp.o"
+  "CMakeFiles/RowingManager.dir/src/assignmentviewdialog.cpp.o.d"
+  "CMakeFiles/RowingManager.dir/src/boat.cpp.o"
+  "CMakeFiles/RowingManager.dir/src/boat.cpp.o.d"
+  "CMakeFiles/RowingManager.dir/src/boattablemodel.cpp.o"
+  "CMakeFiles/RowingManager.dir/src/boattablemodel.cpp.o.d"
+  "CMakeFiles/RowingManager.dir/src/databasemanager.cpp.o"
+  "CMakeFiles/RowingManager.dir/src/databasemanager.cpp.o.d"
+  "CMakeFiles/RowingManager.dir/src/main.cpp.o"
+  "CMakeFiles/RowingManager.dir/src/main.cpp.o.d"
+  "CMakeFiles/RowingManager.dir/src/mainwindow.cpp.o"
+  "CMakeFiles/RowingManager.dir/src/mainwindow.cpp.o.d"
+  "CMakeFiles/RowingManager.dir/src/printerdevice.cpp.o"
+  "CMakeFiles/RowingManager.dir/src/printerdevice.cpp.o.d"
+  "CMakeFiles/RowingManager.dir/src/rower.cpp.o"
+  "CMakeFiles/RowingManager.dir/src/rower.cpp.o.d"
+  "CMakeFiles/RowingManager.dir/src/rowertablemodel.cpp.o"
+  "CMakeFiles/RowingManager.dir/src/rowertablemodel.cpp.o.d"
+  "RowingManager"
+  "RowingManager.pdb"
+  "RowingManager_autogen/mocs_compilation.cpp"
+  "RowingManager_autogen/timestamp"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang CXX)
+  include(CMakeFiles/RowingManager.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

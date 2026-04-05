@@ -60,6 +60,7 @@ private slots:
     void onSickModeChanged(int rowerId, bool sick);
     void refreshSickList();
     void loadExpertSettings();
+    bool checkPassword(const QString& action);  // prompts and validates
 
 private:
     void setupUi();
@@ -122,6 +123,7 @@ private:
     QList<int> m_sickRowerIds;
     QSpinBox* m_scullOarsSpinBox  = nullptr;  // equipment limits (global)
     QSpinBox* m_sweepOarsSpinBox  = nullptr;
+    QString   m_password          = "0815";  // loaded from DB on startup
 
     // Print copies spinbox
     QSpinBox* m_printCopiesSpinBox = nullptr;
