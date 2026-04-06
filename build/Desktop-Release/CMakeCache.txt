@@ -1480,7 +1480,7 @@ Vulkan_INCLUDE_DIR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: Vulkan_LIBRARY
 Vulkan_LIBRARY-ADVANCED:INTERNAL=1
 //CMAKE_INSTALL_PREFIX during last run
-_GNUInstallDirs_LAST_CMAKE_INSTALL_PREFIX:INTERNAL=/tmp
+_GNUInstallDirs_LAST_CMAKE_INSTALL_PREFIX:INTERNAL=/usr/local
 __pkg_config_arguments_LIBUSB:INTERNAL=REQUIRED;libusb-1.0
 __pkg_config_checked_LIBUSB:INTERNAL=1
 //ADVANCED property for variable: pkgcfg_lib_LIBUSB_usb-1.0

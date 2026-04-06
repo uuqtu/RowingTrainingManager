@@ -1,5 +1,0 @@
-/home/claude/RowingManager/build/CMakeFiles/RowingManager.dir
-/home/claude/RowingManager/build/CMakeFiles/edit_cache.dir
-/home/claude/RowingManager/build/CMakeFiles/rebuild_cache.dir
-/home/claude/RowingManager/build/CMakeFiles/RowingManager_autogen_timestamp_deps.dir
-/home/claude/RowingManager/build/CMakeFiles/RowingManager_autogen.dir

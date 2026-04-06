@@ -120,58 +120,89 @@ void AssignmentDialog::setupUi()
     m_generateBtn = new QPushButton("Generate");
     m_generateBtn->setObjectName("primaryBtn");
     m_checkBtn = new QPushButton("Check");
-    m_acceptBtn = new QPushButton("✓  Accept & Save");
-    m_acceptBtn->setEnabled(false);
-    auto* saveIncompleteBtn = new QPushButton("💾  Save incomplete…");
-    saveIncompleteBtn->setObjectName("primaryBtn");
-    saveIncompleteBtn->setToolTip(
+
+    // Single save button — label and tooltip adapt to whether a generation
+    // result exists. Behaviour is identical to the two previous buttons:
+    //   • With result  → ✓ Accept & Save  (same as old Accept & Save)
+    //   • Without result → 💾 Save incomplete…  (captures state, no boatRowerMap)
+    m_acceptBtn = new QPushButton("💾  Save incomplete…");
+    m_acceptBtn->setObjectName("primaryBtn");
+    m_acceptBtn->setToolTip(
         "Save this assignment even without a complete generation.\n"
         "It will be marked incomplete (red) in the list and cannot be printed until generated.");
+
     auto* cancelBtn = new QPushButton("Cancel");
     btnRow->addWidget(m_generateBtn);
     btnRow->addWidget(m_checkBtn);
     btnRow->addStretch();
-    btnRow->addWidget(saveIncompleteBtn);
+
+    // "Preserve groups on save" checkbox — only active after a successful
+    // generation. When checked, the saved groups are derived from the result
+    // (one group per boat). When unchecked, the user's manually-defined Tab 1
+    // groups are preserved as-is. Has no effect on incomplete saves.
+    m_preserveGroupsCheck = new QCheckBox("Preserve groups on save");
+    m_preserveGroupsCheck->setChecked(true);
+    m_preserveGroupsCheck->setEnabled(false);   // enabled only after generation
+    m_preserveGroupsCheck->setStyleSheet(
+        // Show clearly even when disabled — greyed text but visible box
+        "QCheckBox { color: #556677; }"
+        "QCheckBox:enabled { color: #8fb4d8; }"
+        "QCheckBox::indicator { width: 14px; height: 14px; }"
+        "QCheckBox::indicator:checked:disabled { background: #2a4a2a; border: 1px solid #446644; }"
+        "QCheckBox::indicator:unchecked:disabled { background: #1a2535; border: 1px solid #3a4a60; }");
+    m_preserveGroupsCheck->setToolTip(
+        "When checked (default): after Accept & Save, the Groups tab will be\n"
+        "populated with the generation result (one group per boat, pinned).\n"
+        "This makes the previous session the starting point for the next.\n"
+        "When unchecked: the groups you defined manually in Tab 1 are kept as-is.\n"
+        "Has no effect when saving an incomplete assignment.\n"
+        "Becomes active after a successful generation.");
+    btnRow->addWidget(m_preserveGroupsCheck);
+    btnRow->addSpacing(8);
     btnRow->addWidget(m_acceptBtn);
     btnRow->addWidget(cancelBtn);
     root->addLayout(btnRow);
 
     connect(m_generateBtn, &QPushButton::clicked, this, &AssignmentDialog::onGenerate);
     connect(m_checkBtn,    &QPushButton::clicked, this, &AssignmentDialog::onCheck);
-    connect(m_acceptBtn,   &QPushButton::clicked, this, &QDialog::accept);
     connect(cancelBtn,     &QPushButton::clicked, this, &QDialog::reject);
-    connect(saveIncompleteBtn, &QPushButton::clicked, this, [this]() {
-        // Save the dialog state but mark with empty boatRowerMap so it's flagged as incomplete
-        // Still capture name and all settings
-        QString name = m_nameEdit->text().trimmed();
-        if (name.isEmpty())
-            name = QString("Assignment %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm"));
-        m_assignment.setName(name);
-        m_assignment.setCreatedAt(QDateTime::currentDateTime());
-        // Save full state even if boatRowerMap is empty
-        QList<SavedGroup> savedGroups;
-        for (const RowingGroup& g : m_groups) {
-            SavedGroup sg; sg.name=g.name; sg.rowerIds=g.rowerIds; sg.boatId=g.boatId;
-            savedGroups << sg;
+
+    // Merged save handler: branch on whether a generation result exists
+    connect(m_acceptBtn, &QPushButton::clicked, this, [this]() {
+        if (!m_assignment.boatRowerMap().isEmpty()) {
+            // Generation was completed — plain accept (stateCapture already ran)
+            accept();
+        } else {
+            // No generation result — save incomplete: capture full dialog state
+            QString name = m_nameEdit->text().trimmed();
+            if (name.isEmpty())
+                name = QString("Assignment %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm"));
+            m_assignment.setName(name);
+            m_assignment.setCreatedAt(QDateTime::currentDateTime());
+            QList<SavedGroup> savedGroups;
+            for (const RowingGroup& g : m_groups) {
+                SavedGroup sg; sg.name=g.name; sg.rowerIds=g.rowerIds; sg.boatId=g.boatId;
+                savedGroups << sg;
+            }
+            m_assignment.setGroups(savedGroups);
+            QList<int> checkedBoats;
+            for (int i = 0; i < m_boatList->count(); ++i) {
+                auto* it = m_boatList->item(i);
+                if (it->checkState() == Qt::Checked) checkedBoats << it->data(Qt::UserRole).toInt();
+            }
+            m_assignment.setCheckedBoatIds(checkedBoats);
+            QList<int> checkedRowers;
+            for (int i = 0; i < m_rowerList->count(); ++i) {
+                auto* it = m_rowerList->item(i);
+                if (it->checkState() == Qt::Checked) checkedRowers << it->data(Qt::UserRole).toInt();
+            }
+            m_assignment.setCheckedRowerIds(checkedRowers);
+            QStringList prio;
+            for (int i = 0; i < m_priorityList->count(); ++i) prio << m_priorityList->item(i)->text();
+            if (m_trainingCheck && m_trainingCheck->isChecked()) prio << "__training__";
+            m_assignment.setPriorityOrder(prio);
+            accept();
         }
-        m_assignment.setGroups(savedGroups);
-        QList<int> checkedBoats;
-        for (int i = 0; i < m_boatList->count(); ++i) {
-            auto* it = m_boatList->item(i);
-            if (it->checkState() == Qt::Checked) checkedBoats << it->data(Qt::UserRole).toInt();
-        }
-        m_assignment.setCheckedBoatIds(checkedBoats);
-        QList<int> checkedRowers;
-        for (int i = 0; i < m_rowerList->count(); ++i) {
-            auto* it = m_rowerList->item(i);
-            if (it->checkState() == Qt::Checked) checkedRowers << it->data(Qt::UserRole).toInt();
-        }
-        m_assignment.setCheckedRowerIds(checkedRowers);
-        QStringList prio;
-        for (int i = 0; i < m_priorityList->count(); ++i) prio << m_priorityList->item(i)->text();
-        if (m_trainingCheck && m_trainingCheck->isChecked()) prio << "__training__";
-        m_assignment.setPriorityOrder(prio);
-        accept();  // same as Accept & Save but boatRowerMap may be empty
     });
 }
 
@@ -949,6 +980,13 @@ void AssignmentDialog::loadFromAssignment(const Assignment& a)
     // Switch to groups tab so user sees the full restored state
     m_tabs->setCurrentIndex(0);
     updateGenerateEnabled();
+
+    // Update save button label to reflect whether a result already exists
+    if (!m_assignment.boatRowerMap().isEmpty()) {
+        m_acceptBtn->setText("\u2713  Accept & Save");
+        m_acceptBtn->setToolTip("Save this generated assignment.");
+        if (m_preserveGroupsCheck) m_preserveGroupsCheck->setEnabled(true);
+    }
 }
 
 // ================================================================
@@ -1113,6 +1151,9 @@ QStringList AssignmentDialog::runChecks(const QList<Boat>& boats,
 
 void AssignmentDialog::updateGenerateEnabled()
 {
+    // Guard: may be called before m_generateBtn/m_statusLabel are created
+    if (!m_generateBtn || !m_statusLabel) return;
+
     // Crazy mode always enables Generate if there's at least one boat and one rower
     bool isCrazy = m_crazyCheck && m_crazyCheck->isChecked();
 
@@ -1457,7 +1498,9 @@ void AssignmentDialog::onGenerate()
         populateScoreTab(m_assignment, buildPriority());
         populateGraphicsTab(m_assignment, buildPriority());
         m_statusLabel->setText("<font color='#cc6644'>Crazy mode — random distribution applied!</font>");
-        m_acceptBtn->setEnabled(true);
+        m_acceptBtn->setText("\u2713  Accept & Save");
+        m_acceptBtn->setToolTip("Save this generated assignment.");
+        if (m_preserveGroupsCheck) m_preserveGroupsCheck->setEnabled(true);
         return;
     }
 
@@ -1474,7 +1517,7 @@ void AssignmentDialog::onGenerate()
                     .arg(g.name).arg(g.rowerIds.size()).arg(boatCap));
             m_previewEdit->clear();
             if (m_previewTable) { m_previewTable->clear(); m_previewTable->setRowCount(0); m_previewTable->setColumnCount(0); }
-            m_acceptBtn->setEnabled(false);
+            if (m_preserveGroupsCheck) m_preserveGroupsCheck->setEnabled(false);
             return;
         }
     }
@@ -1593,7 +1636,7 @@ void AssignmentDialog::onGenerate()
             m_previewEdit->setPlainText(report);
             m_statusLabel->setText(
                 "<font color='#ff6666'>Generation failed — see preview panel for full diagnostic.</font>");
-            m_acceptBtn->setEnabled(false);
+            if (m_preserveGroupsCheck) m_preserveGroupsCheck->setEnabled(false);
             return;
         }
         for (auto it = result.assignment.boatRowerMap().constBegin();
@@ -1633,15 +1676,15 @@ stateCapture:
 
     // ---- Persist dialog state so double-click restore works exactly ----
     //
-    // Groups saved to the Assignment are built from the GENERATION RESULT
-    // (one group per boat, named after the boat, containing assigned rowers).
-    // This means re-opening and re-generating will use the previous result
-    // as pre-seeded groups — the natural starting point for the next session.
-    // Any pre-existing dialog groups (m_groups) are replaced/overwritten.
-    // The dialog's own m_groups (Tab 1) are preserved in-memory for the
-    // current session only; they are not written to the stored assignment.
+    // When "Preserve groups on save" is checked (default) AND a generation
+    // result exists: groups are derived from the result (one per boat, pinned).
+    // When unchecked OR no result exists: the user's manually-defined Tab 1
+    // groups are preserved as-is.
     QList<SavedGroup> savedGroups;
-    if (!m_assignment.boatRowerMap().isEmpty()) {
+    bool preserveFromResult = !m_assignment.boatRowerMap().isEmpty()
+                              && m_preserveGroupsCheck
+                              && m_preserveGroupsCheck->isChecked();
+    if (preserveFromResult) {
         // Build one SavedGroup per boat from the generation result
         for (auto it = m_assignment.boatRowerMap().constBegin();
              it != m_assignment.boatRowerMap().constEnd(); ++it) {
@@ -1649,7 +1692,6 @@ stateCapture:
             const QList<int>& rowerIds = it.value();
             if (rowerIds.isEmpty()) continue;
 
-            // Find boat name
             QString boatName;
             for (const Boat& b : m_boats)
                 if (b.id() == boatId) { boatName = b.name(); break; }
@@ -1658,12 +1700,12 @@ stateCapture:
 
             SavedGroup sg;
             sg.name     = boatName;
-            sg.boatId   = boatId;   // pinned to this boat
+            sg.boatId   = boatId;
             sg.rowerIds = rowerIds;
             savedGroups << sg;
         }
     } else {
-        // No generation result (Save incomplete path) — preserve dialog groups
+        // Preserve the user's manually-defined dialog groups
         for (const RowingGroup& g : m_groups) {
             SavedGroup sg;
             sg.name     = g.name;
@@ -1730,7 +1772,9 @@ stateCapture:
         statusMsg = QString("<font color='#ffaa44'>Generated with %1 warning(s) — see Check for details. Accept to save.</font>")
                         .arg(issues.size());
     m_statusLabel->setText(statusMsg);
-    m_acceptBtn->setEnabled(true);
+    m_acceptBtn->setText("\u2713  Accept & Save");
+    m_acceptBtn->setToolTip("Save this generated assignment.");
+    if (m_preserveGroupsCheck) m_preserveGroupsCheck->setEnabled(true);
 }
 
 // ================================================================
@@ -2178,8 +2222,15 @@ void AssignmentDialog::populateScoreTab(const Assignment& a, const ScoringPriori
 {
     if (!m_scoreTabWidget) return;
 
-    // Replace the content widget inside the tab
-    delete m_scoreTabWidget->layout();
+    // Safely clear previous layout and children
+    if (QLayout* old = m_scoreTabWidget->layout()) {
+        QLayoutItem* item;
+        while ((item = old->takeAt(0)) != nullptr) {
+            if (item->widget()) item->widget()->deleteLater();
+            delete item;
+        }
+        delete old;
+    }
     auto* outerVL = new QVBoxLayout(m_scoreTabWidget);
     outerVL->setContentsMargins(0, 0, 0, 0);
 
@@ -2369,11 +2420,15 @@ void AssignmentDialog::populateGraphicsTab(const Assignment& a, const ScoringPri
 {
     if (!m_graphicsTabWidget) return;
 
-    // Rebuild layout
-    delete m_graphicsTabWidget->layout();
-    while (QLayoutItem* item = (m_graphicsTabWidget->layout()
-                                    ? m_graphicsTabWidget->layout()->takeAt(0) : nullptr)) {
-        delete item->widget(); delete item;
+    // Safely clear previous contents by replacing the widget's layout
+    // Delete all child widgets first, then the old layout
+    if (QLayout* old = m_graphicsTabWidget->layout()) {
+        QLayoutItem* item;
+        while ((item = old->takeAt(0)) != nullptr) {
+            if (item->widget()) item->widget()->deleteLater();
+            delete item;
+        }
+        delete old;
     }
 
     auto* outerVL = new QVBoxLayout(m_graphicsTabWidget);

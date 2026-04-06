@@ -1,2 +1,0 @@
-set(__QT_DEPLOY_TARGET_RowingManager_FILE /home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Debug/RowingManager)
-set(__QT_DEPLOY_TARGET_RowingManager_TYPE EXECUTABLE)

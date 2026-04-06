@@ -159,6 +159,7 @@ private:
     QCheckBox* m_ignoreBlacklistCheck   = nullptr;
     QCheckBox* m_ignoreBoatListsCheck   = nullptr;
     QComboBox* m_racingMinSkillCombo    = nullptr;
+    QCheckBox* m_preserveGroupsCheck    = nullptr;  // "Preserve groups on save"
     QCheckBox*   m_trainingCheck = nullptr;
     QCheckBox*   m_crazyCheck    = nullptr;
 

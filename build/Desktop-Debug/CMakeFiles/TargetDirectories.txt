@@ -1,5 +1,0 @@
-/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Debug/CMakeFiles/RowingManager.dir
-/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Debug/CMakeFiles/edit_cache.dir
-/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Debug/CMakeFiles/rebuild_cache.dir
-/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Debug/CMakeFiles/RowingManager_autogen_timestamp_deps.dir
-/home/jeandarq0ne/Documents/Source/QT/RowingTeamAssingmentManager/RowingManager/build/Desktop-Debug/CMakeFiles/RowingManager_autogen.dir
