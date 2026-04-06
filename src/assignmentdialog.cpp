@@ -1632,13 +1632,45 @@ stateCapture:
     }
 
     // ---- Persist dialog state so double-click restore works exactly ----
+    //
+    // Groups saved to the Assignment are built from the GENERATION RESULT
+    // (one group per boat, named after the boat, containing assigned rowers).
+    // This means re-opening and re-generating will use the previous result
+    // as pre-seeded groups — the natural starting point for the next session.
+    // Any pre-existing dialog groups (m_groups) are replaced/overwritten.
+    // The dialog's own m_groups (Tab 1) are preserved in-memory for the
+    // current session only; they are not written to the stored assignment.
     QList<SavedGroup> savedGroups;
-    for (const RowingGroup& g : m_groups) {
-        SavedGroup sg;
-        sg.name     = g.name;
-        sg.rowerIds = g.rowerIds;
-        sg.boatId   = g.boatId;
-        savedGroups << sg;
+    if (!m_assignment.boatRowerMap().isEmpty()) {
+        // Build one SavedGroup per boat from the generation result
+        for (auto it = m_assignment.boatRowerMap().constBegin();
+             it != m_assignment.boatRowerMap().constEnd(); ++it) {
+            int boatId = it.key();
+            const QList<int>& rowerIds = it.value();
+            if (rowerIds.isEmpty()) continue;
+
+            // Find boat name
+            QString boatName;
+            for (const Boat& b : m_boats)
+                if (b.id() == boatId) { boatName = b.name(); break; }
+            if (boatName.isEmpty())
+                boatName = QString("Boat %1").arg(boatId);
+
+            SavedGroup sg;
+            sg.name     = boatName;
+            sg.boatId   = boatId;   // pinned to this boat
+            sg.rowerIds = rowerIds;
+            savedGroups << sg;
+        }
+    } else {
+        // No generation result (Save incomplete path) — preserve dialog groups
+        for (const RowingGroup& g : m_groups) {
+            SavedGroup sg;
+            sg.name     = g.name;
+            sg.rowerIds = g.rowerIds;
+            sg.boatId   = g.boatId;
+            savedGroups << sg;
+        }
     }
     m_assignment.setGroups(savedGroups);
 
