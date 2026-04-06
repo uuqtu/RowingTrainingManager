@@ -23,6 +23,8 @@
 #include <QFrame>
 #include <QInputDialog>
 #include <QRandomGenerator>
+#include <QProgressBar>
+#include <QTimer>
 #include <algorithm>
 
 // Colour used to dim items that are claimed by a group
@@ -121,6 +123,41 @@ void AssignmentDialog::setupUi()
     m_generateBtn->setObjectName("primaryBtn");
     m_checkBtn = new QPushButton("Check");
 
+    // Progress bar — shown next to Generate, hidden until generation starts
+    m_progressBar = new QProgressBar;
+    m_progressBar->setRange(0, 100);
+    m_progressBar->setValue(0);
+    m_progressBar->setFixedWidth(160);
+    m_progressBar->setFixedHeight(22);
+    m_progressBar->setTextVisible(true);
+    m_progressBar->setFormat("%p%");
+    m_progressBar->setStyleSheet(
+        "QProgressBar { border: 1px solid #2a3548; border-radius: 4px; "
+        "  background: #0d1a27; color: #8fb4d8; font-size: 11px; text-align: center; }"
+        "QProgressBar::chunk { background: qlineargradient(x1:0,y1:0,x2:1,y2:0,"
+        "  stop:0 #1a5a9a, stop:1 #1a9a5a); border-radius: 3px; }");
+    m_progressBar->setVisible(false);
+
+    // Blinking indicator — a coloured circle that pulses during generation
+    m_generatingIndicator = new QLabel("●");
+    m_generatingIndicator->setFixedWidth(22);
+    m_generatingIndicator->setAlignment(Qt::AlignCenter);
+    m_generatingIndicator->setStyleSheet("color: #1a9a5a; font-size: 16px;");
+    m_generatingIndicator->setToolTip("Generation in progress…");
+    m_generatingIndicator->setVisible(false);
+
+    m_indicatorTimer = new QTimer(this);
+    m_indicatorTimer->setInterval(400);
+    connect(m_indicatorTimer, &QTimer::timeout, this, [this]() {
+        if (!m_generatingIndicator) return;
+        // Alternate between bright green and dim to create blink effect
+        static bool bright = true;
+        bright = !bright;
+        m_generatingIndicator->setStyleSheet(
+            bright ? "color: #22ee66; font-size: 16px;"
+                   : "color: #1a5a3a; font-size: 16px;");
+    });
+
     // Single save button — label and tooltip adapt to whether a generation
     // result exists. Behaviour is identical to the two previous buttons:
     //   • With result  → ✓ Accept & Save  (same as old Accept & Save)
@@ -134,6 +171,8 @@ void AssignmentDialog::setupUi()
     auto* cancelBtn = new QPushButton("Cancel");
     btnRow->addWidget(m_generateBtn);
     btnRow->addWidget(m_checkBtn);
+    btnRow->addWidget(m_generatingIndicator);
+    btnRow->addWidget(m_progressBar);
     btnRow->addStretch();
 
     // "Preserve groups on save" checkbox — only active after a successful
@@ -409,9 +448,9 @@ QWidget* AssignmentDialog::buildPriorityTab()
     vl->addWidget(sec1);
     auto* info = new QLabel(
         "Drag rows or use arrows to set scoring priority. "
-        "<b>First = highest weight</b> (4×). Second = 2×. Third = 1×.<br>"
-        "The spinboxes below let you override the weight multipliers for this session only — "
-        "they reset when the dialog closes and do not change Expert Settings.");
+        "<b>First = highest weight</b>. The rank weights below are multiplied by the "
+        "base value of each factor. For the additional factors (Whitelist, Obmann, etc.) "
+        "the weight multiplies their bonus/penalty constant directly.");
     info->setWordWrap(true);
     info->setStyleSheet("color:#8fb4d8;");
     vl->addWidget(info);
@@ -443,13 +482,16 @@ QWidget* AssignmentDialog::buildPriorityTab()
     auto* wHdr = new QLabel("<b style='color:#8fb4d8;'>Weight Multipliers  (session override — resets on close)</b>");
     vl->addWidget(wHdr);
     auto* wDesc = new QLabel(
-        "Rank 1 = top of the list. Higher value = that factor dominates more.");
+        "Rank 1 = top of the list. Each weight multiplies the corresponding factor's "
+        "contribution. For classic factors (Skill/Compat/Propulsion) this scales the entire "
+        "term. For bonus/penalty factors it multiplies the constant directly.");
     wDesc->setWordWrap(true);
     wDesc->setStyleSheet("color:#5a7a9a; font-size:11px;");
     vl->addWidget(wDesc);
 
+    // 5 weight spinboxes — one per priority rank position
     m_weightSpins.clear();
-    const double defaults[] = {
+    const double defaults5[] = {
         m_expertParams.rankWeights[0], m_expertParams.rankWeights[1],
         m_expertParams.rankWeights[2], m_expertParams.rankWeights[3],
         m_expertParams.rankWeights[4]
@@ -462,14 +504,14 @@ QWidget* AssignmentDialog::buildPriorityTab()
         spin->setRange(0.0, 20.0);
         spin->setSingleStep(0.5);
         spin->setDecimals(1);
-        spin->setValue(defaults[i]);
+        spin->setValue(defaults5[i]);
         spin->setMaximumWidth(80);
         spin->setToolTip(QString("Override weight for rank %1 (Expert default: %2). "
-                                  "Resets on close.").arg(i+1).arg(defaults[i]));
+                                  "Resets on close.").arg(i+1).arg(defaults5[i]));
         auto* resetBtn = new QPushButton("↺");
         resetBtn->setMaximumWidth(28);
         resetBtn->setToolTip("Reset to Expert default");
-        double def = defaults[i];
+        double def = defaults5[i];
         connect(resetBtn, &QPushButton::clicked, spin, [spin, def](){ spin->setValue(def); });
         grid->addWidget(lbl,     i, 0);
         grid->addWidget(spin,    i, 1);
@@ -478,18 +520,90 @@ QWidget* AssignmentDialog::buildPriorityTab()
     }
     vl->addLayout(grid);
 
-    // ── Racing boat minimum skill ────────────────────────────────
+    // ── Generator search depth ───────────────────────────────────
     auto* sep2 = new QFrame; sep2->setFrameShape(QFrame::HLine);
     sep2->setStyleSheet("color:#2a3548;"); vl->addWidget(sep2);
+
+    auto* depthHdr = new QLabel("<b style='color:#8fb4d8;'>Generator Search Depth  (session override)</b>");
+    vl->addWidget(depthHdr);
+    auto* depthDesc = new QLabel(
+        "Higher values find better solutions but take longer. "
+        "Increase these when generation fails or produces poor results on complex setups.");
+    depthDesc->setWordWrap(true);
+    depthDesc->setStyleSheet("color:#5a7a9a; font-size:11px;");
+    vl->addWidget(depthDesc);
+
+    auto* depthGrid = new QGridLayout;
+
+    auto* fillLbl = new QLabel("Fill-boat attempts:");
+    fillLbl->setStyleSheet("color:#8090a0; font-size:11px;");
+    m_fillBoatAttemptsSpin = new QSpinBox;
+    m_fillBoatAttemptsSpin->setRange(10, 50000);
+    m_fillBoatAttemptsSpin->setSingleStep(100);
+    m_fillBoatAttemptsSpin->setValue(m_expertParams.fillBoatAttempts);
+    m_fillBoatAttemptsSpin->setMaximumWidth(100);
+    m_fillBoatAttemptsSpin->setToolTip(
+        "Random shuffle attempts per boat per pass. Default: 600.\n"
+        "Increase for complex setups with many constraints.");
+    auto* fillReset = new QPushButton("↺");
+    fillReset->setMaximumWidth(28);
+    fillReset->setToolTip("Reset to Expert default");
+    connect(fillReset, &QPushButton::clicked, this,
+            [this](){ m_fillBoatAttemptsSpin->setValue(m_expertParams.fillBoatAttempts); });
+    depthGrid->addWidget(fillLbl,              0, 0);
+    depthGrid->addWidget(m_fillBoatAttemptsSpin, 0, 1);
+    depthGrid->addWidget(fillReset,            0, 2);
+
+    auto* passLbl = new QLabel("Pass attempts:");
+    passLbl->setStyleSheet("color:#8090a0; font-size:11px;");
+    m_passAttemptsSpin = new QSpinBox;
+    m_passAttemptsSpin->setRange(1, 10000);
+    m_passAttemptsSpin->setSingleStep(5);
+    m_passAttemptsSpin->setValue(m_expertParams.passAttempts);
+    m_passAttemptsSpin->setMaximumWidth(100);
+    m_passAttemptsSpin->setToolTip(
+        "Full-assignment attempts per pass. Default: 15.\n"
+        "Increase if generation frequently fails despite valid setups.");
+    auto* passReset = new QPushButton("↺");
+    passReset->setMaximumWidth(28);
+    passReset->setToolTip("Reset to Expert default");
+    connect(passReset, &QPushButton::clicked, this,
+            [this](){ m_passAttemptsSpin->setValue(m_expertParams.passAttempts); });
+    depthGrid->addWidget(passLbl,           1, 0);
+    depthGrid->addWidget(m_passAttemptsSpin, 1, 1);
+    depthGrid->addWidget(passReset,         1, 2);
+
+    vl->addLayout(depthGrid);
+
+    // ── Copy current session values to Expert Settings ───────────
+    auto* sep3 = new QFrame; sep3->setFrameShape(QFrame::HLine);
+    sep3->setStyleSheet("color:#2a3548;"); vl->addWidget(sep3);
+
+    auto* copyHdr = new QLabel("<b style='color:#8fb4d8;'>Persist Session Values</b>");
+    vl->addWidget(copyHdr);
+    auto* copyDesc = new QLabel(
+        "Clicking the button below copies the current weight multipliers and search depths "
+        "to Expert Settings so they become the new defaults for future sessions. "
+        "Requires the Expert Settings password.");
+    copyDesc->setWordWrap(true);
+    copyDesc->setStyleSheet("color:#5a7a9a; font-size:11px;");
+    vl->addWidget(copyDesc);
+
+    auto* copyBtn = new QPushButton("📋  Copy current values to Expert Settings…");
+    copyBtn->setToolTip("Saves rank weights 1–5 and search depths to Expert Settings.");
+    vl->addWidget(copyBtn);
+    connect(copyBtn, &QPushButton::clicked, this, &AssignmentDialog::onCopyToExpertSettings);
+
+    // ── Racing boat minimum skill ────────────────────────────────
+    auto* sep4 = new QFrame; sep4->setFrameShape(QFrame::HLine);
+    sep4->setStyleSheet("color:#2a3548;"); vl->addWidget(sep4);
 
     auto* racingHdr = new QLabel("<b style='color:#8fb4d8;'>Minimum Skill Level for Racing Boats</b>");
     vl->addWidget(racingHdr);
     auto* racingDesc = new QLabel(
-        "Rowers below this skill level are blocked from Racing-type boats in the strict pass (pass 0). "
-        "In relaxed passes (2 and 3), the hard block is lifted but a soft penalty still applies. "
-        "Lowering this allows less-experienced rowers in Racing boats during relaxed passes — "
-        "useful when you cannot form complete teams with the default threshold. "
-        "Default: Intermediate (3) — Novice, Beginner, Developing are blocked.");
+        "Rowers below this skill level are blocked from Racing-type boats in strict pass (pass 0). "
+        "In relaxed passes the hard block is lifted but a soft penalty still applies. "
+        "Default: Intermediate (4).");
     racingDesc->setWordWrap(true);
     racingDesc->setStyleSheet("color:#5a7a9a; font-size:11px;");
     vl->addWidget(racingDesc);
@@ -497,19 +611,17 @@ QWidget* AssignmentDialog::buildPriorityTab()
     auto* racingRow = new QHBoxLayout;
     racingRow->addWidget(new QLabel("Minimum skill for Racing:"));
     m_racingMinSkillCombo = new QComboBox;
-    // Values correspond to SkillLevel integer (1=Novice … 7=Master)
     const struct { const char* label; int val; } skillOpts[] = {
-        {"Novice (1) — everyone allowed",            1},
-        {"Beginner (2)",                              2},
-        {"Developing (3) — block Novice only",       3},
-        {"Intermediate (4) — block N/B/Dev [default]",4},
-        {"Advanced (5) — block N/B/Dev/Int",          5},
-        {"Experienced (6)",                           6},
-        {"Master (7) — only Masters allowed",         7},
+        {"Novice (1) — everyone allowed",              1},
+        {"Beginner (2)",                               2},
+        {"Developing (3) — block Novice only",         3},
+        {"Intermediate (4) — block N/B/Dev [default]", 4},
+        {"Advanced (5) — block N/B/Dev/Int",           5},
+        {"Experienced (6)",                            6},
+        {"Master (7) — only Masters allowed",          7},
     };
     for (auto& o : skillOpts)
         m_racingMinSkillCombo->addItem(o.label, o.val);
-    // Set current: default racingMinSkill=4 (Intermediate), map to combo index
     {
         int cur = m_expertParams.racingMinSkill > 0 ? m_expertParams.racingMinSkill : 4;
         for (int i = 0; i < m_racingMinSkillCombo->count(); ++i)
@@ -1040,6 +1152,9 @@ QStringList AssignmentDialog::runChecks(const QList<Boat>& boats,
     if (boats.isEmpty()) { issues << "No boats selected."; return issues; }
     if (rowers.isEmpty()) { issues << "No rowers selected."; return issues; }
 
+    bool ignBL  = m_ignoreBlacklistCheck  && m_ignoreBlacklistCheck->isChecked();
+    bool ignBtL = m_ignoreBoatListsCheck  && m_ignoreBoatListsCheck->isChecked();
+
     // ── Group / boat capacity consistency ────────────────────────
     for (const RowingGroup& g : m_groups) {
         if (g.boatId == -1) continue;   // unpinned — generator handles size
@@ -1291,9 +1406,8 @@ ScoringPriority AssignmentDialog::buildPriority() const
     p.trainingMode = m_trainingCheck && m_trainingCheck->isChecked();
     p.crazyMode    = m_crazyCheck    && m_crazyCheck->isChecked();
     p.coOccurrence = m_coOccurrence;
-    // Apply expert parameters
-    // Use session-override weights from Priority tab spinboxes if available,
-    // otherwise fall back to ExpertParams
+
+    // Use session-override weights from Priority tab spinboxes if available
     if (m_weightSpins.size() == 5) {
         p.rankWeights = std::vector<double>{
             m_weightSpins[0]->value(), m_weightSpins[1]->value(),
@@ -1305,6 +1419,8 @@ ScoringPriority AssignmentDialog::buildPriority() const
             m_expertParams.rankWeights[2], m_expertParams.rankWeights[3],
             m_expertParams.rankWeights[4]};
     }
+
+    // Copy all expert constants directly — no per-factor multipliers
     p.whitelistBonus         = m_expertParams.whitelistBonus;
     p.coOccurrenceFactor     = m_expertParams.coOccurrenceFactor;
     p.obmannBonus            = m_expertParams.obmannBonus;
@@ -1320,12 +1436,25 @@ ScoringPriority AssignmentDialog::buildPriority() const
     p.bodyLargePerGap        = m_expertParams.bodyLargePerGap;
     p.grpAttrBonus           = m_expertParams.grpAttrBonus;
     p.valAttrVarianceWeight  = m_expertParams.valAttrVarianceWeight;
-    p.fillBoatAttempts       = m_expertParams.fillBoatAttempts;
-    p.passAttempts           = m_expertParams.passAttempts;
     p.maximizeLearning       = m_expertParams.maximizeLearning;
-    p.ignoreBlacklist        = m_ignoreBlacklistCheck  && m_ignoreBlacklistCheck->isChecked();
-    p.ignoreBoatBlacklist    = m_ignoreBoatListsCheck  && m_ignoreBoatListsCheck->isChecked();
-    p.ignoreBoatWhitelist    = m_ignoreBoatListsCheck  && m_ignoreBoatListsCheck->isChecked();
+
+    // Session-override attempt depths
+    p.fillBoatAttempts = m_fillBoatAttemptsSpin
+                         ? m_fillBoatAttemptsSpin->value()
+                         : m_expertParams.fillBoatAttempts;
+    p.passAttempts     = m_passAttemptsSpin
+                         ? m_passAttemptsSpin->value()
+                         : m_expertParams.passAttempts;
+
+    // Ignore flags — also relax compat when ignoring blacklists
+    p.ignoreBlacklist     = m_ignoreBlacklistCheck && m_ignoreBlacklistCheck->isChecked();
+    p.ignoreBoatBlacklist = m_ignoreBoatListsCheck && m_ignoreBoatListsCheck->isChecked();
+    p.ignoreBoatWhitelist = m_ignoreBoatListsCheck && m_ignoreBoatListsCheck->isChecked();
+    if (p.ignoreBlacklist) {
+        p.compatSpecialSpecial  = 0.0;
+        p.compatSpecialSelected = 0.0;
+    }
+
     // Racing minimum skill from Options 1 dropdown
     if (m_racingMinSkillCombo)
         p.racingMinSkill = m_racingMinSkillCombo->currentData().toInt();
@@ -1485,9 +1614,20 @@ void AssignmentDialog::onGenerate()
 
     // ── Crazy mode: skip all normal checks ─────────────────────────
     if (priority.crazyMode) {
+        if (m_progressBar) { m_progressBar->setValue(0); m_progressBar->setVisible(true); }
+        if (m_generatingIndicator) m_generatingIndicator->setVisible(true);
+        if (m_indicatorTimer)      m_indicatorTimer->start();
+        m_generateBtn->setEnabled(false);
         AssignmentGenerator gen;
         gen.setLogDir(m_expertParams.logDir);
+        gen.setProgressCallback([this](int pct){
+            if (m_progressBar) { m_progressBar->setValue(pct); m_progressBar->repaint(); }
+        });
         GeneratorResult result = gen.generate(selectedBoats, selectedRowers, name, priority);
+        if (m_indicatorTimer)      m_indicatorTimer->stop();
+        if (m_generatingIndicator) m_generatingIndicator->setVisible(false);
+        if (m_progressBar) m_progressBar->setValue(100);
+        m_generateBtn->setEnabled(true);
         m_assignment = result.assignment;
         m_assignment.setGroups({});
         m_assignment.setCheckedBoatIds({});
@@ -1598,9 +1738,34 @@ void AssignmentDialog::onGenerate()
     }
 
     if (!generatorBoats.isEmpty()) {
+        // Show progress bar and start blinking indicator
+        if (m_progressBar) {
+            m_progressBar->setValue(0);
+            m_progressBar->setVisible(true);
+        }
+        if (m_generatingIndicator) m_generatingIndicator->setVisible(true);
+        if (m_indicatorTimer)      m_indicatorTimer->start();
+        m_generateBtn->setEnabled(false);
+        m_checkBtn->setEnabled(false);
+
+        // Run generator synchronously on the main thread.
+        // The progress callback uses repaint() — no event loop re-entrancy.
         AssignmentGenerator gen;
         gen.setLogDir(m_expertParams.logDir);
+        gen.setProgressCallback([this](int pct) {
+            if (m_progressBar) {
+                m_progressBar->setValue(pct);
+                m_progressBar->repaint();
+            }
+        });
         GeneratorResult result = gen.generate(generatorBoats, freeRowers, name, priority);
+
+        // Stop indicator, finalise bar
+        if (m_indicatorTimer)      m_indicatorTimer->stop();
+        if (m_generatingIndicator) m_generatingIndicator->setVisible(false);
+        if (m_progressBar)         m_progressBar->setValue(100);
+        m_generateBtn->setEnabled(true);
+        m_checkBtn->setEnabled(true);
 
         // Build context for diagnostic (full picture, not just free portion)
         AssignmentGenerator::DiagContext ctx;
@@ -1629,7 +1794,8 @@ void AssignmentDialog::onGenerate()
         }
 
         if (!result.success) {
-            QString diag = gen.diagnose(generatorBoats, freeRowers, priority, ctx);
+            AssignmentGenerator diagGen;
+            QString diag = diagGen.diagnose(generatorBoats, freeRowers, priority, ctx);
             QString report = "GENERATION FAILED\n";
             report += QString("Error: %1\n\n").arg(result.errorMessage);
             report += diag;
@@ -1650,7 +1816,8 @@ void AssignmentDialog::onGenerate()
             QString previewText = formatPreview(m_assignment);
             previewText += "\n--- NOTE: Constraints were relaxed ---\n";
             previewText += result.errorMessage + "\n\n";
-            previewText += gen.diagnose(generatorBoats, freeRowers, priority, ctx);
+            AssignmentGenerator diagGen2;
+            previewText += diagGen2.diagnose(generatorBoats, freeRowers, priority, ctx);
             m_previewEdit->setPlainText(previewText);
             // Save state and show success
             goto stateCapture;
@@ -1704,16 +1871,10 @@ stateCapture:
             sg.rowerIds = rowerIds;
             savedGroups << sg;
         }
-    } else {
-        // Preserve the user's manually-defined dialog groups
-        for (const RowingGroup& g : m_groups) {
-            SavedGroup sg;
-            sg.name     = g.name;
-            sg.rowerIds = g.rowerIds;
-            sg.boatId   = g.boatId;
-            savedGroups << sg;
-        }
     }
+    // When unchecked (or no result): savedGroups stays empty — next session starts
+    // with no pre-seeded groups. Manual groups defined before generation are
+    // intentionally discarded since the result supersedes them.
     m_assignment.setGroups(savedGroups);
 
     QList<int> checkedBoats;
@@ -1904,6 +2065,42 @@ QWidget* AssignmentDialog::buildOptionsTab()
     connect(delSoBtn, &QPushButton::clicked, this, &AssignmentDialog::onRemoveSteeringOnly);
     return w;
 }
+
+void AssignmentDialog::onCopyToExpertSettings()
+{
+    if (m_weightSpins.size() < 5 || !m_fillBoatAttemptsSpin || !m_passAttemptsSpin) return;
+
+    // Collect current session values
+    double w1 = m_weightSpins[0]->value();
+    double w2 = m_weightSpins[1]->value();
+    double w3 = m_weightSpins[2]->value();
+    double w4 = m_weightSpins[3]->value();
+    double w5 = m_weightSpins[4]->value();
+    int fill  = m_fillBoatAttemptsSpin->value();
+    int pass  = m_passAttemptsSpin->value();
+
+    // Show summary and confirm
+    QString msg = QString(
+        "Copy the following session values to Expert Settings?\n\n"
+        "  Rank 1 weight:        %1\n"
+        "  Rank 2 weight:        %2\n"
+        "  Rank 3 weight:        %3\n"
+        "  Rank 4 weight:        %4\n"
+        "  Rank 5 weight:        %5\n"
+        "  Fill-boat attempts:   %6\n"
+        "  Pass attempts:        %7\n\n"
+        "These will become the new defaults for future sessions.\n"
+        "The Expert Settings password is required.")
+        .arg(w1).arg(w2).arg(w3).arg(w4).arg(w5).arg(fill).arg(pass);
+
+    if (QMessageBox::question(this, "Copy to Expert Settings", msg) != QMessageBox::Yes)
+        return;
+
+    emit copyToExpertSettingsRequested(w1, w2, w3, w4, w5, fill, pass);
+    QMessageBox::information(this, "Copied",
+        "Session values have been saved to Expert Settings.");
+}
+
 
 void AssignmentDialog::onAddSteeringOnly()
 {

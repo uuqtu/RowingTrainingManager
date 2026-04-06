@@ -39,8 +39,16 @@ template <> constexpr inline auto AssignmentDialog::qt_create_metaobjectdata<qt_
     namespace QMC = QtMocConstants;
     QtMocHelpers::StringRefStorage qt_stringData {
         "AssignmentDialog",
-        "onGenerate",
+        "copyToExpertSettingsRequested",
         "",
+        "w1",
+        "w2",
+        "w3",
+        "w4",
+        "w5",
+        "fillAttempts",
+        "passAttempts",
+        "onGenerate",
         "onCheck",
         "onSelectAllBoats",
         "onSelectNoneBoats",
@@ -60,52 +68,60 @@ template <> constexpr inline auto AssignmentDialog::qt_create_metaobjectdata<qt_
         "refreshSelectionTabStates",
         "onSelectionChanged",
         "onAddSteeringOnly",
-        "onRemoveSteeringOnly"
+        "onRemoveSteeringOnly",
+        "onCopyToExpertSettings"
     };
 
     QtMocHelpers::UintData qt_methods {
+        // Signal 'copyToExpertSettingsRequested'
+        QtMocHelpers::SignalData<void(double, double, double, double, double, int, int)>(1, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::Double, 3 }, { QMetaType::Double, 4 }, { QMetaType::Double, 5 }, { QMetaType::Double, 6 },
+            { QMetaType::Double, 7 }, { QMetaType::Int, 8 }, { QMetaType::Int, 9 },
+        }}),
         // Slot 'onGenerate'
-        QtMocHelpers::SlotData<void()>(1, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(10, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onCheck'
-        QtMocHelpers::SlotData<void()>(3, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(11, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onSelectAllBoats'
-        QtMocHelpers::SlotData<void()>(4, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(12, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onSelectNoneBoats'
-        QtMocHelpers::SlotData<void()>(5, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(13, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onSelectAllRowers'
-        QtMocHelpers::SlotData<void()>(6, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(14, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onSelectNoneRowers'
-        QtMocHelpers::SlotData<void()>(7, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(15, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onMovePriorityUp'
-        QtMocHelpers::SlotData<void()>(8, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(16, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onMovePriorityDown'
-        QtMocHelpers::SlotData<void()>(9, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(17, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onAutoSelectBoatsToggled'
-        QtMocHelpers::SlotData<void(bool)>(10, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::Bool, 11 },
+        QtMocHelpers::SlotData<void(bool)>(18, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Bool, 19 },
         }}),
         // Slot 'onAddGroup'
-        QtMocHelpers::SlotData<void()>(12, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(20, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onRemoveGroup'
-        QtMocHelpers::SlotData<void()>(13, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(21, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onGroupSelectionChanged'
-        QtMocHelpers::SlotData<void()>(14, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(22, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onAddRowerToGroup'
-        QtMocHelpers::SlotData<void()>(15, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(23, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onRemoveRowerFromGroup'
-        QtMocHelpers::SlotData<void()>(16, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(24, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onGroupBoatChanged'
-        QtMocHelpers::SlotData<void(int)>(17, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::Int, 18 },
+        QtMocHelpers::SlotData<void(int)>(25, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 26 },
         }}),
         // Slot 'refreshSelectionTabStates'
-        QtMocHelpers::SlotData<void()>(19, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(27, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onSelectionChanged'
-        QtMocHelpers::SlotData<void()>(20, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(28, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onAddSteeringOnly'
-        QtMocHelpers::SlotData<void()>(21, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(29, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onRemoveSteeringOnly'
-        QtMocHelpers::SlotData<void()>(22, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(30, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onCopyToExpertSettings'
+        QtMocHelpers::SlotData<void()>(31, 2, QMC::AccessPrivate, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -129,27 +145,33 @@ void AssignmentDialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int
     auto *_t = static_cast<AssignmentDialog *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
-        case 0: _t->onGenerate(); break;
-        case 1: _t->onCheck(); break;
-        case 2: _t->onSelectAllBoats(); break;
-        case 3: _t->onSelectNoneBoats(); break;
-        case 4: _t->onSelectAllRowers(); break;
-        case 5: _t->onSelectNoneRowers(); break;
-        case 6: _t->onMovePriorityUp(); break;
-        case 7: _t->onMovePriorityDown(); break;
-        case 8: _t->onAutoSelectBoatsToggled((*reinterpret_cast<std::add_pointer_t<bool>>(_a[1]))); break;
-        case 9: _t->onAddGroup(); break;
-        case 10: _t->onRemoveGroup(); break;
-        case 11: _t->onGroupSelectionChanged(); break;
-        case 12: _t->onAddRowerToGroup(); break;
-        case 13: _t->onRemoveRowerFromGroup(); break;
-        case 14: _t->onGroupBoatChanged((*reinterpret_cast<std::add_pointer_t<int>>(_a[1]))); break;
-        case 15: _t->refreshSelectionTabStates(); break;
-        case 16: _t->onSelectionChanged(); break;
-        case 17: _t->onAddSteeringOnly(); break;
-        case 18: _t->onRemoveSteeringOnly(); break;
+        case 0: _t->copyToExpertSettingsRequested((*reinterpret_cast<std::add_pointer_t<double>>(_a[1])),(*reinterpret_cast<std::add_pointer_t<double>>(_a[2])),(*reinterpret_cast<std::add_pointer_t<double>>(_a[3])),(*reinterpret_cast<std::add_pointer_t<double>>(_a[4])),(*reinterpret_cast<std::add_pointer_t<double>>(_a[5])),(*reinterpret_cast<std::add_pointer_t<int>>(_a[6])),(*reinterpret_cast<std::add_pointer_t<int>>(_a[7]))); break;
+        case 1: _t->onGenerate(); break;
+        case 2: _t->onCheck(); break;
+        case 3: _t->onSelectAllBoats(); break;
+        case 4: _t->onSelectNoneBoats(); break;
+        case 5: _t->onSelectAllRowers(); break;
+        case 6: _t->onSelectNoneRowers(); break;
+        case 7: _t->onMovePriorityUp(); break;
+        case 8: _t->onMovePriorityDown(); break;
+        case 9: _t->onAutoSelectBoatsToggled((*reinterpret_cast<std::add_pointer_t<bool>>(_a[1]))); break;
+        case 10: _t->onAddGroup(); break;
+        case 11: _t->onRemoveGroup(); break;
+        case 12: _t->onGroupSelectionChanged(); break;
+        case 13: _t->onAddRowerToGroup(); break;
+        case 14: _t->onRemoveRowerFromGroup(); break;
+        case 15: _t->onGroupBoatChanged((*reinterpret_cast<std::add_pointer_t<int>>(_a[1]))); break;
+        case 16: _t->refreshSelectionTabStates(); break;
+        case 17: _t->onSelectionChanged(); break;
+        case 18: _t->onAddSteeringOnly(); break;
+        case 19: _t->onRemoveSteeringOnly(); break;
+        case 20: _t->onCopyToExpertSettings(); break;
         default: ;
         }
+    }
+    if (_c == QMetaObject::IndexOfMethod) {
+        if (QtMocHelpers::indexOfMethod<void (AssignmentDialog::*)(double , double , double , double , double , int , int )>(_a, &AssignmentDialog::copyToExpertSettingsRequested, 0))
+            return;
     }
 }
 
@@ -172,15 +194,21 @@ int AssignmentDialog::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 19)
+        if (_id < 21)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 19;
+        _id -= 21;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 19)
+        if (_id < 21)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 19;
+        _id -= 21;
     }
     return _id;
+}
+
+// SIGNAL 0
+void AssignmentDialog::copyToExpertSettingsRequested(double _t1, double _t2, double _t3, double _t4, double _t5, int _t6, int _t7)
+{
+    QMetaObject::activate<void>(this, &staticMetaObject, 0, nullptr, _t1, _t2, _t3, _t4, _t5, _t6, _t7);
 }
 QT_WARNING_POP

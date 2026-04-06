@@ -925,14 +925,28 @@ void MainWindow::onNewAssignment() {
         ep.logDir=m_backupDir.isEmpty()?QString():QFileInfo(m_currentDbPath).absolutePath()+"/Solver";
         dlg.setExpertParams(ep);
     }
+    connect(&dlg, &AssignmentDialog::copyToExpertSettingsRequested,
+            this, [this](double w1, double w2, double w3, double w4, double w5,
+                         int fill, int pass) {
+        m_expert.weightRank1 = w1; m_expert.weightRank2 = w2;
+        m_expert.weightRank3 = w3; m_expert.weightRank4 = w4;
+        m_expert.weightRank5 = w5;
+        m_expert.fillBoatAttempts = fill;
+        m_expert.passAttempts     = pass;
+        m_db->saveExpertSetting("weightRank1", w1); m_db->saveExpertSetting("weightRank2", w2);
+        m_db->saveExpertSetting("weightRank3", w3); m_db->saveExpertSetting("weightRank4", w4);
+        m_db->saveExpertSetting("weightRank5", w5);
+        m_db->saveExpertSetting("fillBoatAttempts", static_cast<double>(fill));
+        m_db->saveExpertSetting("passAttempts",     static_cast<double>(pass));
+
+    });
     if (dlg.exec() == QDialog::Accepted) {
         Assignment a = dlg.generatedAssignment();
         if (m_db->saveAssignment(a)) {
-            // a now has a valid id — force role computation by displaying it
             m_assignments.prepend(a);
             refreshAssignmentList();
             m_assignmentList->setCurrentRow(0);
-            displayAssignment(a);  // this triggers role save since id is now valid
+            displayAssignment(a);
             statusBar()->showMessage("Assignment saved: " + a.name(), 3000);
         } else {
             QMessageBox::warning(this, "Error", "Could not save assignment: " + m_db->lastError());
@@ -1013,6 +1027,22 @@ void MainWindow::onEditAssignment(QListWidgetItem* item) {
         dlg.setExpertParams(ep);
     }
     dlg.loadFromAssignment(existing);
+
+    connect(&dlg, &AssignmentDialog::copyToExpertSettingsRequested,
+            this, [this](double w1, double w2, double w3, double w4, double w5,
+                         int fill, int pass) {
+        m_expert.weightRank1 = w1; m_expert.weightRank2 = w2;
+        m_expert.weightRank3 = w3; m_expert.weightRank4 = w4;
+        m_expert.weightRank5 = w5;
+        m_expert.fillBoatAttempts = fill;
+        m_expert.passAttempts     = pass;
+        m_db->saveExpertSetting("weightRank1", w1); m_db->saveExpertSetting("weightRank2", w2);
+        m_db->saveExpertSetting("weightRank3", w3); m_db->saveExpertSetting("weightRank4", w4);
+        m_db->saveExpertSetting("weightRank5", w5);
+        m_db->saveExpertSetting("fillBoatAttempts", static_cast<double>(fill));
+        m_db->saveExpertSetting("passAttempts",     static_cast<double>(pass));
+
+    });
 
     if (dlg.exec() == QDialog::Accepted) {
         Assignment updated = dlg.generatedAssignment();

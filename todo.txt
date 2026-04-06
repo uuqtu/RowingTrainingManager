@@ -1,3 +1,19 @@
-When a assignment has been generated and I press accept save.
+The  preserve checkbox does work as intendet.
 
-I want that the saving procedure automatically creates in the groups tab the groups corresponding to the boats (with the names of the boats)  in the generation and assigns the rowers assigned in the assignemnt result and saves it like this to the database.
+If it is checked groups are preserved on serve that is correct. If it is not checked it is still preserved which is not the correct behavior?
+
+
+
+The ignore-blacklist option does not work it still shows that there are blacklist conflicts. Here also the compatibility should be relaxed.
+
+
+
+Add all possible attributes to the selecteble weightning selection.
+
+
+
+Allow also more then 999 and 99 in the respective loops because some assignments are harder to gind.
+
+
+
+Add a button to get the current value of the settings, in order to get an inspiration for the Expert Settings. Have the same order as in the expert settings.

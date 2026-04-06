@@ -451,6 +451,7 @@ GeneratorResult AssignmentGenerator::generate(
         result.assignment = a;
         result.errorMessage = "Note: crazy mode — completely random, no constraints applied.";
         log("\nRESULT: success (crazy mode)");
+        if (m_progressCb) m_progressCb(100);
         logFlushDelete();
         return result;
     }
@@ -458,8 +459,45 @@ GeneratorResult AssignmentGenerator::generate(
     QList<int> available;
     for (const Rower& r : selectedRowers) available.append(r.id());
 
+    // ── Progress tracking ────────────────────────────────────────
+    // Worst-case total work = 3 passes × passAttempts × nBoats × fillBoatAttempts
+    // We count each fillBoat() call as fillBoatAttempts units of work.
+    const int nBoats = selectedBoats.size();
+    const qint64 unitsPerFill   = qMax(1, priority.fillBoatAttempts);
+    const qint64 totalUnits     = 3LL * priority.passAttempts * nBoats * unitsPerFill;
+    qint64 doneUnits = 0;
+    int    lastPct   = 0;
+    auto reportProgress = [&](bool done = false) {
+        if (!m_progressCb) return;
+        int pct = done ? 100 : (int)(doneUnits * 100 / totalUnits);
+        pct = qBound(0, pct, 99);   // hold at 99 until truly done
+        if (pct != lastPct) { lastPct = pct; m_progressCb(pct); }
+    };
+    if (m_progressCb) m_progressCb(0);
+
     // ── Three-pass generation ────────────────────────────────────
     log("=== GENERATION PASSES ===");
+
+    // Sort boats so the most-constrained ones are filled first.
+    // This dramatically reduces the chance that easy boats consume rowers
+    // that constrained boats need (e.g. sweep-only rowers going to scull boats
+    // that accept Both). Sort by: propulsion-specific boats before Both boats,
+    // then by capacity ascending (smaller boats are harder to fill exactly).
+    QList<Boat> sortedBoats = selectedBoats;
+    std::stable_sort(sortedBoats.begin(), sortedBoats.end(),
+        [&](const Boat& a, const Boat& b) {
+            // Count eligible rowers for each boat (propulsion match only, pass 0 rules)
+            auto eligible = [&](const Boat& boat) {
+                int n = 0;
+                for (const Rower& r : selectedRowers)
+                    if (boat.propulsionType() == PropulsionType::Both
+                        || r.canRowPropulsion(boat.propulsionType())) ++n;
+                return n;
+            };
+            int ea = eligible(a), eb = eligible(b);
+            if (ea != eb) return ea < eb;   // fewer eligible → fill first
+            return a.capacity() < b.capacity();
+        });
 
     for (int pass = 0; pass < 3; ++pass) {
         bool relaxCompat = (pass >= 1);
@@ -478,14 +516,18 @@ GeneratorResult AssignmentGenerator::generate(
             attempt.setCreatedAt(QDateTime::currentDateTime());
             bool ok = true;
 
-            for (const Boat& boat : selectedBoats) {
+            for (const Boat& boat : sortedBoats) {
                 QList<int> team;
                 bool useRelax = relaxCompat || relaxAll;
                 if (!fillBoat(boat, avail, selectedRowers, priority, useRelax, team)) {
                     ok = false;
                     log(QString("  Attempt %1: FAIL to fill boat '%2'").arg(fa+1).arg(boat.name()));
+                    doneUnits += unitsPerFill;
+                    reportProgress();
                     break;
                 }
+                doneUnits += unitsPerFill;
+                reportProgress();
                 for (int rid : team) attempt.assignRowerToBoat(boat.id(), rid);
             }
 
@@ -540,6 +582,7 @@ GeneratorResult AssignmentGenerator::generate(
             else if (pass == 2)
                 result.errorMessage = "Note: all compatibility constraints were ignored.";
             log(QString("\nRESULT: success (pass %1)").arg(pass));
+            if (m_progressCb) m_progressCb(100);
             logFlushDelete();
             return result;
         }
@@ -555,6 +598,7 @@ GeneratorResult AssignmentGenerator::generate(
         "• No steerer available for a non-steered boat\n"
         "• Blacklist constraints make assignment impossible";
     log("\nRESULT: FAILED — " + result.errorMessage);
+    if (m_progressCb) m_progressCb(100);
     logFlushDelete();
     return result;
 }

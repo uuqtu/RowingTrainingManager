@@ -3,6 +3,7 @@
 #include <QList>
 #include <QMap>
 #include <QPair>
+#include <functional>
 #include <vector>
 #include "boat.h"
 #include "rower.h"
@@ -122,6 +123,10 @@ public:
     // Call before generate(). If empty, no log is written.
     void setLogDir(const QString& dir) { m_logDir = dir; }
 
+    // Optional progress callback: called with 0..100 during generate().
+    // Use a std::function so it can be set from any thread context.
+    void setProgressCallback(std::function<void(int)> cb) { m_progressCb = cb; }
+
     GeneratorResult generate(
         const QList<Boat>& selectedBoats,
         const QList<Rower>& selectedRowers,
@@ -132,6 +137,7 @@ public:
     // Compute full scoring detail for a committed team (called after generation).
 private:
     QString m_logDir;
+    std::function<void(int)> m_progressCb;  // optional 0..100 progress callback
 public:
     QList<ScoreDetail> computeScoreDetails(
         const Assignment& assignment,

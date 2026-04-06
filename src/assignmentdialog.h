@@ -10,6 +10,8 @@
 
 class QListWidget;
 class QDoubleSpinBox;
+class QProgressBar;
+class QTimer;
 class QListWidgetItem;
 class QLineEdit;
 class QPushButton;
@@ -82,6 +84,11 @@ public:
     Assignment generatedAssignment() const { return m_assignment; }
     void loadFromAssignment(const Assignment& a);
 
+signals:
+    // Emitted when user clicks "Copy current values to Expert Settings"
+    void copyToExpertSettingsRequested(double w1, double w2, double w3, double w4, double w5,
+                                       int fillAttempts, int passAttempts);
+
 private slots:
     void onGenerate();
     void onCheck();
@@ -104,6 +111,7 @@ private slots:
     // Options
     void onAddSteeringOnly();
     void onRemoveSteeringOnly();
+    void onCopyToExpertSettings();
 
 private:
     void setupUi();
@@ -160,6 +168,11 @@ private:
     QCheckBox* m_ignoreBoatListsCheck   = nullptr;
     QComboBox* m_racingMinSkillCombo    = nullptr;
     QCheckBox* m_preserveGroupsCheck    = nullptr;  // "Preserve groups on save"
+    QSpinBox*  m_fillBoatAttemptsSpin   = nullptr;  // session-override for fillBoatAttempts
+    QSpinBox*  m_passAttemptsSpin       = nullptr;  // session-override for passAttempts
+    QProgressBar* m_progressBar         = nullptr;  // generation progress 0-100%
+    QLabel*       m_generatingIndicator  = nullptr;  // blinking dot while generating
+    QTimer*       m_indicatorTimer       = nullptr;  // drives the blink
     QCheckBox*   m_trainingCheck = nullptr;
     QCheckBox*   m_crazyCheck    = nullptr;
 
