@@ -72,6 +72,7 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         "onAssignmentDistanceSelected",
         "index",
         "onDistanceChanged",
+        "onExportDistanceDetailToExcel",
         "refreshStats",
         "onSickModeChanged",
         "rowerId",
@@ -151,19 +152,21 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         QtMocHelpers::SlotData<void(int, int)>(33, 2, QMC::AccessPrivate, QMetaType::Void, {{
             { QMetaType::Int, 5 }, { QMetaType::Int, 30 },
         }}),
-        // Slot 'refreshStats'
+        // Slot 'onExportDistanceDetailToExcel'
         QtMocHelpers::SlotData<void()>(34, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'refreshStats'
+        QtMocHelpers::SlotData<void()>(35, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onSickModeChanged'
-        QtMocHelpers::SlotData<void(int, bool)>(35, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::Int, 36 }, { QMetaType::Bool, 37 },
+        QtMocHelpers::SlotData<void(int, bool)>(36, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 37 }, { QMetaType::Bool, 38 },
         }}),
         // Slot 'refreshSickList'
-        QtMocHelpers::SlotData<void()>(38, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'loadExpertSettings'
         QtMocHelpers::SlotData<void()>(39, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'loadExpertSettings'
+        QtMocHelpers::SlotData<void()>(40, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'checkPassword'
-        QtMocHelpers::SlotData<bool(const QString &)>(40, 2, QMC::AccessPrivate, QMetaType::Bool, {{
-            { QMetaType::QString, 41 },
+        QtMocHelpers::SlotData<bool(const QString &)>(41, 2, QMC::AccessPrivate, QMetaType::Bool, {{
+            { QMetaType::QString, 42 },
         }}),
     };
     QtMocHelpers::UintData qt_properties {
@@ -214,11 +217,12 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 23: _t->onAssignmentTableCellClicked((*reinterpret_cast<std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast<std::add_pointer_t<int>>(_a[2]))); break;
         case 24: _t->onAssignmentDistanceSelected((*reinterpret_cast<std::add_pointer_t<int>>(_a[1]))); break;
         case 25: _t->onDistanceChanged((*reinterpret_cast<std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast<std::add_pointer_t<int>>(_a[2]))); break;
-        case 26: _t->refreshStats(); break;
-        case 27: _t->onSickModeChanged((*reinterpret_cast<std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast<std::add_pointer_t<bool>>(_a[2]))); break;
-        case 28: _t->refreshSickList(); break;
-        case 29: _t->loadExpertSettings(); break;
-        case 30: { bool _r = _t->checkPassword((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1])));
+        case 26: _t->onExportDistanceDetailToExcel(); break;
+        case 27: _t->refreshStats(); break;
+        case 28: _t->onSickModeChanged((*reinterpret_cast<std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast<std::add_pointer_t<bool>>(_a[2]))); break;
+        case 29: _t->refreshSickList(); break;
+        case 30: _t->loadExpertSettings(); break;
+        case 31: { bool _r = _t->checkPassword((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1])));
             if (_a[0]) *reinterpret_cast<bool*>(_a[0]) = std::move(_r); }  break;
         default: ;
         }
@@ -244,14 +248,14 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 31)
+        if (_id < 32)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 31;
+        _id -= 32;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 31)
+        if (_id < 32)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 31;
+        _id -= 32;
     }
     return _id;
 }

@@ -64,6 +64,7 @@ private slots:
     // Distance tab
     void onAssignmentDistanceSelected(int index);
     void onDistanceChanged(int row, int col);
+    void onExportDistanceDetailToExcel();
 
     // Statistics tab
     void refreshStats();

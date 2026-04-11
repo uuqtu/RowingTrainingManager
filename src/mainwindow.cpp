@@ -12,6 +12,9 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QFile>
+#include <QFileDialog>
+#include <QProcess>
+#include <QTextStream>
 
 #include <QTabWidget>
 #include <QTableView>
@@ -1718,7 +1721,6 @@ QWidget* MainWindow::buildDistanceDetailTab() {
 
     auto* refreshBtn = new QPushButton("Refresh");
     refreshBtn->setObjectName("primaryBtn");
-    vl->addWidget(refreshBtn, 0, Qt::AlignLeft);
 
     connect(refreshBtn, &QPushButton::clicked, this, [this]() {
         if (!m_distDetailTable) return;
@@ -1808,6 +1810,16 @@ QWidget* MainWindow::buildDistanceDetailTab() {
 
         m_distDetailTable->resizeRowsToContents();
     });
+
+    auto* btnRow = new QHBoxLayout;
+    btnRow->addWidget(refreshBtn);
+    btnRow->addStretch();
+    auto* exportBtn = new QPushButton("📊  Export to Excel…");
+    exportBtn->setToolTip("Export the distance detail table to a multi-tab Excel workbook.");
+    btnRow->addWidget(exportBtn);
+    vl->addLayout(btnRow);
+
+    connect(exportBtn, &QPushButton::clicked, this, &MainWindow::onExportDistanceDetailToExcel);
 
     return w;
 }
@@ -5078,5 +5090,630 @@ void MainWindow::onBackupTick() {
         // Only warn once per failure run
         statusBar()->showMessage(
             QString("⚠ Auto-backup failed: could not write to %1").arg(bakPath), 6000);
+    }
+}
+
+// ---------------------------------------------------------------
+// Export Distance Detail to Excel (multi-tab workbook)
+// ---------------------------------------------------------------
+void MainWindow::onExportDistanceDetailToExcel()
+{
+    // Ask user where to save
+    QString path = QFileDialog::getSaveFileName(
+        this, "Export to Excel", QDir::homePath() + "/rowing_distances.xlsx",
+        "Excel Workbook (*.xlsx)");
+    if (path.isEmpty()) return;
+    if (!path.endsWith(".xlsx", Qt::CaseInsensitive)) path += ".xlsx";
+
+    // ── Collect all data from DB ──────────────────────────────────
+    // All assignments, sorted oldest→newest
+    QList<Assignment> allA = m_assignments;
+    std::sort(allA.begin(), allA.end(),
+        [](const Assignment& a, const Assignment& b){
+            return a.createdAt() < b.createdAt(); });
+
+    // Load full boatRowerMap and distances for each assignment
+    struct AsgData {
+        Assignment a;
+        QMap<int,int> dist;        // rowerId → km
+        QMap<int,int> rowerBoat;   // rowerId → boatId
+    };
+    QList<AsgData> data;
+    for (const Assignment& a : allA) {
+        AsgData d;
+        d.a    = m_db->loadAssignment(a.id());
+        d.dist = m_db->loadDistances(a.id());
+        // Build rowerBoat map from boatRowerMap
+        for (auto it = d.a.boatRowerMap().constBegin();
+             it != d.a.boatRowerMap().constEnd(); ++it)
+            for (int rid : it.value())
+                d.rowerBoat[rid] = it.key();
+        data << d;
+    }
+
+    // Sorted rower list
+    QList<Rower> rowers = m_rowers;
+    std::sort(rowers.begin(), rowers.end(),
+        [](const Rower& a, const Rower& b){ return a.name() < b.name(); });
+
+    // ── Build Python script ───────────────────────────────────────
+    // Escape a string for embedding in a Python string literal
+    auto esc = [](const QString& s) -> QString {
+        QString r = s;
+        r.replace("\\", "\\\\");
+        r.replace("\"", "\\\"");
+        r.replace("\n", " ");
+        return r;
+    };
+
+    // Serialise assignments
+    QString asgJson = "[";
+    for (int i = 0; i < data.size(); ++i) {
+        const AsgData& d = data[i];
+        if (i) asgJson += ",";
+        asgJson += QString("{\"id\":%1,\"name\":\"%2\",\"date\":\"%3\",\"locked\":%4}")
+            .arg(d.a.id())
+            .arg(esc(d.a.name()))
+            .arg(d.a.createdAt().toString("dd.MM.yyyy"))
+            .arg(d.a.isLocked() ? "true" : "false");
+    }
+    asgJson += "]";
+
+    // Serialise rowers
+    QString rowerJson = "[";
+    for (int i = 0; i < rowers.size(); ++i) {
+        if (i) rowerJson += ",";
+        rowerJson += QString("{\"id\":%1,\"name\":\"%2\",\"skill\":\"%3\"}")
+            .arg(rowers[i].id())
+            .arg(esc(rowers[i].name()))
+            .arg(esc(Rower::skillToString(rowers[i].skill())));
+    }
+    rowerJson += "]";
+
+    // Serialise boats
+    QString boatJson = "[";
+    bool first = true;
+    for (const Boat& b : m_boats) {
+        if (!first) boatJson += ",";
+        first = false;
+        boatJson += QString("{\"id\":%1,\"name\":\"%2\",\"cap\":%3}")
+            .arg(b.id()).arg(esc(b.name())).arg(b.capacity());
+    }
+    boatJson += "]";
+
+    // Serialise dist matrix: list of {asgId, rowerId, km, boatId}
+    QString distJson = "[";
+    bool fd = true;
+    for (const AsgData& d : data) {
+        for (auto it = d.dist.constBegin(); it != d.dist.constEnd(); ++it) {
+            if (!fd) distJson += ",";
+            fd = false;
+            distJson += QString("{\"a\":%1,\"r\":%2,\"km\":%3,\"b\":%4}")
+                .arg(d.a.id()).arg(it.key()).arg(it.value())
+                .arg(d.rowerBoat.value(it.key(), -1));
+        }
+        // Also add 0-km entries for rowers who were assigned but have no distance
+        for (auto it = d.rowerBoat.constBegin(); it != d.rowerBoat.constEnd(); ++it) {
+            if (!d.dist.contains(it.key())) {
+                if (!fd) distJson += ",";
+                fd = false;
+                distJson += QString("{\"a\":%1,\"r\":%2,\"km\":0,\"b\":%3}")
+                    .arg(d.a.id()).arg(it.key()).arg(it.value());
+            }
+        }
+    }
+    distJson += "]";
+
+    // ── Write Python script to a temp file ────────────────────────
+    QString pyPath = QDir::tempPath() + "/rowing_export.py";
+    QString outPath = path;
+
+    QString py;
+    py += "import json, sys\n";
+    py += "from openpyxl import Workbook\n";
+    py += "from openpyxl.styles import (Font, PatternFill, Alignment, Border, Side,\n";
+    py += "    GradientFill)\n";
+    py += "from openpyxl.utils import get_column_letter\n";
+    py += "from openpyxl.formatting.rule import ColorScaleRule, DataBarRule\n";
+    py += "\n";
+
+    // Embed data
+    py += QString("ASSIGNMENTS = json.loads('%1')\n").arg(asgJson.replace("'", "\\'"));
+    py += QString("ROWERS      = json.loads('%1')\n").arg(rowerJson.replace("'", "\\'"));
+    py += QString("BOATS       = json.loads('%1')\n").arg(boatJson.replace("'", "\\'"));
+    py += QString("DIST_ROWS   = json.loads('%1')\n").arg(distJson.replace("'", "\\'"));
+    py += QString("OUT_PATH    = r\"%1\"\n\n").arg(outPath);
+
+    py += R"PY(
+# ── helpers ──────────────────────────────────────────────────────
+ASG_MAP   = {a['id']: a for a in ASSIGNMENTS}
+ROW_MAP   = {r['id']: r for r in ROWERS}
+BOAT_MAP  = {b['id']: b for b in BOATS}
+
+# dist_matrix[asgId][rowerId] = km
+dist_matrix = {}
+rower_boat  = {}   # (asgId, rowerId) -> boatId
+for row in DIST_ROWS:
+    dist_matrix.setdefault(row['a'], {})[row['r']] = row['km']
+    rower_boat[(row['a'], row['r'])] = row['b']
+
+# total km per rower
+rower_total = {r['id']: sum(
+    dist_matrix.get(a['id'], {}).get(r['id'], 0) for a in ASSIGNMENTS)
+    for r in ROWERS}
+
+# total km per assignment
+asg_total = {a['id']: sum(dist_matrix.get(a['id'], {}).values())
+             for a in ASSIGNMENTS}
+
+HDR_FILL  = PatternFill('solid', start_color='1A2A3A')
+HDR_FONT  = Font(name='Arial', bold=True, color='8FB4D8', size=10)
+NAME_FILL = PatternFill('solid', start_color='0D1A27')
+NAME_FONT = Font(name='Arial', bold=True, color='C8D8E8', size=10)
+CELL_FONT = Font(name='Arial', size=10, color='E8EDF5')
+ZERO_FONT = Font(name='Arial', size=10, color='334455')
+TOT_FILL  = PatternFill('solid', start_color='162030')
+TOT_FONT  = Font(name='Arial', bold=True, color='66FF99', size=10)
+TITLE_FONT= Font(name='Arial', bold=True, color='5A9ABB', size=12)
+thin = Side(style='thin', color='2A3548')
+border= Border(left=thin, right=thin, top=thin, bottom=thin)
+
+def hdr(cell, text, wrap=False):
+    cell.value = text
+    cell.font  = HDR_FONT
+    cell.fill  = HDR_FILL
+    cell.border= border
+    cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=wrap)
+
+def name_cell(cell, text):
+    cell.value = text
+    cell.font  = NAME_FONT
+    cell.fill  = NAME_FILL
+    cell.border= border
+    cell.alignment = Alignment(horizontal='left', vertical='center')
+
+def val(cell, v, is_total=False):
+    if v == 0:
+        cell.value  = ''
+        cell.font   = ZERO_FONT
+    else:
+        cell.value  = v
+        cell.font   = TOT_FONT if is_total else CELL_FONT
+        cell.fill   = TOT_FILL if is_total else PatternFill()
+    cell.border = border
+    cell.alignment = Alignment(horizontal='center', vertical='center')
+
+def set_col_width(ws, col, width):
+    ws.column_dimensions[get_column_letter(col)].width = width
+
+def title_row(ws, text, ncols):
+    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=ncols)
+    c = ws.cell(1, 1, text)
+    c.font  = TITLE_FONT
+    c.fill  = PatternFill('solid', start_color='0A1520')
+    c.alignment = Alignment(horizontal='left', vertical='center')
+    ws.row_dimensions[1].height = 24
+
+wb = Workbook()
+wb.remove(wb.active)   # remove default sheet
+
+# ════════════════════════════════════════════════════════════════
+# TAB 1 — ROWERS  (rows=rowers, cols=assignments, last=total)
+# ════════════════════════════════════════════════════════════════
+ws = wb.create_sheet('Rowers')
+ncols = 1 + len(ASSIGNMENTS) + 1
+title_row(ws, 'Kilometres per rower per session', ncols)
+
+# Header row 2
+hdr(ws.cell(2, 1), 'Rower')
+for c, a in enumerate(ASSIGNMENTS, 2):
+    hdr(ws.cell(2, c), f"{a['name']}\n{a['date']}", wrap=True)
+hdr(ws.cell(2, ncols), 'Total km')
+ws.row_dimensions[2].height = 54   # tall for rotated text
+ws.freeze_panes = 'B3'
+
+# Data rows
+for r, row in enumerate(ROWERS, 3):
+    name_cell(ws.cell(r, 1), row['name'])
+    total = 0
+    for c, a in enumerate(ASSIGNMENTS, 2):
+        km = dist_matrix.get(a['id'], {}).get(row['id'], 0)
+        total += km
+        val(ws.cell(r, c), km)
+    val(ws.cell(r, ncols), total, is_total=True)
+
+# Totals row
+tr = len(ROWERS) + 3
+ws.cell(tr, 1, 'Session total').font = HDR_FONT
+ws.cell(tr, 1).fill = HDR_FILL
+ws.cell(tr, 1).alignment = Alignment(horizontal='left')
+for c, a in enumerate(ASSIGNMENTS, 2):
+    v = asg_total.get(a['id'], 0)
+    val(ws.cell(tr, c), v, is_total=True)
+val(ws.cell(tr, ncols),
+    sum(asg_total.values()), is_total=True)
+
+# Column widths
+set_col_width(ws, 1, 22)
+for c in range(2, ncols):
+    set_col_width(ws, c, 10)
+set_col_width(ws, ncols, 12)
+
+# Conditional colour scale on km columns
+if len(ROWERS) > 1 and len(ASSIGNMENTS) > 0:
+    data_range = (f"{get_column_letter(2)}3:"
+                  f"{get_column_letter(1+len(ASSIGNMENTS))}{2+len(ROWERS)}")
+    ws.conditional_formatting.add(data_range, ColorScaleRule(
+        start_type='num', start_value=1,  start_color='0D1A27',
+        mid_type='percentile', mid_value=50, mid_color='1A5A9A',
+        end_type='max', end_color='1A9A5A'))
+
+# ════════════════════════════════════════════════════════════════
+# TAB 2 — BOATS  (rower × assignment → boat name + km)
+# ════════════════════════════════════════════════════════════════
+ws2 = wb.create_sheet('Boats')
+ncols2 = 1 + len(ASSIGNMENTS) * 2 + 1  # name + (boat,km)*N + total
+title_row(ws2, 'Boat assignment and kilometres per rower per session', ncols2)
+
+# Header: pair columns per assignment
+hdr(ws2.cell(2, 1), 'Rower')
+c = 2
+for a in ASSIGNMENTS:
+    ws2.merge_cells(start_row=2, start_column=c,
+                    end_row=2, end_column=c+1)
+    hdr(ws2.cell(2, c), f"{a['name']}\n{a['date']}", wrap=True)
+    hdr(ws2.cell(3, c),   'Boat')
+    hdr(ws2.cell(3, c+1), 'km')
+    c += 2
+hdr(ws2.cell(2, ncols2), 'Total km')
+ws2.merge_cells(start_row=2, start_column=ncols2,
+                end_row=3, end_column=ncols2)
+ws2.row_dimensions[2].height = 54
+ws2.row_dimensions[3].height = 18
+ws2.freeze_panes = 'B4'
+
+for r, row in enumerate(ROWERS, 4):
+    name_cell(ws2.cell(r, 1), row['name'])
+    total = 0
+    c = 2
+    for a in ASSIGNMENTS:
+        rid = row['id']
+        bid = rower_boat.get((a['id'], rid), -1)
+        km  = dist_matrix.get(a['id'], {}).get(rid, 0)
+        bname = BOAT_MAP[bid]['name'] if bid in BOAT_MAP else ''
+        # boat cell
+        bc = ws2.cell(r, c, bname)
+        bc.font = CELL_FONT if bname else ZERO_FONT
+        bc.border = border
+        bc.alignment = Alignment(horizontal='center', vertical='center')
+        # km cell
+        val(ws2.cell(r, c+1), km)
+        total += km
+        c += 2
+    val(ws2.cell(r, ncols2), total, is_total=True)
+
+set_col_width(ws2, 1, 22)
+c = 2
+for _ in ASSIGNMENTS:
+    set_col_width(ws2, c,   10)
+    set_col_width(ws2, c+1,  7)
+    c += 2
+set_col_width(ws2, ncols2, 12)
+
+# ════════════════════════════════════════════════════════════════
+# TAB 3 — DISTANCE GROUPS
+# Group rowers by boat so you can enter km once per boat.
+# For each assignment show: boat → rowers in it → km (one shared value)
+# This minimises the number of distinct km values to enter.
+# ════════════════════════════════════════════════════════════════
+ws3 = wb.create_sheet('Distance Groups')
+title_row(ws3, 'Distance groups — enter km once per boat row', 5)
+hdr(ws3.cell(2, 1), 'Assignment')
+hdr(ws3.cell(2, 2), 'Boat')
+hdr(ws3.cell(2, 3), 'Cap')
+hdr(ws3.cell(2, 4), 'Rowers (in this boat)')
+hdr(ws3.cell(2, 5), 'km  (shared value)')
+ws3.row_dimensions[2].height = 18
+ws3.freeze_panes = 'A3'
+
+def set_col_width3(col, w): set_col_width(ws3, col, w)
+set_col_width3(1, 22)
+set_col_width3(2, 16)
+set_col_width3(3,  5)
+set_col_width3(4, 55)
+set_col_width3(5, 14)
+
+r3 = 3
+for a in ASSIGNMENTS:
+    # Group by boat
+    boat_rowers = {}  # boatId → [rowerIds]
+    for row in DIST_ROWS:
+        if row['a'] != a['id']: continue
+        bid = row['b']
+        if bid == -1: continue
+        boat_rowers.setdefault(bid, []).append(row['r'])
+
+    # Sort boats by capacity desc (biggest first = most km shared)
+    sorted_boats = sorted(boat_rowers.keys(),
+        key=lambda bid: BOAT_MAP.get(bid, {}).get('cap', 0), reverse=True)
+
+    for bid in sorted_boats:
+        rids = boat_rowers[bid]
+        rnames = ', '.join(ROW_MAP[rid]['name']
+                           for rid in rids if rid in ROW_MAP)
+        cap   = BOAT_MAP.get(bid, {}).get('cap', len(rids))
+        # representative km = most common km in this boat for this assignment
+        kms = [dist_matrix.get(a['id'], {}).get(rid, 0) for rid in rids]
+        rep_km = max(set(kms), key=kms.count) if kms else 0
+
+        name_cell(ws3.cell(r3, 1), a['name'] + '  ' + a['date'])
+        ws3.cell(r3, 2, BOAT_MAP.get(bid, {}).get('name', f'Boat#{bid}'))
+        ws3.cell(r3, 2).border = border
+        ws3.cell(r3, 2).font   = CELL_FONT
+        ws3.cell(r3, 2).alignment = Alignment(horizontal='center')
+        ws3.cell(r3, 3, cap).border = border
+        ws3.cell(r3, 3).font   = ZERO_FONT
+        ws3.cell(r3, 3).alignment = Alignment(horizontal='center')
+        ws3.cell(r3, 4, rnames).border = border
+        ws3.cell(r3, 4).font   = CELL_FONT
+        ws3.cell(r3, 4).alignment = Alignment(horizontal='left',
+                                               wrap_text=False)
+        km_cell = ws3.cell(r3, 5, rep_km if rep_km > 0 else '')
+        km_cell.border = border
+        km_cell.font   = TOT_FONT if rep_km > 0 else ZERO_FONT
+        km_cell.alignment = Alignment(horizontal='center')
+        r3 += 1
+    if sorted_boats:
+        r3 += 1  # blank separator between assignments
+
+# ════════════════════════════════════════════════════════════════
+# TAB 4 — SESSION STATS
+# ════════════════════════════════════════════════════════════════
+ws4 = wb.create_sheet('Session Stats')
+title_row(ws4, 'Session statistics', 5)
+hdr(ws4.cell(2, 1), 'Assignment')
+hdr(ws4.cell(2, 2), 'Date')
+hdr(ws4.cell(2, 3), 'Locked')
+hdr(ws4.cell(2, 4), 'Rowers with km')
+hdr(ws4.cell(2, 5), 'Total km')
+
+for r, a in enumerate(ASSIGNMENTS, 3):
+    dm = dist_matrix.get(a['id'], {})
+    rowers_with_km = sum(1 for v in dm.values() if v > 0)
+    total_km = sum(dm.values())
+    ws4.cell(r, 1, a['name']).font  = CELL_FONT
+    ws4.cell(r, 1).alignment = Alignment(horizontal='left')
+    ws4.cell(r, 1).border    = border
+    ws4.cell(r, 2, a['date']).font  = CELL_FONT
+    ws4.cell(r, 2).alignment = Alignment(horizontal='center')
+    ws4.cell(r, 2).border    = border
+    ws4.cell(r, 3, '✓' if a['locked'] else '').font = CELL_FONT
+    ws4.cell(r, 3).alignment = Alignment(horizontal='center')
+    ws4.cell(r, 3).border    = border
+    val(ws4.cell(r, 4), rowers_with_km)
+    val(ws4.cell(r, 5), total_km, is_total=True)
+
+# Totals
+tr4 = len(ASSIGNMENTS) + 3
+ws4.cell(tr4, 1, 'TOTAL').font = HDR_FONT
+ws4.cell(tr4, 1).fill = HDR_FILL
+ws4.cell(tr4, 1).border = border
+val(ws4.cell(tr4, 5), sum(asg_total.values()), is_total=True)
+
+for col, w in [(1,28),(2,14),(3,10),(4,18),(5,14)]:
+    set_col_width(ws4, col, w)
+ws4.freeze_panes = 'A3'
+
+# ════════════════════════════════════════════════════════════════
+# TAB 5 — ROWER TOTALS  (ranking by total km)
+# ════════════════════════════════════════════════════════════════
+ws5 = wb.create_sheet('Rower Totals')
+title_row(ws5, 'Total kilometres per rower (all sessions)', 4)
+hdr(ws5.cell(2, 1), 'Rank')
+hdr(ws5.cell(2, 2), 'Rower')
+hdr(ws5.cell(2, 3), 'Skill')
+hdr(ws5.cell(2, 4), 'Total km')
+
+ranked = sorted(ROWERS, key=lambda r: rower_total.get(r['id'], 0), reverse=True)
+for r, row in enumerate(ranked, 3):
+    total = rower_total.get(row['id'], 0)
+    ws5.cell(r, 1, r - 2).font = ZERO_FONT
+    ws5.cell(r, 1).alignment = Alignment(horizontal='center')
+    ws5.cell(r, 1).border = border
+    name_cell(ws5.cell(r, 2), row['name'])
+    ws5.cell(r, 3, row['skill']).font = CELL_FONT
+    ws5.cell(r, 3).alignment = Alignment(horizontal='center')
+    ws5.cell(r, 3).border = border
+    val(ws5.cell(r, 4), total, is_total=(total > 0))
+
+for col, w in [(1,8),(2,22),(3,16),(4,14)]:
+    set_col_width(ws5, col, w)
+ws5.freeze_panes = 'A3'
+
+# Colour scale on total km
+if len(ROWERS) > 1:
+    ws5.conditional_formatting.add(
+        f'D3:D{2+len(ROWERS)}',
+        ColorScaleRule(
+            start_type='min', start_color='0D1A27',
+            end_type='max',   end_color='1A9A5A'))
+
+# ════════════════════════════════════════════════════════════════
+# TAB 6 — BOAT UTILISATION  (which boats were used and how often)
+# ════════════════════════════════════════════════════════════════
+ws6 = wb.create_sheet('Boat Utilisation')
+title_row(ws6, 'Boat utilisation across all sessions', 5)
+hdr(ws6.cell(2, 1), 'Boat')
+hdr(ws6.cell(2, 2), 'Capacity')
+hdr(ws6.cell(2, 3), 'Sessions used')
+hdr(ws6.cell(2, 4), 'Total rower-sessions')
+hdr(ws6.cell(2, 5), 'Total km (sum of all rowers)')
+
+boat_use = {}  # boatId → {sessions, rower_sessions, total_km}
+for row in DIST_ROWS:
+    bid = row['b']
+    if bid == -1: continue
+    if bid not in boat_use:
+        boat_use[bid] = {'sessions': set(), 'rower_sessions': 0, 'total_km': 0}
+    boat_use[bid]['sessions'].add(row['a'])
+    boat_use[bid]['rower_sessions'] += 1
+    boat_use[bid]['total_km'] += row['km']
+
+sorted_boats_util = sorted(BOATS,
+    key=lambda b: len(boat_use.get(b['id'], {}).get('sessions', set())),
+    reverse=True)
+
+for r, b in enumerate(sorted_boats_util, 3):
+    bu = boat_use.get(b['id'], {})
+    sessions = len(bu.get('sessions', set()))
+    rs = bu.get('rower_sessions', 0)
+    tkm = bu.get('total_km', 0)
+    name_cell(ws6.cell(r, 1), b['name'])
+    val(ws6.cell(r, 2), b['cap'])
+    val(ws6.cell(r, 3), sessions)
+    val(ws6.cell(r, 4), rs)
+    val(ws6.cell(r, 5), tkm, is_total=(tkm > 0))
+
+for col, w in [(1,18),(2,12),(3,16),(4,22),(5,24)]:
+    set_col_width(ws6, col, w)
+ws6.freeze_panes = 'A3'
+
+# ════════════════════════════════════════════════════════════════
+# TAB 7 — CO-OCCURRENCE  (how often pairs shared a boat)
+# ════════════════════════════════════════════════════════════════
+ws7 = wb.create_sheet('Co-occurrence')
+title_row(ws7, 'Times each pair of rowers shared a boat', len(ROWERS)+1)
+
+# Matrix header row
+hdr(ws7.cell(2, 1), 'Rower \\ Rower')
+for c, row in enumerate(ROWERS, 2):
+    hdr(ws7.cell(2, c), row['name'])
+ws7.row_dimensions[2].height = 90
+
+# Build co-occurrence counts from assignment entries
+from collections import defaultdict
+pair_count = defaultdict(int)
+for a in ASSIGNMENTS:
+    bmap = {}
+    for row in DIST_ROWS:
+        if row['a'] == a['id'] and row['b'] != -1:
+            bmap.setdefault(row['b'], []).append(row['r'])
+    for rid_list in bmap.values():
+        for i in range(len(rid_list)):
+            for j in range(i+1, len(rid_list)):
+                key = (min(rid_list[i], rid_list[j]),
+                       max(rid_list[i], rid_list[j]))
+                pair_count[key] += 1
+
+max_count = max(pair_count.values()) if pair_count else 1
+
+for r, ra in enumerate(ROWERS, 3):
+    name_cell(ws7.cell(r, 1), ra['name'])
+    for c, rb in enumerate(ROWERS, 2):
+        if ra['id'] == rb['id']:
+            cell = ws7.cell(r, c, '—')
+            cell.fill = PatternFill('solid', start_color='0A1520')
+            cell.font = ZERO_FONT
+            cell.alignment = Alignment(horizontal='center')
+            cell.border = border
+        else:
+            key = (min(ra['id'], rb['id']), max(ra['id'], rb['id']))
+            cnt = pair_count.get(key, 0)
+            val(ws7.cell(r, c), cnt if cnt > 0 else 0)
+
+# Colour scale on the matrix body
+if len(ROWERS) > 1:
+    body = (f"B3:{get_column_letter(1+len(ROWERS))}{2+len(ROWERS)}")
+    ws7.conditional_formatting.add(body, ColorScaleRule(
+        start_type='num', start_value=0, start_color='0D1A27',
+        mid_type='percentile', mid_value=60, mid_color='1A5A9A',
+        end_type='max', end_color='9A3A1A'))
+
+set_col_width(ws7, 1, 22)
+for c in range(2, len(ROWERS)+2):
+    set_col_width(ws7, c, 6)
+ws7.freeze_panes = 'B3'
+
+# ════════════════════════════════════════════════════════════════
+# TAB 8 — SKILL × KM  (km earned per skill level)
+# ════════════════════════════════════════════════════════════════
+ws8 = wb.create_sheet('Skill vs km')
+title_row(ws8, 'Total kilometres by skill level', 3)
+hdr(ws8.cell(2, 1), 'Skill Level')
+hdr(ws8.cell(2, 2), 'Rowers')
+hdr(ws8.cell(2, 3), 'Total km')
+
+SKILL_ORDER = ['Novice','Beginner','Developing','Intermediate',
+               'Advanced','Experienced','Master']
+skill_data = {s: {'count':0,'km':0} for s in SKILL_ORDER}
+for row in ROWERS:
+    sk = row.get('skill', 'Unknown')
+    if sk in skill_data:
+        skill_data[sk]['count'] += 1
+        skill_data[sk]['km'] += rower_total.get(row['id'], 0)
+
+for r, sk in enumerate(SKILL_ORDER, 3):
+    d = skill_data[sk]
+    ws8.cell(r, 1, sk).font = CELL_FONT
+    ws8.cell(r, 1).border = border
+    ws8.cell(r, 1).alignment = Alignment(horizontal='left')
+    val(ws8.cell(r, 2), d['count'])
+    val(ws8.cell(r, 3), d['km'], is_total=(d['km']>0))
+
+for col, w in [(1,16),(2,10),(3,14)]:
+    set_col_width(ws8, col, w)
+
+# ════════════════════════════════════════════════════════════════
+# Save
+# ════════════════════════════════════════════════════════════════
+wb.save(OUT_PATH)
+print('OK:' + OUT_PATH)
+)PY";
+
+    QFile pyFile(pyPath);
+    if (!pyFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::critical(this, "Export Error",
+            "Could not write temporary script to: " + pyPath);
+        return;
+    }
+    QTextStream ts(&pyFile);
+    ts << py;
+    pyFile.close();
+
+    // ── Run Python ────────────────────────────────────────────────
+    statusBar()->showMessage("Exporting to Excel…", 0);
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+
+    QProcess proc;
+    proc.start("python3", {pyPath});
+    proc.waitForFinished(60000);
+    QApplication::restoreOverrideCursor();
+
+    QString out = proc.readAllStandardOutput().trimmed();
+    QString err = proc.readAllStandardError().trimmed();
+
+    pyFile.remove();   // clean up temp script
+
+    if (proc.exitCode() == 0 && out.startsWith("OK:")) {
+        statusBar()->showMessage("Excel exported: " + path, 5000);
+        QMessageBox::information(this, "Export complete",
+            QString("Workbook saved:\n%1\n\n"
+                    "Sheets:\n"
+                    "  Rowers         — km per rower per session\n"
+                    "  Boats          — boat + km per rower per session\n"
+                    "  Distance Groups — grouped by boat for easy km entry\n"
+                    "  Session Stats  — summary per session\n"
+                    "  Rower Totals   — ranking by total km\n"
+                    "  Boat Utilisation — how often each boat was used\n"
+                    "  Co-occurrence  — how often each pair rowed together\n"
+                    "  Skill vs km    — km earned per skill level").arg(path));
+    } else {
+        statusBar()->showMessage("Export failed.", 4000);
+        QString msg = "Export failed";
+        if (!err.isEmpty()) msg += ":\n\n" + err.left(800);
+        else if (!out.isEmpty()) msg += ":\n\n" + out.left(800);
+        else msg += ".\n\nMake sure python3 and openpyxl are installed:\n"
+                    "  pip install openpyxl";
+        QMessageBox::critical(this, "Export Error", msg);
     }
 }
